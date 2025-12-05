@@ -1,4 +1,5 @@
 # === SUPPRESS ALL COMMON ANNOYING WARNINGS ===
+import streamlit as st
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")       
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")   
@@ -8375,6 +8376,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
