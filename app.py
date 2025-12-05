@@ -1,14 +1,5 @@
 # === SUPPRESS ALL COMMON ANNOYING WARNINGS ===
 import streamlit as st
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")       
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")   
-warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)  
-warnings.simplefilter(action='ignore', category=FutureWarning)
-# Suppress both warnings cleanly
-warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-
 from IPython.display import Markdown, display
 import pandas as pd
 import numpy as np
@@ -22,6 +13,16 @@ from folium import IFrame
 import os
 import sys
 from IPython.display import Markdown, display
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")       
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")   
+warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)  
+warnings.simplefilter(action='ignore', category=FutureWarning)
+# Suppress both warnings cleanly
+warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+
+
 
 
 merged_df = pd.read_excel(r"C:\Users\SAIL ADMIN\Downloads\Wetland_forest_cleaned.xlsx")
@@ -8376,6 +8377,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
