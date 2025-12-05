@@ -43,7 +43,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 
-merged_df = pd.read_excel(r"C:\Users\SAIL ADMIN\Downloads\Wetland_forest_cleaned.xlsx")
+merged_df = pd.read_excel("Wetland_forest_cleaned updated.xlsx")
 
 
 # Display first few rows
@@ -5044,10 +5044,9 @@ print("Rugezi – Domestic Water Value: ", rugezi_water_total)
 # In[367]:
 
 
-import rasterio
 import numpy as np
 
-raster_path = "C:\invest wetland\Annual_Water_Yield_Rugezi_Output\output\per_pixel\wyield_Rugezi.tif"
+raster_path = "invest wetland\Annual_Water_Yield_Rugezi_Output\wyield_Rugezi.tif"
 
 with rasterio.open(raster_path) as src:
     wy_mm = src.read(1)
@@ -5069,7 +5068,7 @@ print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
 # In[368]:
 
 
-raster_path = "C:\invest wetland\Carbon_Rugezi_Output\c_storage_bas_Rugezi.tif"
+raster_path = "invest wetland\Carbon_Rugezi_Output\c_storage_bas_Rugezi.tif"
 # Load raster
 with rasterio.open(raster_path) as src:
     carbon_tonnes = src.read(1)     # carbon storage (tonnes per pixel)
@@ -5092,7 +5091,7 @@ print(f"RUGEZI CARBON STORAGE = {total_carbon_tonnes:,.0f} tonnes")
 # In[369]:
 
 
-raster_path = "C:\invest wetland\Erosion_sdr_Rugezi_output\sed_export_Rugezi.tif"
+raster_path = "invest wetland\Erosion_sdr_Rugezi_output\sed_export_Rugezi.tif"
 
 
 # Load raster
@@ -5291,7 +5290,7 @@ print("Bugarama – Domestic Water Value:", bugarama_water_total)
 # In[375]:
 
 
-raster_path = "C:\invest wetland\Annual_Water_Yield_Bugrama_Output\output\per_pixel\wyield_Bugarama.tif"
+raster_path = "invest wetland\Annual_Water_Yield_Bugrama_Output\wyield_Bugarama.tif"
 with rasterio.open(raster_path) as src:
     wy_mm = src.read(1)
     pixel_area_m2 = src.res[0] * src.res[1]
@@ -5313,7 +5312,7 @@ print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
 # In[376]:
 
 
-raster_path = "C:\invest wetland\Carbon_Bugrama_Output\c_storage_bas_Bugrama.tif"
+raster_path = "invest wetland\Carbon_Bugrama_Output\c_storage_bas_Bugrama.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5335,7 +5334,7 @@ print(f"BUGARAMA CARBON VALUE = {value_billion:.2f} billion RWF")
 # In[377]:
 
 
-raster_path = "C:\invest wetland\Erosion_sdr_Bugrama_output\sed_export_Bugrama.tif"
+raster_path = "invest wetland\Erosion_sdr_Bugrama_output\sed_export_Bugrama.tif"
 
 # Step 2: Load raster
 with rasterio.open(raster_path) as src:
@@ -5579,7 +5578,7 @@ print("="*70)
 # In[381]:
 
 
-raster_path = "C:\invest wetland\Annual_Water_Yield_NYABARONGO_Output\output\per_pixel\wyield_NYABARONGO.tif"
+raster_path = "invest wetland\Annual_Water_Yield_NYABARONGO_Output\wyield_NYABARONGO.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5606,7 +5605,7 @@ print(f"Water Regulation Value = {total_value_billion:.2f} billion RWF/year")
 # In[382]:
 
 
-raster_path = "C:\invest wetland\Carbon_NYABARONGO_Output\c_storage_bas_NYABARONGO.tif"
+raster_path = "invest wetland\Carbon_NYABARONGO_Output\c_storage_bas_NYABARONGO.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5626,7 +5625,7 @@ print(f"Carbon Storage Value = {total_value_billion:.2f} billion RWF")
 # In[383]:
 
 
-raster_path = "C:\invest wetland\Erosion_sdr_NYABARONGO_output\sed_export_NYABARONGO.tif"
+raster_path = "invest wetland\Erosion_sdr_NYABARONGO_output\sed_export_NYABARONGO.tif"
 
 with rasterio.open(raster_path) as src:
     erosion_arr = src.read(1)        # soil loss per pixel
@@ -5847,7 +5846,7 @@ print("Muvumba – Livestock Water Value:", muvumba_livestock_value)
 # In[388]:
 
 
-raster_path = "C:\invest wetland\Annual_Water_Yield_Muvumba_Output\output\per_pixel\wyield_Muvumba.tif"
+raster_path = "invest wetland\Annual_Water_Yield_Muvumba_Output\wyield_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     water_yield_arr = src.read(1)  # water yield per pixel (m³/year)
@@ -5871,7 +5870,7 @@ print(f"Water Regulation Value (Muvumba Wetland) = {water_regulation_value_RWF/1
 # In[389]:
 
 
-raster_path = "C:\invest wetland\Carbon_Muvumba_Output\c_storage_bas_Muvumba.tif"
+raster_path = "invest wetland\Carbon_Muvumba_Output\c_storage_bas_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_arr = src.read(1)       # carbon value per pixel (tonnes)
@@ -5899,7 +5898,7 @@ print(f"Annual Carbon Benefit (2% of stock) = {annual_carbon_benefit_RWF/1e9:.2f
 # In[390]:
 
 
-raster_path = "C:\invest wetland\Erosion_sdr_Muvumba_output\sed_export_Muvumba.tif"
+raster_path = "invest wetland\Erosion_sdr_Muvumba_output\sed_export_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     sdr_arr = src.read(1)          # sediment export per pixel (tonnes/year)
@@ -6658,7 +6657,7 @@ df_ArboretumForest= forest_df[forest_df["eco_case_study_no"] == 10].copy()
 # In[405]:
 
 
-raster_path = r"C:\forest invest\MountKigali_WaterYield_Output\output\per_pixel\wyield_kigali.tif"
+raster_path = "forest invest\MountKigali_WaterYield_Output\wyield_kigali.tif"
 
 # The file you just uploaded
 with rasterio.open(raster_path) as src:
@@ -6685,7 +6684,7 @@ print(f"Total Annual Water Yield (MOUNT KIGALI) = {volume_m3:,.0f} m³/year")
 # In[406]:
 
 
-raster_path = r"C:\forest invest\MountKigali_carbon_sequestration\c_storage_bas_kigali.tif"
+raster_path = "forest invest\MountKigali_carbon_sequestration\c_storage_bas_kigali.tif"
 
 # 3. Calculate total carbon and economic value
 with rasterio.open(raster_path) as src:
@@ -6716,7 +6715,7 @@ print("═" * 70)
 # In[407]:
 
 
-raster_path = r"C:\forest invest\MountKigali_SDR_Output\sed_deposition_kigali.tif"
+raster_path = "forest invest\MountKigali_SDR_Output\sed_deposition_kigali.tif"
 
 with rasterio.open(raster_path) as src:
     data = src.read(1).astype(np.float64)      # important: float64 to avoid overflow
@@ -6872,7 +6871,7 @@ print("="*90)
 # In[409]:
 
 
-raster_path = r"C:\forest invest\VolcanoesNP_WaterYield_Output\output\per_pixel\wyield_vnp.tif"
+raster_path = "forest invest\VolcanoesNP_WaterYield_Output\wyield_vnp.tif"
 
 with rasterio.open(raster_path) as src:
     wy = src.read(1)
@@ -6896,7 +6895,7 @@ print(f"Total Annual Water Yield (Volcanoes National Park) = {volume_m3:,.0f} m�
 # In[410]:
 
 
-raster_path = r"C:\forest invest/VolcanoesNP_Carbon_Output/c_storage_bas_vnp.tif"
+raster_path = "forest invest/VolcanoesNP_Carbon_Output/c_storage_bas_vnp.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_mg_ha = src.read(1)
@@ -6922,7 +6921,7 @@ print("═" * 80)
 # In[411]:
 
 
-raster_path = r"C:/forest invest/VolcanoesNP_SDR_Output/sed_export_vnp.tif"
+raster_path = "forest invest/VolcanoesNP_SDR_Output/sed_export_vnp.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -7193,7 +7192,7 @@ print("="*90)
 # In[415]:
 
 
-raster_path = r"C:\forest invest/Nyungwe_WaterYield_Output/output/per_pixel/wyield_nyungwe.tif"
+raster_path = "forest invest/Nyungwe_WaterYield_Output/wyield_nyungwe.tif"
 
 with rasterio.open(raster_path) as src:
     wy = src.read(1)
@@ -7222,7 +7221,7 @@ print(f"Total Annual Water Yield (Nyungwe forest) = {volume_m3:,.0f} m³/year")
 # In[416]:
 
 
-raster_path = r"C:/forest invest/Nyungwe_Carbon_Output/c_storage_bas_nyungwe.tif"
+raster_path = "forest invest/Nyungwe_Carbon_Output/c_storage_bas_nyungwe.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_mg_ha = src.read(1)
@@ -7254,7 +7253,7 @@ print("═" * 80)
 # In[417]:
 
 
-raster_path = r"C:/forest invest/Nyungwe_SDR_Output/sed_export_nyungwe.tif"
+raster_path = "forest invest/Nyungwe_SDR_Output/sed_export_nyungwe.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -7550,7 +7549,7 @@ print(f"Grand total medicaments (all parks): {medic_by_park['sum'].sum():,.0f} R
 # In[423]:
 
 
-raster_path = r"C:/forest invest/Gishwati_WaterYield_Output/output/per_pixel/wyield_gishwati.tif"
+raster_path = "forest invest/Gishwati_WaterYield_Output/wyield_gishwati.tif"
 
 with rasterio.open(raster_path) as src:
     wy = src.read(1)
@@ -7578,7 +7577,7 @@ print(f"Total Annual Water Yield (Gishwati Forest) = {volume_m3:,.0f} m³/year")
 # In[424]:
 
 
-raster_path = r"C:/forest invest/Gishwati_Carbon_Output/c_storage_bas_gishwati.tif"
+raster_path = "forest invest/Gishwati_Carbon_Output/c_storage_bas_gishwati.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_mg_ha = src.read(1)
@@ -7604,7 +7603,7 @@ print("═" * 80)
 # In[425]:
 
 
-raster_path = r"C:/forest invest/Gishwati_SDR_Output/sed_export_gishwati.tif"
+raster_path = "forest invest/Gishwati_SDR_Output/sed_export_gishwati.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -7762,7 +7761,7 @@ print("="*90)
 # In[428]:
 
 
-raster_path = r"C:/forest invest/Arboretum_WaterYield_Output/output/per_pixel/wyield_arboretum.tif"
+raster_path = "forest invest/Arboretum_WaterYield_Output/wyield_arboretum.tif"
 
 with rasterio.open(raster_path) as src:
     wy = src.read(1)
@@ -7782,7 +7781,7 @@ print(f"Total Annual Water Yield (Arboretum Forest) = {volume_m3:,.0f} m³/year"
 # In[429]:
 
 
-raster_path = r"C:/forest invest/Arboretum_Carbon_Output/c_storage_bas_arboretum.tif"
+raster_path = "forest invest/Arboretum_Carbon_Output/c_storage_bas_arboretum.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_mg_ha = src.read(1)
@@ -7808,7 +7807,7 @@ print("═" * 80)
 # In[430]:
 
 
-raster_path = r"C:/forest invest/Arboretum_SDR_Output/sed_export_arboretum.tif"
+raster_path = "forest invest/Arboretum_SDR_Output/sed_export_arboretum.tif"
 
 with rasterio.open(raster_path) as src:
     data = src.read(1).astype(np.float64)
@@ -7918,7 +7917,7 @@ print("="*90)
 
 df_AkageraNational = forest_df[forest_df["eco_case_study_no"] == 3].copy()
 n_hh = len(df_AkageraNational)
-raster_path = r"C:/forest invest/AnnualWaterYield_Akagera_Output/output/per_pixel/wyield_Akagera.tif"
+raster_path = "forest invest/AnnualWaterYield_Akagera_Output/wyield_Akagera.tif"
 
 with rasterio.open(raster_path) as src:
     wy = src.read(1)
@@ -7938,7 +7937,7 @@ print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
 # In[433]:
 
 
-raster_path = r"C:/forest invest/Akagera_Carbon_Output/c_storage_bas_Akagera.tif"
+raster_path = "forest invest/Akagera_Carbon_Output/c_storage_bas_Akagera.tif"
 
 with rasterio.open(raster_path) as src:
     carbon = src.read(1)
@@ -7962,7 +7961,7 @@ print(f"RUGEZI CARBON STORAGE = {total_carbon_tonnes:,.0f} tonnes")
 # In[434]:
 
 
-raster_path = r"C:/forest invest/Akagera_SDR_Output/avoided_erosion_Akagera.tif"
+raster_path = "forest invest/Akagera_SDR_Output/avoided_erosion_Akagera.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -8395,6 +8394,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
