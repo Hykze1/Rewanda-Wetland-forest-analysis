@@ -1,26 +1,44 @@
-# === SUPPRESS ALL COMMON ANNOYING WARNINGS ===
-import streamlit as st
-from IPython.display import Markdown, display
+# ================================
+
+# Clean Imports & Warning Suppression
+
+# ================================
+
+# 1️⃣ Standard libraries
+
+import warnings
+import os
+import sys
+
+# 2️⃣ Third-party libraries
+
 import pandas as pd
 import numpy as np
-import rasterio
-from rasterio.plot import show
-from rasterio.mask import mask
 import matplotlib.pyplot as plt
 import seaborn as sns
 import folium
 from folium import IFrame
-import os
-import sys
+import rasterio
+from rasterio.plot import show
+from rasterio.mask import mask
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import streamlit as st
 from IPython.display import Markdown, display
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")       
-warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")   
-warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)  
+
+# ================================
+
+# Suppress common annoying warnings
+
+# ================================
+
+warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")
+warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
 warnings.simplefilter(action='ignore', category=FutureWarning)
-# Suppress both warnings cleanly
 warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
+
 
 
 
@@ -8377,6 +8395,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
