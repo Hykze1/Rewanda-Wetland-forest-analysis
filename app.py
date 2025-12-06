@@ -736,7 +736,7 @@ tradeoff_summary = tradeoff_df.groupby(['eco_wetland_name', 'Trade-off Type']).m
 tradeoff_summary['sort_val'] = tradeoff_summary.groupby('eco_wetland_name')['Reported'].transform('sum')
 tradeoff_summary = tradeoff_summary.sort_values('sort_val', ascending=False)
 
-Plot
+#Plot
 
 fig, ax = plt.subplots(figsize=(12,6))
 sns.barplot(
@@ -7793,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
