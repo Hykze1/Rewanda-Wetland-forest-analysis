@@ -11,4 +11,8 @@ openpyxl
 scipy
 statsmodels
 tabulate
+streamlit-folium
+
+
+
 
