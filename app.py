@@ -23,7 +23,6 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import streamlit as st
 from IPython.display import Markdown, display
-from PIL import Image
 
 # ================================
 
@@ -7806,6 +7805,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
