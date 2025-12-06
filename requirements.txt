@@ -12,6 +12,8 @@ scipy
 statsmodels
 tabulate
 streamlit-folium
+pillow==10.0.0
+
 
 
 
