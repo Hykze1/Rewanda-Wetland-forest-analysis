@@ -520,7 +520,7 @@ st.plotly_chart(fig5, use_container_width=True)
 
 
 
-st.marksown('''
+st.markdown('''
 ## 🚜 Farming Activities Around Wetlands
 
 Stacked bar chart of household farming near four wetlands:
@@ -7793,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
