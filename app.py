@@ -1,8 +1,4 @@
-# ================================
 
-# Clean Imports & Warning Suppression
-
-# ================================
 
 # 1️⃣ Standard libraries
 
@@ -720,7 +716,7 @@ st.markdown("""
 Bar chart showing negative trade-offs (crop, beer/sorghum, other practices) reported per wetland.
 """)
 
-Compute trade-offs as in your original code
+# Compute trade-offs as in your original code
 
 tradeoff_cols = [
 'tradeoffs_crop_neg_effect_wetland_check',
@@ -7797,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
