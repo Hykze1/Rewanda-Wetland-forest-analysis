@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import folium
+from streamlit_folium import st_folium
 from folium import IFrame
 import rasterio
 from rasterio.plot import show
@@ -6137,15 +6138,9 @@ fig.show()
 fig.write_html("Rwanda_Wetlands_Including_Akagera_Comparison.html")
 print("Chart with Akagera included → saved as 'Rwanda_Wetlands_Including_Akagera_Comparison.html'")
 
-
-# In[394]:
-
-
-
-
 # Rwanda map
 m = folium.Map(location=[-1.9403, 29.8739], zoom_start=8, tiles="OpenStreetMap")
-
+st_folium(m, width=800, height=600)
 # === UPDATED: All 5 wetlands with accurate coordinates ===
 wetlands = {
     "Rugezi":     {"coords": [-1.4894, 29.8919],   "name": "Rugezi Marsh"},
@@ -6250,10 +6245,14 @@ title_html = '''
 '''
 m.get_root().html.add_child(folium.Element(title_html))
 
-# Save & display
+# Save HTML copy
 m.save("Rwanda_Wetlands_Including_Akagera_2025.html")
 print("Map updated with Akagera! → Rwanda_Wetlands_Including_Akagera_2025.html")
-m
+
+# === THIS IS THE CORRECT STREAMLIT DISPLAY ===
+from streamlit_folium import st_folium
+st_folium(m, width=900, height=650)
+
 
 
 # ##1.	Total Economic Value Breakdown (RWF):
@@ -8393,6 +8392,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
