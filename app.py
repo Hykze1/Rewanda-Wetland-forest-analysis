@@ -1339,7 +1339,7 @@ with tabs[4]:
     st.pyplot(fig)
 
 
-    st.markdown(''''
+    st.markdown('''
     ## 🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)
     
     Horizontal bars (descending):
@@ -1356,9 +1356,7 @@ with tabs[4]:
 
 with tab[5]:
     st.header("Biodiversity & Ecosystem Support Value per Forest (Composite Index)")
-    
-    # In[310]:
-    
+
     # Select columns for biodiversity & ecosystem support
     biodiv_cols = [
         'b_forest_habitat_animal',
@@ -1381,7 +1379,12 @@ with tab[5]:
     forest_biodiv_df['biodiv_index'] = forest_biodiv_df[biodiv_cols].mean(axis=1)
     
     # Aggregate per forest
-    biodiv_summary = forest_biodiv_df.groupby('eco_forest_name')['biodiv_index'].mean().sort_values(ascending=False).reset_index()
+    biodiv_summary = (
+        forest_biodiv_df.groupby('eco_forest_name')['biodiv_index']
+        .mean()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
     
     # Plot
     plt.figure(figsize=(14,8))
@@ -1403,22 +1406,25 @@ with tab[5]:
     plt.ylabel('Forest Name', fontsize=14)
     plt.xlim(0, biodiv_summary['biodiv_index'].max() * 1.15)
     plt.tight_layout()
-    st.pyplot()
+    
+    # Render the plot in Streamlit
+    st.pyplot(plt.gcf())
 
-st.markdown('''
-## 🏞️ Biodiversity & Ecosystem Support Index (0–0.35)
 
-Horizontal bars (descending):
-
-- **Nyungwe NP**: **0.32**  
-- **Arboretum**: **0.31**  
-- **Mount Kigali**: **0.27**  
-- **Gishwati**: **0.27**  
-- **Volcanoes NP**: **0.25**  
-- **Akagera NP**: **0.21**  
-
-**Key Insight:** **Nyungwe & Arboretum lead** in perceived ecosystem support. **Akagera lowest**. **Prioritize conservation & eco-branding in top sites** (Nyungwe, Arboretum).
-''')
+    st.markdown('''
+    ## 🏞️ Biodiversity & Ecosystem Support Index (0–0.35)
+    
+    Horizontal bars (descending):
+    
+    - **Nyungwe NP**: **0.32**  
+    - **Arboretum**: **0.31**  
+    - **Mount Kigali**: **0.27**  
+    - **Gishwati**: **0.27**  
+    - **Volcanoes NP**: **0.25**  
+    - **Akagera NP**: **0.21**  
+    
+    **Key Insight:** **Nyungwe & Arboretum lead** in perceived ecosystem support. **Akagera lowest**. **Prioritize conservation & eco-branding in top sites** (Nyungwe, Arboretum).
+    ''')
 
 with tab[6]:
     st.header("Forest Cultural & Recreational Benefits by Forest")
@@ -1444,56 +1450,52 @@ with tab[6]:
     avg_benefits_melted = avg_benefits_melted.sort_values('Total', ascending=False)
     
     # Plot
-    plt.figure(figsize=(16,9))
+    fig, ax = plt.subplots(figsize=(16,9))
     sns.set_style("whitegrid")
     barplot = sns.barplot(
         data=avg_benefits_melted,
         y='eco_forest_name',
         x='Average Score',
         hue='Benefit Type',
-        palette=['#FF6F61', '#6B5B95']  # Vibrant contrasting colors
+        palette=['#FF6F61', '#6B5B95'],
+        ax=ax
     )
     
     # Add value labels
-    for i, row in avg_benefits_melted.iterrows():
-        barplot.text(row['Average Score'] + 0.02,
-                     i % len(avg_benefits['eco_forest_name']),
-                     f"{row['Average Score']:.2f}",
-                     color='black',
-                     va='center',
-                     fontweight='bold')
+    for p in barplot.patches:
+        width = p.get_width()
+        ax.text(width + 0.02, p.get_y() + p.get_height()/2,
+                f"{width:.2f}", ha='left', va='center', fontweight='bold')
     
-    plt.title('Forest Cultural & Recreational Benefits by Forest', fontsize=20, fontweight='bold')
-    plt.xlabel('Average Perceived Benefit Score', fontsize=14)
-    plt.ylabel('Forest Name', fontsize=14)
-    plt.legend(title='Benefit Type', fontsize=12)
-    plt.xlim(0, avg_benefits_melted['Average Score'].max() * 1.15)
-    plt.tight_layout()
-    st.pyplot()
+    ax.set_title('Forest Cultural & Recreational Benefits by Forest', fontsize=20, fontweight='bold')
+    ax.set_xlabel('Average Perceived Benefit Score', fontsize=14)
+    ax.set_ylabel('Forest Name', fontsize=14)
+    ax.legend(title='Benefit Type', fontsize=12)
+    ax.set_xlim(0, avg_benefits_melted['Average Score'].max() * 1.15)
+    
+    st.pyplot(fig)
 
 
-# ## 🌲 Cultural & Recreational Benefits (Avg. Score 0–0.3)
-# 
-# Stacked bars (Cultural red, Recreation purple):
-# 
-# - **Akagera NP**: **0.29** – all **Recreation**
-# - **Mount Kigali**: **0.28** – **0.13 Cultural**, **0.15 Recreation**
-# - **Nyungwe NP**: **0.28** – **0.01 Cultural**, **0.27 Recreation**
-# - **Gishwati**: **0.21** – **0.01 Cultural**, **0.20 Recreation**
-# - **Arboretum**: **0.15** – all **Recreation**
-# - **Volcanoes NP**: **0.12** – all **Recreation**
-# 
-# **Key Insight:** **Recreation dominates** everywhere. **Akagera, Nyungwe, Mt Kigali** lead. **Cultural value tiny** but present in **Nyungwe & Mt Kigali**. **Prioritize eco-tourism there**.
-
-# #Consequences of Forest Absence per Forest
+    st.markdown('''
+    ## 🌲 Cultural & Recreational Benefits (Avg. Score 0–0.3)
+    
+    Stacked bars (Cultural red, Recreation purple):
+    
+    - **Akagera NP**: **0.29** – all **Recreation**
+    - **Mount Kigali**: **0.28** – **0.13 Cultural**, **0.15 Recreation**
+    - **Nyungwe NP**: **0.28** – **0.01 Cultural**, **0.27 Recreation**
+    - **Gishwati**: **0.21** – **0.01 Cultural**, **0.20 Recreation**
+    - **Arboretum**: **0.15** – all **Recreation**
+    - **Volcanoes NP**: **0.12** – all **Recreation**
+    
+    **Key Insight:** **Recreation dominates** everywhere. **Akagera, Nyungwe, Mt Kigali** lead. **Cultural value tiny** but present in **Nyungwe & Mt Kigali**. **Prioritize eco-tourism there**.
+    ''')
+    
+st.header("#Consequences of Forest Absence per Forest")
 # 
 
 # In[312]:
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Filter for forests and ensure numeric values
 conseq_cols = [
@@ -1547,7 +1549,7 @@ plt.xlabel('Average Impact Score', fontsize=14)
 plt.ylabel('Forest Name', fontsize=14)
 plt.legend(title='Consequence', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.tight_layout()
-plt.show()
+st.pyplot(plt.gcf())
 
 
 # ## 🌳 Perceived Consequences of Forest Absence (Avg. Score 0–0.8)
@@ -7806,6 +7808,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
