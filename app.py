@@ -23,6 +23,7 @@ import rasterio
 from rasterio.plot import show
 from rasterio.mask import mask
 import plotly.graph_objects as go
+import plotly.express as px
 from plotly.subplots import make_subplots
 import streamlit as st
 from IPython.display import Markdown, display
@@ -47,18 +48,16 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 merged_df = pd.read_excel("Wetland_forest_cleaned updated.xlsx")
 
 
-# Display first few rows
-merged_df.head()
+st.write("Preview of the dataset:")
+st.dataframe(merged_df.head())
 
 
 
-display(Markdown(''' ##**3(a) WETLAND AVEARAGE ANALYSIS TABLE** '''))
+st.markdown("## **3(a) WETLAND AVEARAGE ANALYSIS TABLE**")
 
-
-# Filter wetland data
+# === Filter wetland data ===
 wetland_df = merged_df[merged_df['eco_case_study_no'].isin([6, 7, 8, 9])]
 
-# List of numeric columns you care about
 numeric_columns = [
     'wetland_benefit_income_check',
     'wetland_conf_benefit_income_check',
@@ -99,528 +98,372 @@ numeric_columns = [
     'crop_market_price'
 ]
 
-# Convert columns to numeric
+# Convert to numeric
 for col in numeric_columns:
     wetland_df[col] = pd.to_numeric(wetland_df[col], errors='coerce')
 
 # Group by wetland name
 wetland_summary = wetland_df.groupby('eco_wetland_name')[numeric_columns].mean()
-
-# Keep only columns that have at least one non-null value
-wetland_summary = wetland_summary.loc[:, wetland_summary.notna().any()]
-
-# Reset index
+wetland_summary = wetland_summary.loc[:, wetland_summary.notna().any()]  # Drop all-null cols
 wetland_summary = wetland_summary.reset_index()
 
 # Add eco_type column
 wetland_summary['eco_type'] = 'Wetland'
-
-# Move eco_type as second column
 cols = wetland_summary.columns.tolist()
 cols.insert(1, cols.pop(cols.index('eco_type')))
 wetland_summary = wetland_summary[cols]
 
-# Compute Grand Total row (only for numeric columns)
+# Compute GRAND TOTAL row
 grand_total = wetland_summary.select_dtypes(include=['float', 'int']).mean().to_frame().T
 grand_total['eco_wetland_name'] = 'GRAND TOTAL'
 grand_total['eco_type'] = 'Wetland'
-
-# Reorder columns
 grand_total = grand_total[cols]
 
 # Append Grand Total
 wetland_summary = pd.concat([wetland_summary, grand_total], ignore_index=True)
 
-wetland_summary
+# === Display in Streamlit ===
+st.dataframe(wetland_summary)
 
+# === 3(b) WETLAND VISUALIZATION ===
+st.markdown("## **3(b) WETLAND VISUALIZATION**")
 
-# ##**3(b) WETLAND VISUALIZATION**
-
-# In[281]:
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Copy your summary
 df_plot = wetland_summary.copy()
-
-# Identify numeric columns
 num_cols = df_plot.select_dtypes(include=['float', 'int']).columns.tolist()
-
-# Remove GRAND TOTAL from visualization
 df_plot = df_plot[df_plot['eco_wetland_name'] != "GRAND TOTAL"]
-
-# Sort wetlands alphabetically (optional but helps visuals)
 df_sorted = df_plot.sort_values("eco_wetland_name")
 
-# Loop through each numeric column
+# Loop through numeric columns and plot
 for col in num_cols:
     plt.figure(figsize=(10, 6))
-
-    # Your seaborn barplot
     sns.barplot(
         x='eco_wetland_name',
         y=col,
         data=df_sorted,
         palette='viridis'
     )
-
     plt.xticks(rotation=45, ha='right')
     plt.title(f"{col} by Wetland")
     plt.xlabel("Wetland")
     plt.ylabel(col)
     plt.tight_layout()
-    plt.show()
+    
+    # Display with Streamlit
+    st.pyplot(plt.gcf())
+    plt.clf() 
 
 
-# # **📈 Economic Valuation of Four Rwandan Wetlands:**
-# 
-# The analysis compares four major wetlands (**Bugarama, Muvumba, Nyabarongo, and Rugezi**) based on various ecosystem service values. The Grand Total represents the overall average across all sites. Updates reflect Rugezi's Ramsar protection status, prohibiting cultivation within the wetland.[1][2]
-# 
-# ***
-# 
-# ## **1. 💰 Direct Income & Perceived Dependence**
-# 
-# This section compares the confidence in income derived from the wetland and the actual income reported.
-# 
-# | Wetland | Confidence in Income Benefits | Annual Income from Wetlands (RWF) | Expected Income Reduction (Loss of Wetland) |
-# | :--- | :--- | :--- | :--- |
-# | **Bugarama** | **Highest (0.796)** | RWF 195,874 | **Highest (0.575)** |
-# | **Muvumba** | Moderate (0.417) | **RWF 584,769** | Moderate (0.241) |
-# | **Nyabarongo** | Moderate (0.396) | RWF 194,562 | Moderate (0.232) |
-# | **Rugezi** | **Lowest (0.047)** | RWF 150,320 | **Lowest (0.063)** |
-# | **GRAND TOTAL** | 0.414 | RWF 281,381 | 0.278 |
-# 
-# ### Key Insights:
-# * **Muvumba** generates the **highest average annual income** from wetland activities, exceeding the Grand Total average by over 100%.
-# * **Bugarama** reports the **highest confidence** in income benefits, indicating strong household reliance, and also expects the most severe income loss if the wetland is absent.
-# 
-# ***
-# 
-# ## **2. 💧 Water-Related Economic Benefits**
-# 
-# The valuation of water is based on alternative costs (WTP) or incurred costs (e.g., fetching, buying).
-# 
-# | Wetland | Annual Domestic Water Value (RWF) | Annual Livestock Water Value (RWF) | Annual Irrigation Water Value (RWF) |
-# | :--- | :--- | :--- | :--- |
-# | **Bugarama** | RWF 28,047 | RWF 2,859 | RWF 126,473 |
-# | **Muvumba** | N/A | RWF 35,251 | RWF -56,014 (Anomaly) |
-# | **Nyabarongo** | RWF 0 | RWF 356 | N/A |
-# | **Rugezi** | **RWF 99,873** | **RWF 72,499** | **RWF 371,388** |
-# | **GRAND TOTAL** | RWF 42,640 | RWF 27,741 | RWF 147,282 |
-# 
-# ### Key Insights:
-# * **Rugezi** demonstrates overwhelmingly the **highest total water-related benefits**, significantly exceeding the Grand Total in all three categories, supporting irrigation around the wetland using its water resources despite no internal cultivation.[1]
-# * **Nyabarongo** shows minimal to no monetized water benefit, indicating potential data gaps or reliance on non-monetary water sources.
-# 
-# ***
-# 
-# ## **3. 🌾 Agricultural Production & Crop Value**
-# 
-# | Wetland | Total Annual Crop Value (RWF) | Max Crop Value per Hectare (RWF/ha) |
-# | :--- | :--- | :--- |
-# | **Bugarama** | RWF -119,660 (Anomaly) | RWF 2,734,138 |
-# | **Muvumba** | **RWF 4,090,406** | RWF 3,988,161 |
-# | **Nyabarongo** | N/A | N/A |
-# | **Rugezi** | RWF 79,719 (around wetland) | **RWF 6,727,012** (around wetland) |
-# | **GRAND TOTAL** | RWF 1,350,155 | RWF 4,483,104 |
-# 
-# ### Key Insights:
-# * **Muvumba** reports the **highest total crop value** on a yearly basis, with agriculture practiced within the wetland unlike protected Rugezi.[2]
-# * **Rugezi** shows the highest **per-hectare productivity around the wetland**, enabled by irrigation technology using water from the protected Ramsar site where no cultivation is allowed inside; this contrasts with other wetlands permitting internal agriculture.[2][1]
-# * **Bugarama** has significant negative values in total crop value, which are likely **calculation anomalies** and require further review.
-# 
-# ***
-# 
-# ## **4. 🎣 Fisheries, Mats, and Conservation (WTP)**
-# 
-# | Wetland | Reported Fisheries/Product Value (RWF) | Willingness to Pay (WTP) for Conservation (RWF/year) |
-# | :--- | :--- | :--- |
-# | **Bugarama** | **RWF $3.7 \times 10^8$** (Likely aggregated) | **RWF 6,071** |
-# | **Muvumba** | N/A | RWF 3,700 |
-# | **Rugezi** | RWF 7,733 | RWF 1,237 |
-# | **Nyabarongo** | N/A | RWF 575 |
-# | **GRAND TOTAL** | RWF $1.86 \times 10^8$ | RWF 3,670 |
-# 
-# ### Key Insights:
-# * The high fisheries value reported in **Bugarama** is a **major outlier**, indicating a significant, likely aggregated or commercial fishing operation compared to the modest values in Rugezi.
-# * **Bugarama** households show the **highest WTP** for conservation, which correlates with their high confidence in income benefits, suggesting they highly value the wetland's continued existence.
-# 
-# ***
-# 
-# ## **5. 🌍 Overall Interpretation**
-# 
-# * **Muvumba:** The highest site for **total annual household income** and **total crop value**, marking it as the site with the greatest economic dependence through direct-use production.
-# * **Rugezi:** The champion for **water provision** enabling boosted agricultural productivity around the wetland via irrigation, despite no internal farming due to Ramsar protection and lowest direct income confidence.[1][2]
-# * **Bugarama:** Characterized by **high commercial/aggregated value** (fisheries), **high confidence in benefits**, and the **highest WTP**, indicating a strong, highly valued economic link for its community.
-# * **Nyabarongo:** Shows **limited monetized activity** across most categories, which likely reflects data collection or reporting gaps, or that economic activity is less direct/less formal compared to the other sites.
-# 
-# [1] (https://ewt.org/fs-oct-2020-for-peats-sake-finding-fodder-in-rwandas-rugezi-marsh/)
-# 
-# [2] (https://ijisrt.com/assets/upload/files/IJISRT22SEP1009_(1).pdf)
-# 
-# [3] (https://www.theigc.org/sites/default/files/2018/08/Rwanda-38313.pdf)
-# 
-# [4] (https://rsis.ramsar.org/RISapp/files/RISrep/RW1589RIS_1607_en.pdf)
-# 
-# [5] (https://www.ijisrt.com/assets/upload/files/IJISRT22SEP1009_(1).pdf)
-# 
-# [6] (https://www.minagri.gov.rw/fileadmin/user_upload/Minagri/Publications/Policies_and_strategies/
-# Rwanda_Irrigation_Master_Plan.pdf)
-# 
-# [7] (https://www.conservationleadershipprogramme.org/project/rugezi-wetland-conservation-rwanda/)
-# 
-# [8] (https://infonile.org/en/2019/03/rwanda-government-eviction-of-developers-from-wetlands-pays-off-but-more-left-to-do/)
-# 
-# [9] (https://faolex.fao.org/docs/pdf/rwa174262.pdf)
-# 
-# [10] (https://ewt.org/rugezi-marsh-conservation/)
+st.markdown('''
+# **📈 Economic Valuation of Four Rwandan Wetlands:**
 
-# #Average Respondent Age per Wetland
+The analysis compares four major wetlands (**Bugarama, Muvumba, Nyabarongo, and Rugezi**) based on various ecosystem service values. The Grand Total represents the overall average across all sites. Updates reflect Rugezi's Ramsar protection status, prohibiting cultivation within the wetland.[1][2]
 
-# In[282]:
+***
 
+## **1. 💰 Direct Income & Perceived Dependence**
 
-# Aggregate average age per wetland
-wetland_df  = merged_df.groupby("eco_wetland_name")["resp_age"].mean().sort_values(ascending=False)
-wetland_df
+This section compares the confidence in income derived from the wetland and the actual income reported.
 
+| Wetland | Confidence in Income Benefits | Annual Income from Wetlands (RWF) | Expected Income Reduction (Loss of Wetland) |
+| :--- | :--- | :--- | :--- |
+| **Bugarama** | **Highest (0.796)** | RWF 195,874 | **Highest (0.575)** |
+| **Muvumba** | Moderate (0.417) | **RWF 584,769** | Moderate (0.241) |
+| **Nyabarongo** | Moderate (0.396) | RWF 194,562 | Moderate (0.232) |
+| **Rugezi** | **Lowest (0.047)** | RWF 150,320 | **Lowest (0.063)** |
+| **GRAND TOTAL** | 0.414 | RWF 281,381 | 0.278 |
 
-# In[283]:
+### Key Insights:
+* **Muvumba** generates the **highest average annual income** from wetland activities, exceeding the Grand Total average by over 100%.
+* **Bugarama** reports the **highest confidence** in income benefits, indicating strong household reliance, and also expects the most severe income loss if the wetland is absent.
 
+***
 
+## **2. 💧 Water-Related Economic Benefits**
 
+The valuation of water is based on alternative costs (WTP) or incurred costs (e.g., fetching, buying).
 
-# Aggregate average age per wetland
-wetland_df  = merged_df.groupby("eco_wetland_name")["resp_age"].mean().sort_values(ascending=False)
+| Wetland | Annual Domestic Water Value (RWF) | Annual Livestock Water Value (RWF) | Annual Irrigation Water Value (RWF) |
+| :--- | :--- | :--- | :--- |
+| **Bugarama** | RWF 28,047 | RWF 2,859 | RWF 126,473 |
+| **Muvumba** | N/A | RWF 35,251 | RWF -56,014 (Anomaly) |
+| **Nyabarongo** | RWF 0 | RWF 356 | N/A |
+| **Rugezi** | **RWF 99,873** | **RWF 72,499** | **RWF 371,388** |
+| **GRAND TOTAL** | RWF 42,640 | RWF 27,741 | RWF 147,282 |
 
-# Pie chart
-plt.figure(figsize=(12,12))
-colors = plt.get_cmap('tab20').colors  # Use a vibrant colormap
-explode = [0.1 if i == 0 else 0 for i in range(len(wetland_df ))]  # Emphasize the top wetland
+### Key Insights:
+* **Rugezi** demonstrates overwhelmingly the **highest total water-related benefits**, significantly exceeding the Grand Total in all three categories, supporting irrigation around the wetland using its water resources despite no internal cultivation.[1]
+* **Nyabarongo** shows minimal to no monetized water benefit, indicating potential data gaps or reliance on non-monetary water sources.
 
-plt.pie(
-    wetland_df ,
-    labels=wetland_df .index,
-    autopct="%1.1f%%",
-    startangle=140,
-    shadow=True,
-    explode=explode,
-    colors=colors
+***
+
+## **3. 🌾 Agricultural Production & Crop Value**
+
+| Wetland | Total Annual Crop Value (RWF) | Max Crop Value per Hectare (RWF/ha) |
+| :--- | :--- | :--- |
+| **Bugarama** | RWF -119,660 (Anomaly) | RWF 2,734,138 |
+| **Muvumba** | **RWF 4,090,406** | RWF 3,988,161 |
+| **Nyabarongo** | N/A | N/A |
+| **Rugezi** | RWF 79,719 (around wetland) | **RWF 6,727,012** (around wetland) |
+| **GRAND TOTAL** | RWF 1,350,155 | RWF 4,483,104 |
+
+### Key Insights:
+* **Muvumba** reports the **highest total crop value** on a yearly basis, with agriculture practiced within the wetland unlike protected Rugezi.[2]
+* **Rugezi** shows the highest **per-hectare productivity around the wetland**, enabled by irrigation technology using water from the protected Ramsar site where no cultivation is allowed inside; this contrasts with other wetlands permitting internal agriculture.[2][1]
+* **Bugarama** has significant negative values in total crop value, which are likely **calculation anomalies** and require further review.
+
+***
+
+## **4. 🎣 Fisheries, Mats, and Conservation (WTP)**
+
+| Wetland | Reported Fisheries/Product Value (RWF) | Willingness to Pay (WTP) for Conservation (RWF/year) |
+| :--- | :--- | :--- |
+| **Bugarama** | **RWF $3.7 \times 10^8$** (Likely aggregated) | **RWF 6,071** |
+| **Muvumba** | N/A | RWF 3,700 |
+| **Rugezi** | RWF 7,733 | RWF 1,237 |
+| **Nyabarongo** | N/A | RWF 575 |
+| **GRAND TOTAL** | RWF $1.86 \times 10^8$ | RWF 3,670 |
+
+### Key Insights:
+* The high fisheries value reported in **Bugarama** is a **major outlier**, indicating a significant, likely aggregated or commercial fishing operation compared to the modest values in Rugezi.
+* **Bugarama** households show the **highest WTP** for conservation, which correlates with their high confidence in income benefits, suggesting they highly value the wetland's continued existence.
+
+***
+
+## **5. 🌍 Overall Interpretation**
+
+* **Muvumba:** The highest site for **total annual household income** and **total crop value**, marking it as the site with the greatest economic dependence through direct-use production.
+* **Rugezi:** The champion for **water provision** enabling boosted agricultural productivity around the wetland via irrigation, despite no internal farming due to Ramsar protection and lowest direct income confidence.[1][2]
+* **Bugarama:** Characterized by **high commercial/aggregated value** (fisheries), **high confidence in benefits**, and the **highest WTP**, indicating a strong, highly valued economic link for its community.
+* **Nyabarongo:** Shows **limited monetized activity** across most categories, which likely reflects data collection or reporting gaps, or that economic activity is less direct/less formal compared to the other sites.
+
+[1] (https://ewt.org/fs-oct-2020-for-peats-sake-finding-fodder-in-rwandas-rugezi-marsh/)
+
+[2] (https://ijisrt.com/assets/upload/files/IJISRT22SEP1009_(1).pdf)
+
+[3] (https://www.theigc.org/sites/default/files/2018/08/Rwanda-38313.pdf)
+
+[4] (https://rsis.ramsar.org/RISapp/files/RISrep/RW1589RIS_1607_en.pdf)
+
+[5] (https://www.ijisrt.com/assets/upload/files/IJISRT22SEP1009_(1).pdf)
+
+[6] (https://www.minagri.gov.rw/fileadmin/user_upload/Minagri/Publications/Policies_and_strategies/
+Rwanda_Irrigation_Master_Plan.pdf)
+
+[7] (https://www.conservationleadershipprogramme.org/project/rugezi-wetland-conservation-rwanda/)
+
+[8] (https://infonile.org/en/2019/03/rwanda-government-eviction-of-developers-from-wetlands-pays-off-but-more-left-to-do/)
+
+[9] (https://faolex.fao.org/docs/pdf/rwa174262.pdf)
+
+[10] (https://ewt.org/rugezi-marsh-conservation/)
+''')
+
+st.title("Wetland Analysis: Average Age and Years Lived")
+
+# --- 1. Average Age per Wetland ---
+st.subheader("Average Respondent Age per Wetland")
+
+wetland_age = merged_df.groupby("eco_wetland_name")["resp_age"].mean().sort_values(ascending=False)
+
+# Display as a table
+st.dataframe(wetland_age)
+
+# Interactive pie chart for average age
+fig_age = px.pie(
+    names=wetland_age.index,
+    values=wetland_age.values,
+    title="Average Respondent Age per Wetland",
+    color=wetland_age.index,
+    color_discrete_sequence=px.colors.qualitative.Set3,
+    hole=0.1
 )
-
-plt.title("Average Respondent Age per Wetland", fontsize=18, fontweight='bold')
-plt.show()
-
-
-# #Average Years Lived in Wetland Areas by Case Study
-
-# In[284]:
+fig_age.update_traces(textinfo='percent+label', pull=[0.1 if i == 0 else 0 for i in range(len(wetland_age))])
+st.plotly_chart(fig_age, use_container_width=True)
 
 
-try:
-    merged_df = pd.read_csv('your_data_file.csv')
-    print("Data loaded successfully.")
-except FileNotFoundError:
-    print("ERROR: Please replace 'your_data_file.csv' with the correct path to your data.")
+# --- 2. Average Years Lived in Wetland Areas ---
+st.subheader("Average Years Lived in Wetland Areas by Case Study")
 
+wetland_years = merged_df.groupby("eco_wetland_name")["resp_years_area_wetland"].mean().sort_values(ascending=False)
 
-# --- 2. Calculate Average Years Lived by Wetland ---
-print("\n--- Calculated Averages ---")
-wetland_df = merged_df.groupby("eco_wetland_name")["resp_years_area_wetland"].mean().sort_values(ascending=False)
-print(wetland_df)
+# Display table
+st.dataframe(wetland_years)
 
-
-
-
-# Group by wetland and calculate average years lived
-wetland_df = merged_df.groupby("eco_wetland_name")["resp_years_area_wetland"].mean().sort_values(ascending=False)
-
-# Take top 5 wetlands for clarity, group others as "Other"
+# Top 5 wetlands + "Other"
 top_n = 5
-top_wetlands = wetland_df.head(top_n)
-other_wetlands = pd.Series([wetland_df[top_n:].sum()], index=["Other"])
+top_wetlands = wetland_years.head(top_n)
+other_wetlands = pd.Series([wetland_years[top_n:].sum()], index=["Other"])
 pie_data = pd.concat([top_wetlands, other_wetlands])
 
-# Pie chart with explosion effect and percentage labels
-colors = plt.cm.Set3.colors  # Soft, distinct colors
-explode = [0.1 if i < top_n else 0 for i in range(len(pie_data))]  # Highlight top wetlands
-
-plt.figure(figsize=(10,8))
-plt.pie(
-    pie_data,
-    labels=pie_data.index,
-    autopct='%1.1f%%',
-    startangle=140,
-    colors=colors,
-    explode=explode,
-    shadow=True
+# Interactive pie chart
+fig_years = px.pie(
+    names=pie_data.index,
+    values=pie_data.values,
+    title="Average Years Lived in Wetland Areas by Case Study",
+    color=pie_data.index,
+    color_discrete_sequence=px.colors.qualitative.Set3,
+    hole=0.1
 )
-plt.title("Average Years Lived in Wetland Areas by Case Study", fontsize=16)
-plt.axis('equal')  # Equal aspect ratio ensures pie is circular
-plt.show()
+fig_years.update_traces(textinfo='percent+label', pull=[0.1 if i < top_n else 0 for i in range(len(pie_data))])
+st.plotly_chart(fig_years, use_container_width=True)
+
+st.markdown('''
+Based on the pie chart
 
 
-# Based on the pie chart
-# 
-# 
-# 
-# The average respondent age varies significantly across the wetlands:
-# 
-# * **Rugezi** has the oldest demographic with an average age of **42.0 years**.
-# * **Bugarama** and **Nyabarongo** follow closely behind, averaging **37.1 years** and **35.9 years**, respectively.
-# * **Muvumba** has the youngest demographic, averaging **28.2 years**.
-# 
-# ---
-# 
-# ### 📝 Business Implication
-# 
-# The **demographic profile is NOT uniform**. Engagement strategies must be **site-specific**:
-# 
-# * **Rugezi, Bugarama, & Nyabarongo** require strategies tailored to an **older, more established adult population (35-42 years)**.
-# * **Muvumba** requires a distinct strategy focused on a **younger adult demographic (28 years)**.
-# 
-# 
 
-# In[285]:
+The average respondent age varies significantly across the wetlands:
+
+* **Rugezi** has the oldest demographic with an average age of **42.0 years**.
+* **Bugarama** and **Nyabarongo** follow closely behind, averaging **37.1 years** and **35.9 years**, respectively.
+* **Muvumba** has the youngest demographic, averaging **28.2 years**.
+
+---
+
+### 📝 Business Implication
+
+The **demographic profile is NOT uniform**. Engagement strategies must be **site-specific**:
+
+* **Rugezi, Bugarama, & Nyabarongo** require strategies tailored to an **older, more established adult population (35-42 years)**.
+* **Muvumba** requires a distinct strategy focused on a **younger adult demographic (28 years)**.
+''')
 
 
-# Create the data
+st.set_page_config(page_title="Rwanda Wetlands Survey", layout="wide")
+
+st.title("Rwanda Wetlands Survey Analysis")
+st.markdown("""
+This interactive dashboard presents key findings on wetland ecosystems in Rwanda, 
+focusing on respondent demographics, wellbeing, water reliance, fishing, and farming activities.
+""")
+
+# -------------------------------
+# 1. Consequences if Wetland is Depleted
+# -------------------------------
+st.header("Consequences if Wetland is Depleted or Absent")
+
 data = {
     'Consequence': [
-        'Life Impacted',
-        'No Impact',
-        'Income Impacted',
-        'Shift Required',
-        'Other Consequence'
+        'Life Impacted', 'No Impact', 'Income Impacted', 'Shift Required', 'Other Consequence'
     ],
     'Respondent': [790, 399, 395, 36, 34],
     'Percentage': [56.47, 28.52, 28.23, 2.57, 2.43]
 }
-
 df_df = pd.DataFrame(data)
 
-# Plot
-plt.figure(figsize=(10,6))
-sns.set_style("whitegrid")
-colors = sns.color_palette("Set2", n_colors=len(df_df))
+# Bar chart with counts + percentage
+fig1 = go.Figure()
+fig1.add_trace(go.Bar(
+    x=df_df['Consequence'],
+    y=df_df['Respondent'],
+    text=[f"{r} ({p}%)" for r, p in zip(df_df['Respondent'], df_df['Percentage'])],
+    textposition='outside',
+    marker_color=px.colors.qualitative.Set2
+))
+fig1.update_layout(
+    title="Consequences if Wetland is Depleted or Absent",
+    xaxis_title="Consequence",
+    yaxis_title="Number of Respondents",
+    uniformtext_minsize=12,
+    uniformtext_mode='hide'
+)
+st.plotly_chart(fig1, use_container_width=True)
 
-ax = sns.barplot(x='Consequence', y='Respondent', data=df_df, palette=colors, edgecolor='black', linewidth=1.5)
-
-# Add counts and percentages on top of bars
-for i, row in df_df.iterrows():
-    plt.text(i, row['Respondent'] + 10, f"{row['Respondent']} ({row['Percentage']}%)",
-             ha='center', fontsize=12, fontweight='bold')
-
-plt.title("Consequences if Wetland is Depleted or Absent", fontsize=16, weight='bold')
-plt.ylabel("Number of Respondents")
-plt.xlabel("Consequence")
-plt.xticks(rotation=30, ha='right')
-plt.tight_layout()
-plt.show()
-
-
-# #Average Wellbeing Impact by Wetland (General vs Mental)
-# 
-
-# In[286]:
-
-
-wetland_df = merged_df[merged_df['eco_case_study_no'].isin([6, 7, 8, 9])].copy()
-
-
-# In[287]:
-
+# -------------------------------
+# 2. Average Wellbeing Impact
+# -------------------------------
+st.header("Average Wellbeing Impact by Wetland (General vs Mental)")
 
 import re
-
-# Detect any column containing "wetland" and "name"
 wetland_name_col = None
 for col in merged_df.columns:
     if re.search(r"wetland", col.lower()) and re.search("name", col.lower()):
         wetland_name_col = col
         break
 
-print("Wetland Name Column Detected:", wetland_name_col)
-
-# Filter dataset using case study numbers
 wetland_df = merged_df[merged_df['eco_case_study_no'].isin([6,7,8,9])].copy()
-
-# Select columns
 wellbeing_cols = [wetland_name_col, 'wellbeing_wetland_general', 'wellbeing_wetland_mental_visit']
-
 wellbeing_df = wetland_df[wellbeing_cols].copy()
 
-# Convert
 for col in ['wellbeing_wetland_general', 'wellbeing_wetland_mental_visit']:
     wellbeing_df[col] = pd.to_numeric(wellbeing_df[col], errors='coerce')
 
-# Compute averages
 avg_wellbeing = wellbeing_df.groupby(wetland_name_col).mean().reset_index()
-
-# Melt
 avg_wellbeing_melted = avg_wellbeing.melt(
     id_vars=wetland_name_col,
     value_vars=['wellbeing_wetland_general', 'wellbeing_wetland_mental_visit'],
     var_name='Wellbeing Type',
     value_name='Average Score'
 )
-
-# Rename
-labels = {
-    'wellbeing_wetland_general': 'General Wellbeing',
-    'wellbeing_wetland_mental_visit': 'Mental Wellbeing'
-}
+labels = {'wellbeing_wetland_general': 'General Wellbeing', 'wellbeing_wetland_mental_visit': 'Mental Wellbeing'}
 avg_wellbeing_melted['Wellbeing Type'] = avg_wellbeing_melted['Wellbeing Type'].map(labels)
 
-# Plot
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-sns.set_palette("magma")
-
-sns.barplot(
+fig2 = px.bar(
+    avg_wellbeing_melted,
     x=wetland_name_col,
     y='Average Score',
-    hue='Wellbeing Type',
-    data=avg_wellbeing_melted
+    color='Wellbeing Type',
+    barmode='group',
+    title='Average Wellbeing Impact by Wetland (General vs Mental)',
+    color_discrete_sequence=px.colors.sequential.Magma
 )
+st.plotly_chart(fig2, use_container_width=True)
 
-plt.title('Average Wellbeing Impact by Wetland (General vs Mental)', fontsize=16, weight='bold')
-plt.xticks(rotation=45)
-plt.tight_layout()
-plt.show()
+# -------------------------------
+# 3. Household Reliance on Wetland Water Sources
+# -------------------------------
+st.header("Household Reliance on Wetland Water Sources")
 
-
-# 
-# 
-# ## 🧠 Wetland Impact on Wellbeing
-# 
-# * **Rugezi wetland** shows the **highest impact** across all categories, with a score of approximately **0.32** for **Mental Wellbeing** (Purple bar).
-# * **Muvumba wetland** is the only other site showing a discernible impact, scoring around **0.02** for **Mental Wellbeing**.
-# * All wetlands (Bugarama, Muvumba, Nyabarongo, and Rugezi) show an almost **zero or negligible score** (below 0.01) for **General Wellbeing** (Dark Blue/Black bar).
-# 
-# ---
-# 
-# ### 📝 Implication for Stakeholders
-# 
-# The **Rugezi wetland** is uniquely associated with providing a **significant mental health benefit**, a service that is almost entirely absent or negligible in the other three study areas. **Targeted conservation efforts** at Rugezi should leverage this exceptionally high **Mental Wellbeing** value.
-
-# #Household Reliance on Wetland Water Sources by Wetland
-# 
-
-# In[288]:
-
-
-# Columns for water sources
 water_cols = [
-    'water_domestic_source_wetland',
-    'water_domestic_source_springs',
-    'water_domestic_source_well',
-    'water_domestic_source_piped',
+    'water_domestic_source_wetland', 'water_domestic_source_springs',
+    'water_domestic_source_well', 'water_domestic_source_piped',
     'water_domestic_source_other'
 ]
-
-# Make a copy of wetland_df with relevant columns
-water_df = wetland_df[['eco_wetland_name'] + water_cols].copy()
-
-# Convert to numeric (assuming 1 = yes, 0 = no or NaN)
+water_df = wetland_df[[wetland_name_col]+water_cols].copy()
 for col in water_cols:
     water_df[col] = pd.to_numeric(water_df[col], errors='coerce').fillna(0)
-
-# Compute average reliance per wetland (proportion of households)
-avg_water = water_df.groupby('eco_wetland_name')[water_cols].mean().reset_index()
-
-# Melt for plotting
-avg_water_melted = avg_water.melt(id_vars='eco_wetland_name',
-                                  value_vars=water_cols,
+avg_water = water_df.groupby(wetland_name_col)[water_cols].mean().reset_index()
+avg_water_melted = avg_water.melt(id_vars=wetland_name_col, value_vars=water_cols,
                                   var_name='Water Source', value_name='Proportion')
-
-# Replace column names with clean labels
 source_labels = {
-    'water_domestic_source_wetland': 'Wetland',
-    'water_domestic_source_springs': 'Springs',
-    'water_domestic_source_well': 'Well',
-    'water_domestic_source_piped': 'Piped',
+    'water_domestic_source_wetland': 'Wetland', 'water_domestic_source_springs': 'Springs',
+    'water_domestic_source_well': 'Well', 'water_domestic_source_piped': 'Piped',
     'water_domestic_source_other': 'Other'
 }
 avg_water_melted['Water Source'] = avg_water_melted['Water Source'].map(source_labels)
 
-# Plot
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-sns.set_palette("deep")  # colorful palette
-sns.barplot(
-    x='eco_wetland_name',
+fig3 = px.bar(
+    avg_water_melted,
+    x=wetland_name_col,
     y='Proportion',
-    hue='Water Source',
-    data=avg_water_melted
+    color='Water Source',
+    barmode='stack',
+    title='Household Reliance on Wetland Water Sources by Wetland',
+    color_discrete_sequence=px.colors.qualitative.Pastel
 )
+fig3.update_yaxes(range=[0,1])
+st.plotly_chart(fig3, use_container_width=True)
 
-plt.title('Household Reliance on Wetland Water Sources by Wetland', fontsize=16, weight='bold')
-plt.ylabel('Proportion of Households')
-plt.xlabel('Wetland Name')
-plt.ylim(0,1)
-plt.xticks(rotation=45)
-plt.legend(title='Water Source', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
+# -------------------------------
+# 4. Fishing Practices
+# -------------------------------
+st.header("Fishing Practices per Wetland")
 
-
-# 
-# 
-# ## 🚰 Household Water Source Reliance
-# 
-# The chart reveals that **Piped Water** (Red/Brown) is the dominant source for **Bugarama, Muvumba, and Nyabarongo** households, while **Springs** (Orange) are dominant for **Rugezi**.
-# 
-# ### Wetland Source Reliance (Blue Bar)
-# 
-# | Wetland Name | Proportion of Households Relying on Wetland |
-# | :--- | :--- |
-# | **Rugezi wetland** | **~16%** |
-# | **Bugarama wetland** | **~14%** |
-# | **Muvumba wetland** | **~10%** |
-# | **Nyabarongo wetland** | **~0.1%** (Negligible) |
-# 
-# ### 📝 Implication for Shareholders
-# 
-# * **Water Security:** The **Rugezi, Bugarama, and Muvumba** wetlands all show a **significant, non-negligible reliance (10%-16%)** for household water, making them critical for local water security.
-# * **Prioritization:** Conservation efforts focused on water quality will have the highest direct impact on households in **Rugezi** and **Bugarama**.
-# * **Dominant Sources:** The majority of households rely on **Piped Water** (Bugarama, Muvumba, Nyabarongo) or **Springs** (Rugezi), meaning disruptions to these non-wetland sources would affect far more people.
-
-# #Fishing Practices per Wetland
-# 
-
-
-
-# Columns for fishing practices
 fishing_cols = [
-    'eco_wetland_name',
-    'v_fish_practice_yes_count',
-    'v_fish_practice_no_count',
-    'v_fish_practice_no_aware_yes_count',
-    'v_fish_practice_no_aware_no_count'
+    'eco_wetland_name', 'v_fish_practice_yes_count', 'v_fish_practice_no_count',
+    'v_fish_practice_no_aware_yes_count', 'v_fish_practice_no_aware_no_count'
 ]
-
-# Filter only wetlands with valid names
 fishing_df = wetland_df[wetland_df['eco_wetland_name'].notna()][fishing_cols].copy()
-
-# Convert counts to numeric
 for col in fishing_cols[1:]:
     fishing_df[col] = pd.to_numeric(fishing_df[col], errors='coerce')
 
-# Compute total per wetland
 fishing_summary = fishing_df.groupby('eco_wetland_name').sum().reset_index()
-
-# Melt for plotting
 fishing_melted = fishing_summary.melt(
     id_vars='eco_wetland_name',
     value_vars=fishing_cols[1:],
     var_name='Fishing Practice',
     value_name='Count'
 )
-
-# Clean names for plotting
 practice_labels = {
     'v_fish_practice_yes_count': 'Practice Fishing',
     'v_fish_practice_no_count': 'Does Not Practice',
@@ -629,95 +472,37 @@ practice_labels = {
 }
 fishing_melted['Fishing Practice'] = fishing_melted['Fishing Practice'].map(practice_labels)
 
-# Plot
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-sns.set_palette("muted")  # vibrant color palette
-sns.barplot(
+fig4 = px.bar(
+    fishing_melted,
     x='eco_wetland_name',
     y='Count',
-    hue='Fishing Practice',
-    data=fishing_melted
+    color='Fishing Practice',
+    barmode='stack',
+    title='Fishing Practices per Wetland',
+    color_discrete_sequence=px.colors.qualitative.Vivid
 )
+st.plotly_chart(fig4, use_container_width=True)
 
-plt.title('Fishing Practices per Wetland', fontsize=16, weight='bold')
-plt.ylabel('Number of Households')
-plt.xlabel('Wetland Name')
-plt.xticks(rotation=45)
-plt.legend(title='Fishing Practice', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
+# -------------------------------
+# 5. Farming Activities
+# -------------------------------
+st.header("Farming Activities Around Wetlands")
 
-
-# In[290]:
-
-
-# Aggregate counts per wetland
-fish_data = wetland_df.groupby("eco_wetland_name")[
-    ["v_fish_practice_yes_count", "v_fish_practice_no_count"]
-].sum().sort_values("v_fish_practice_yes_count", ascending=False)
-
-# Plot
-plt.figure(figsize=(14,8))
-plt.bar(fish_data.index, fish_data["v_fish_practice_yes_count"], color="yellow", label="Fishing Yes")
-plt.bar(fish_data.index, fish_data["v_fish_practice_no_count"],
-        bottom=fish_data["v_fish_practice_yes_count"], color="grey", label="Fishing No")
-
-plt.xticks(rotation=45, ha="right")
-plt.ylabel("Number of Households")
-plt.title("Fishing Practices per Wetland")
-plt.legend()
-plt.tight_layout()
-plt.show()
-
-
-# ## 🎣 Fishing Practices per Wetland
-# 
-# The first chart (stacked bars) shows household fishing practices across four wetlands:
-# 
-# - **Bugarama**: ~410 households; all **Not Practice & Not Aware** (maroon).
-# - **Nyabarongo**: ~420 total; ~410 **Does Not Practice** (orange), ~10 **Practice Fishing** (blue).
-# - **Muvumba**: ~250 total; ~235 **Does Not Practice**, ~15 **Not Practice & Not Aware**.
-# - **Rugezi**: ~425 total; ~410 **Does Not Practice**, ~15 **Not Practice but Aware** (green), ~1 **Practice Fishing**.
-# 
-# The second chart (simplified) confirms: **nearly all households do not fish** (grey "Fishing No"), with **zero or negligible** fishing (yellow "Fishing Yes" barely visible only at Rugezi).
-# 
-# **Key Insight:** Fishing is **virtually absent** across all wetlands. Conservation or revenue strategies relying on fishing will have **minimal relevance**.
-
-# #Farming Activities Around Wetlands (Households Engaged vs Not Engaged)
-# 
-
-# In[291]:
-
-
-# Columns for farming activities
 farming_cols = [
-    'eco_wetland_name',
-    'farm_practice_yes_count',        # Households engaged in farming
-    'farm_practice_no_count',         # Households not engaged in farming
-    'farm_practice_no_aware_yes_count', # Not engaged but aware
-    'farm_practice_no_aware_no_count'  # Not engaged & not aware
+    'eco_wetland_name', 'farm_practice_yes_count', 'farm_practice_no_count',
+    'farm_practice_no_aware_yes_count', 'farm_practice_no_aware_no_count'
 ]
-
-# Filter only wetlands with valid names
 farming_df = wetland_df[wetland_df['eco_wetland_name'].notna()][farming_cols].copy()
-
-# Convert counts to numeric
 for col in farming_cols[1:]:
     farming_df[col] = pd.to_numeric(farming_df[col], errors='coerce')
 
-# Aggregate per wetland
 farming_summary = farming_df.groupby('eco_wetland_name').sum().reset_index()
-
-# Melt for plotting
 farming_melted = farming_summary.melt(
     id_vars='eco_wetland_name',
     value_vars=farming_cols[1:],
     var_name='Farming Status',
     value_name='Count'
 )
-
-# Map more descriptive labels
 status_labels = {
     'farm_practice_yes_count': 'Engaged in Farming',
     'farm_practice_no_count': 'Not Engaged',
@@ -726,47 +511,39 @@ status_labels = {
 }
 farming_melted['Farming Status'] = farming_melted['Farming Status'].map(status_labels)
 
-# Plot
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-sns.set_palette("Set2")  # vibrant color palette
-sns.barplot(
+fig5 = px.bar(
+    farming_melted,
     x='eco_wetland_name',
     y='Count',
-    hue='Farming Status',
-    data=farming_melted
+    color='Farming Status',
+    barmode='stack',
+    title='Farming Activities Around Wetlands (Households Engaged vs Not Engaged)',
+    color_discrete_sequence=px.colors.qualitative.Set2
 )
-
-plt.title('Farming Activities Around Wetlands (Households Engaged vs Not Engaged)', fontsize=16, weight='bold')
-plt.ylabel('Number of Households')
-plt.xlabel('Wetland Name')
-plt.xticks(rotation=45)
-plt.legend(title='Farming Status', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
+st.plotly_chart(fig5, use_container_width=True)
 
 
-# ## 🚜 Farming Activities Around Wetlands
-# 
-# Stacked bar chart of household farming near four wetlands:
-# 
-# - **Bugarama**: ~375 total; ~35 **Engaged** (green), ~80 **Not Engaged but Aware** (blue), ~260 **Not Engaged & Not Aware** (purple).
-# - **Muvumba**: ~210 total; ~30 **Engaged**, ~30 **Not Engaged but Aware**, ~150 **Not Engaged & Not Aware**.
-# - **Nyabarongo**: ~330 total; all ~330 **Not Engaged but Aware** (blue).
-# - **Rugezi**: ~375 total; ~45 **Engaged**, ~40 **Not Engaged but Aware**, ~290 **Not Engaged & Not Aware**.
-# 
-# **Key Insight:** Farming is **rare** (~10% or less of households). Most are **not engaged**, with many **unaware** of farming opportunities. Agricultural interventions will target a **small minority**.
 
-# #Impact of Human Practices on Wetland Health by Wetland
+st.marksown('''
+## 🚜 Farming Activities Around Wetlands
 
-# In[292]:
+Stacked bar chart of household farming near four wetlands:
 
+- **Bugarama**: ~375 total; ~35 **Engaged** (green), ~80 **Not Engaged but Aware** (blue), ~260 **Not Engaged & Not Aware** (purple).
+- **Muvumba**: ~210 total; ~30 **Engaged**, ~30 **Not Engaged but Aware**, ~150 **Not Engaged & Not Aware**.
+- **Nyabarongo**: ~330 total; all ~330 **Not Engaged but Aware** (blue).
+- **Rugezi**: ~375 total; ~45 **Engaged**, ~40 **Not Engaged but Aware**, ~290 **Not Engaged & Not Aware**.
 
-import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+**Key Insight:** Farming is **rare** (~10% or less of households). Most are **not engaged**, with many **unaware** of farming opportunities. Agricultural interventions will target a **small minority**.
+''')
 
-# Columns related to wetland health impacts
+st.title("Rwanda Wetlands: Human Practices, Ecosystem Services, and Livelihoods")
+
+# ===========================
+# 1. Impact of Human Practices on Wetland Health
+# ===========================
+st.header("Impact of Human Practices on Wetland Health by Wetland")
+
 health_cols = [
     'eco_wetland_name',
     'tradeoffs_wetland_health_waterborne_diseases',
@@ -774,8 +551,7 @@ health_cols = [
     'tradeoffs_wetland_health_other_check'
 ]
 
-# Filter for wetlands with valid names
-health_df = wetland_df[wetland_df['eco_wetland_name'].notna()][health_cols].copy()
+health_df = merged_df[merged_df['eco_wetland_name'].notna()][health_cols].copy()
 
 # Convert to numeric
 for col in health_cols[1:]:
@@ -792,7 +568,6 @@ health_melted = health_summary.melt(
     value_name='Count'
 )
 
-# Clean names for plotting
 impact_labels = {
     'tradeoffs_wetland_health_waterborne_diseases': 'Waterborne Diseases',
     'tradeoffs_wetland_health_human_defecation': 'Human Defecation',
@@ -800,43 +575,23 @@ impact_labels = {
 }
 health_melted['Human Practice Impact'] = health_melted['Human Practice Impact'].map(impact_labels)
 
-# Plot
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-sns.set_palette("colorblind")  # vibrant, eye-catching palette
-sns.barplot(
+# Interactive stacked bar chart
+fig_health = px.bar(
+    health_melted,
     x='eco_wetland_name',
     y='Count',
-    hue='Human Practice Impact',
-    data=health_melted
+    color='Human Practice Impact',
+    title='Impact of Human Practices on Wetland Health by Wetland',
+    text='Count',
+    labels={'eco_wetland_name':'Wetland Name'}
 )
+st.plotly_chart(fig_health, use_container_width=True)
 
-plt.title('Impact of Human Practices on Wetland Health by Wetland', fontsize=16, weight='bold')
-plt.ylabel('Number of Households / Observations')
-plt.xlabel('Wetland Name')
-plt.xticks(rotation=45)
-plt.legend(title='Impact Type', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
+# ===========================
+# 2. Average Ecosystem Service Benefits
+# ===========================
+st.header("Average Ecosystem Service Benefits Provided by Wetlands")
 
-
-# ## 🦠 Impact of Human Practices on Wetland Health
-# 
-# Stacked bar chart of reported household observations on wetland health impacts (per household):
-# 
-# - **Bugarama**: ~1 **Other Impacts** (green); zero elsewhere.
-# - **Muvumba**: Zero across all.
-# - **Nyabarongo**: Zero across all.
-# - **Rugezi**: ~12 **Waterborne Diseases** (blue), ~10 **Human Defecation** (orange), ~8 **Other Impacts** (green).
-# 
-# **Key Insight:** Only **Rugezi** shows significant human-induced stress—primarily **waterborne diseases** and **defecation**. Other wetlands report **near-zero** impact. **Prioritize sanitation and health interventions at Rugezi**.
-
-# ##Average Ecosystem Service Benefits Provided by Wetlands
-
-# In[293]:
-
-
-# Select columns representing wetland benefits
 benefit_cols = [
     'eco_wetland_name',
     'wetland_benefit_fish_check',
@@ -865,19 +620,12 @@ benefit_cols = [
     'wetland_benefit_other_check'
 ]
 
-# Filter wetland_df for non-null wetland names
-benefit_df = wetland_df[wetland_df['eco_wetland_name'].notna()][benefit_cols].copy()
+benefit_df = merged_df[merged_df['eco_wetland_name'].notna()][benefit_cols].copy()
 
-# Convert benefit check columns to numeric
 for col in benefit_cols[1:]:
     benefit_df[col] = pd.to_numeric(benefit_df[col], errors='coerce')
 
-# Compute average presence of each benefit per wetland
 benefit_summary = benefit_df.groupby('eco_wetland_name').mean().reset_index()
-
-# Compute total average benefit to sort wetlands
-benefit_summary['total_avg'] = benefit_summary.iloc[:, 1:].mean(axis=1)
-benefit_summary = benefit_summary.sort_values('total_avg', ascending=False)
 
 # Melt for plotting
 benefit_melted = benefit_summary.melt(
@@ -887,213 +635,24 @@ benefit_melted = benefit_summary.melt(
     value_name='Average Presence'
 )
 
-# Clean benefit names for better readability
-benefit_labels = {
-    'wetland_benefit_fish_check': 'Fish',
-    'wetland_benefit_snail_check': 'Snail',
-    'wetland_benefit_other_food_check': 'Other Food',
-    'wetland_benefit_habitat_animal_check': 'Habitat (Animal)',
-    'wetland_benefit_habitat_plant_check': 'Habitat (Plant)',
-    'wetland_benefit_income_check': 'Income',
-    'wetland_benefit_tourism_check': 'Tourism',
-    'wetland_benefit_aesthetics_check': 'Aesthetics',
-    'wetland_benefit_recreation_check': 'Recreation',
-    'wetland_benefit_air_control_check': 'Air Control',
-    'wetland_benefit_water_livestock_check': 'Water for Livestock',
-    'wetland_benefit_water_domestic_check': 'Water for Domestic Use',
-    'wetland_benefit_water_industrial_check': 'Water for Industry',
-    'wetland_benefit_mats_check': 'Mats',
-    'wetland_benefit_water_purif_check': 'Water Purification',
-    'wetland_benefit_hydro_check': 'Hydroelectricity',
-    'wetland_benefit_erosion_control_check': 'Erosion Control',
-    'wetland_benefit_carbon_seq_check': 'Carbon Sequestration',
-    'wetland_benefit_research_check': 'Research',
-    'wetland_benefit_cultural_check': 'Cultural',
-    'wetland_benefit_medicaments_check': 'Medicaments',
-    'wetland_benefit_hunting_check': 'Hunting',
-    'wetland_benefit_transport_check': 'Transport',
-    'wetland_benefit_other_check': 'Other'
-}
+benefit_labels = {c: c.replace('wetland_benefit_', '').replace('_check','').replace('_',' ').title() for c in benefit_cols[1:]}
 benefit_melted['Ecosystem Benefit'] = benefit_melted['Ecosystem Benefit'].map(benefit_labels)
 
-# Plot
-plt.figure(figsize=(14,8))
-sns.set_style("whitegrid")
-sns.barplot(
+fig_benefits = px.bar(
+    benefit_melted,
     x='eco_wetland_name',
     y='Average Presence',
-    hue='Ecosystem Benefit',
-    data=benefit_melted,
-    palette='viridis'  # beautiful color gradient
+    color='Ecosystem Benefit',
+    title='Average Ecosystem Service Benefits Provided by Wetlands',
+    text='Average Presence'
 )
+st.plotly_chart(fig_benefits, use_container_width=True)
 
-plt.title('Average Ecosystem Service Benefits Provided by Wetlands', fontsize=16, weight='bold')
-plt.ylabel('Average Presence (0-1)')
-plt.xlabel('Wetland Name')
-plt.xticks(rotation=45)
-plt.legend(title='Ecosystem Benefit', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
+# ===========================
+# 3. Average Income & Livelihood Sources from Wetlands
+# ===========================
+st.header("Average Income & Livelihood Sources from Wetlands")
 
-
-# #**Services/Benefits Households Get from Wetlands**
-
-# In[294]:
-
-
-wetland_df = merged_df[merged_df['eco_type'] == 'wetland']
-
-# List of wetland benefit columns
-benefit_cols = [
-    'wetland_benefit_fish_check',
-    'wetland_benefit_snail_check',
-    'wetland_benefit_other_food_check',
-    'wetland_benefit_habitat_animal_check',
-    'wetland_benefit_habitat_plant_check',
-    'wetland_benefit_income_check',
-    'wetland_benefit_tourism_check',
-    'wetland_benefit_aesthetics_check',
-    'wetland_benefit_recreation_check',
-    'wetland_benefit_air_control_check',
-    'wetland_benefit_water_livestock_check',
-    'wetland_benefit_water_industrial_check',
-    'wetland_benefit_water_domestic_check',
-    'wetland_benefit_agri_prod_check'
-]
-
-# Sum each service across all respondents
-services_counts = wetland_df[benefit_cols].sum().sort_values(ascending=False).reset_index()
-services_counts.columns = ['Service', 'Count']
-
-# Clean service names
-services_counts['Service'] = services_counts['Service'].str.replace('wetland_benefit_', '').str.replace('_check', '').str.replace('_', ' ').str.title()
-
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-plt.figure(figsize=(12, 6))
-sns.set_style("whitegrid")
-
-colors = sns.color_palette("Set3", n_colors=len(services_counts))
-
-ax = sns.barplot(
-    data=services_counts,
-    x='Service',
-    y='Count',
-    palette=colors,
-    edgecolor='black',
-    linewidth=1.2
-)
-
-# Add labels on top
-for i, v in enumerate(services_counts['Count']):
-    plt.text(i, v + (max(services_counts['Count']) * 0.02), str(v),
-             ha='center', fontsize=11, fontweight='bold')
-
-plt.title("Services/Benefits Households Get from Wetlands", fontsize=16, weight='bold')
-plt.xlabel("Service", fontsize=14)
-plt.ylabel("Number of Respondents", fontsize=14)
-plt.xticks(rotation=45, ha='right')
-
-plt.tight_layout()
-plt.show()
-
-
-# ##Ecosystem Service Contributions by Wetland
-
-# In[295]:
-
-
-from math import pi
-
-
-# Filtered wetland data (assuming wetland_df already exists)
-# Columns representing ecosystem service benefits
-ecosystem_cols = [
-    'wetland_benefit_fish_check',
-    'wetland_benefit_snail_check',
-    'wetland_benefit_other_food_check',
-    'wetland_benefit_habitat_animal_check',
-    'wetland_benefit_habitat_plant_check',
-    'wetland_benefit_income_check',
-    'wetland_benefit_tourism_check',
-    'wetland_benefit_aesthetics_check',
-    'wetland_benefit_recreation_check',
-    'wetland_benefit_air_control_check',
-    'wetland_benefit_water_livestock_check',
-    'wetland_benefit_water_domestic_check',
-    'wetland_benefit_water_beer_check',
-    'wetland_benefit_agri_prod_check',
-    'wetland_benefit_mats_check',
-    'wetland_benefit_water_purif_check',
-    'wetland_benefit_hydro_check',
-    'wetland_benefit_erosion_control_check',
-    'wetland_benefit_carbon_seq_check',
-    'wetland_benefit_research_check',
-    'wetland_benefit_cultural_check',
-    'wetland_benefit_medicaments_check',
-    'wetland_benefit_hunting_check',
-    'wetland_benefit_transport_check',
-    'wetland_benefit_other_check'
-]
-
-# Convert to numeric just in case
-for col in ecosystem_cols:
-    wetland_df[col] = pd.to_numeric(wetland_df[col], errors='coerce')
-
-# Compute average per wetland
-wetland_avg = wetland_df.groupby('eco_wetland_name')[ecosystem_cols].mean().reset_index()
-
-# Prepare data for radar chart
-categories = ecosystem_cols
-N = len(categories)
-
-# Plot radar chart per wetland
-plt.figure(figsize=(14,10))
-colors = sns.color_palette('viridis', n_colors=len(wetland_avg))
-
-for idx, row in wetland_avg.iterrows():
-    values = row[categories].fillna(0).values.flatten().tolist()
-    values += values[:1]  # close the radar circle
-    angles = [n / float(N) * 2 * pi for n in range(N)]
-    angles += angles[:1]
-
-    ax = plt.subplot(111, polar=True)
-    ax.plot(angles, values, linewidth=2, linestyle='solid', label=row['eco_wetland_name'], color=colors[idx])
-    ax.fill(angles, values, alpha=0.25, color=colors[idx])
-
-# Set category labels
-plt.xticks([n / float(N) * 2 * pi for n in range(N)], [c.replace('wetland_benefit_', '').replace('_check','').replace('_',' ').title() for c in categories], fontsize=10)
-
-# Title and legend
-plt.title('Ecosystem Service Contributions by Wetland', size=16, y=1.08)
-plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌿 Wetland Ecosystem Benefits (Avg. Presence 0-1)
-# 
-# **Bar Chart Highlights (per wetland):**
-# - **Rugezi**: Highest overall (~0.65 avg); strong in **Habitat (Animal/Plant)**, **Water Domestic/Livestock**, **Recreation**.
-# - **Nyabarongo**: Peaks at ~0.7; tops in **Income**, **Tourism**, **Aesthetics**.
-# - **Muvumba**: Moderate (~0.55); leads in **Erosion Control**, **Water Purification**.
-# - **Bugarama**: Lowest (~0.4); minor in **Mats**, **Transport**, **Other**.
-# 
-# **Radar Chart (Normalized 0-1):**
-# - **Rugezi (green)** dominates **Habitat**, **Water uses**, **Recreation**.
-# - **Nyabarongo (dark blue)** excels in **Income**, **Tourism**, **Aesthetics**.
-# - **Muvumba (teal)** strong in **Erosion/Water control**.
-# - **Bugarama (purple)** weak across all.
-# 
-# **Key Insight:** Benefits vary by site—**Rugezi** for ecology/water, **Nyabarongo** for economy/tourism. Tailor conservation & revenue strategies per wetland strength.
-
-# ##Average Income & Livelihood Sources from Wetlands
-
-# In[296]:
-
-
-# Filter numeric income-related columns
 income_cols = [
     'stated_income_wetland_monthly_RWF',
     'stated_income_wetland_annual_RWF',
@@ -1106,14 +665,12 @@ income_cols = [
     'crop_value_total_year_RWF'
 ]
 
-# Ensure numeric
 for col in income_cols:
-    wetland_df[col] = pd.to_numeric(wetland_df[col], errors='coerce')
+    merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
 
-# Compute average income per wetland
-avg_income = wetland_df.groupby('eco_wetland_name')[income_cols].mean().reset_index()
+avg_income = merged_df.groupby('eco_wetland_name')[income_cols].mean().reset_index()
 
-# Rename columns for better visualization
+# Rename for readability
 avg_income.rename(columns={
     'stated_income_wetland_monthly_RWF': 'Avg Monthly Wetland Income',
     'stated_income_wetland_annual_RWF': 'Avg Annual Wetland Income',
@@ -1126,47 +683,25 @@ avg_income.rename(columns={
     'crop_value_total_year_RWF': 'Avg Crop Income Annual'
 }, inplace=True)
 
-# Melt for easier plotting
-income_melted = avg_income.melt(id_vars='eco_wetland_name',
-                                value_vars=[
-                                    'Avg Monthly Wetland Income',
-                                    'Avg Annual Wetland Income',
-                                    'Avg Mats Income (3 Months)',
-                                    'Avg Honey Market Price',
-                                    'Avg Honey Cost',
-                                    'Avg Mushroom Income Annual',
-                                    'Avg Fish Income per Harvest',
-                                    'Avg Beer Income Annual',
-                                    'Avg Crop Income Annual'
-                                ],
-                                var_name='Income Source', value_name='Average Income (RWF)')
-
-# Sort income descending within each wetland
-income_melted['Average Income (RWF)'] = income_melted['Average Income (RWF)'].fillna(0)
-income_melted = income_melted.sort_values(by='Average Income (RWF)', ascending=False)
-
-# Plot
-plt.figure(figsize=(16,8))
-sns.set(style="whitegrid")
-sns.barplot(
-    x='eco_wetland_name',
-    y='Average Income (RWF)',
-    hue='Income Source',
-    data=income_melted,
-    palette='Spectral',
-    dodge=True
+income_melted = avg_income.melt(
+    id_vars='eco_wetland_name',
+    value_vars=list(avg_income.columns[1:]),
+    var_name='Income Source',
+    value_name='Average Income (RWF)'
 )
 
-plt.title('Average Income & Livelihood Sources from Wetlands', fontsize=18, fontweight='bold')
-plt.xlabel('Wetland Name', fontsize=14)
-plt.ylabel('Average Income (RWF)', fontsize=14)
-plt.xticks(rotation=45, ha='right')
-plt.legend(title='Income Source', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
+fig_income = px.bar(
+    income_melted,
+    x='eco_wetland_name',
+    y='Average Income (RWF)',
+    color='Income Source',
+    title='Average Income & Livelihood Sources from Wetlands',
+    text='Average Income (RWF)'
+)
+st.plotly_chart(fig_income, use_container_width=True)
 
-# Add value labels on t
 
-
+st.markdown('''
 # ## 💰 Wetland Income & Livelihood Sources (Avg. RWF)
 # 
 # Bar chart of average annual/per-period income per wetland:
@@ -1176,256 +711,155 @@ plt.tight_layout()
 # - **Rugezi & Nyabarongo**: Effectively **zero** across all sources.
 # 
 # **Key Insight:** Income is **near-zero** except **fish in Bugarama** (dominant) and **minor crops in Muvumba**. Wetlands contribute **minimal livelihood revenue** overall—focus alternatives beyond extraction.
+''')
 
-# ##Average Trade-offs from Wetlands per Wetland
+1️⃣ Average Trade-offs per Wetland
 
-# In[297]:
+st.subheader("⚖️ Average Trade-offs from Wetlands")
+st.markdown("""
+Bar chart showing negative trade-offs (crop, beer/sorghum, other practices) reported per wetland.
+""")
 
+Compute trade-offs as in your original code
 
-# Filter wetland data
-wetland_df_filtered = wetland_df.copy()  # just to be explicit
-
-# Select trade-off columns (negative effects on crops, beer, other practices)
 tradeoff_cols = [
-    'tradeoffs_crop_neg_effect_wetland_check',
-    'tradeoffs_beer_sorghum_neg_effect_wetland_check',
-    'tradeoffs_wetland_general_other_list'
+'tradeoffs_crop_neg_effect_wetland_check',
+'tradeoffs_beer_sorghum_neg_effect_wetland_check',
+'tradeoffs_wetland_general_other_list'
 ]
 
-# Melt the dataframe for plotting
-tradeoff_df = wetland_df_filtered[['eco_wetland_name'] + tradeoff_cols].melt(
-    id_vars='eco_wetland_name',
-    value_vars=tradeoff_cols,
-    var_name='Trade-off Type',
-    value_name='Reported'
+wetland_df = merged_df[merged_df['eco_type'] == 'wetland']
+tradeoff_df = wetland_df[['eco_wetland_name'] + tradeoff_cols].melt(
+id_vars='eco_wetland_name',
+value_vars=tradeoff_cols,
+var_name='Trade-off Type',
+value_name='Reported'
 )
-
-# Convert to numeric (ensure 1/0 for Yes/No)
 tradeoff_df['Reported'] = pd.to_numeric(tradeoff_df['Reported'], errors='coerce').fillna(0)
-
-# Compute average trade-off occurrence per wetland
 tradeoff_summary = tradeoff_df.groupby(['eco_wetland_name', 'Trade-off Type']).mean().reset_index()
-
-# Sort by total reported impact
 tradeoff_summary['sort_val'] = tradeoff_summary.groupby('eco_wetland_name')['Reported'].transform('sum')
 tradeoff_summary = tradeoff_summary.sort_values('sort_val', ascending=False)
 
-# Plot
-plt.figure(figsize=(14,8))
+Plot
+
+fig, ax = plt.subplots(figsize=(12,6))
 sns.barplot(
-    x='eco_wetland_name',
-    y='Reported',
-    hue='Trade-off Type',
-    data=tradeoff_summary,
-    palette='rocket'
+x='eco_wetland_name',
+y='Reported',
+hue='Trade-off Type',
+data=tradeoff_summary,
+palette='rocket',
+ax=ax
 )
-plt.title('Average Trade-offs from Wetlands per Wetland', fontsize=18, fontweight='bold')
-plt.xlabel('Wetland Name', fontsize=14)
-plt.ylabel('Average Reported Trade-off', fontsize=14)
-plt.xticks(rotation=45, ha='right', fontsize=12)
-plt.yticks(fontsize=12)
-plt.legend(title='Trade-off Type', fontsize=12, title_fontsize=13)
-plt.grid(axis='y', linestyle='--', alpha=0.7)
-sns.despine(left=True, bottom=True)
-plt.tight_layout()
-plt.show()
+ax.set_xlabel("Wetland Name")
+ax.set_ylabel("Average Reported Trade-off")
+ax.set_title("Average Trade-offs per Wetland", fontsize=16, fontweight='bold')
+plt.xticks(rotation=45, ha='right')
+st.pyplot(fig)
 
+st.markdown('''
+## ⚖️ Wetland Trade-offs (Avg. Reported 0–0.05)
 
-# ## ⚖️ Wetland Trade-offs (Avg. Reported 0–0.05)
-# 
-# Bar chart of negative trade-offs from wetland use:
-# 
-# - **Bugarama**: Highest at ~0.045 (**crop negative effects** - orange).
-# - **Muvumba**: ~0.025 (same crop impact).
-# - **Rugezi**: ~0.003 (**general/other** - purple); negligible.
-# - **Nyabarongo**: **Zero**.
-# 
-# **Key Insight:** Crop-related **negative impacts** dominate, but only in **Bugarama & Muvumba**—and even there, **very low**. Trade-offs are **minimal overall**; wetland use causes **little reported harm**.
+Bar chart of negative trade-offs from wetland use:
 
-# #**How respondents feel to be residing in the surroundings of the wetlands**
+- **Bugarama**: Highest at ~0.045 (**crop negative effects** - orange).
+- **Muvumba**: ~0.025 (same crop impact).
+- **Rugezi**: ~0.003 (**general/other** - purple); negligible.
+- **Nyabarongo**: **Zero**.
 
+**Key Insight:** Crop-related **negative impacts** dominate, but only in **Bugarama & Muvumba**—and even there, **very low**. Trade-offs are **minimal overall**; wetland use causes **little reported harm**.
+
+#**How respondents feel to be residing in the surroundings of the wetlands**
+''')
 # In[298]:
 
 
-# 1. Exact mapping for your 3 statements
-exact_map = {
-    "I feel well as a privilege to be residing near the wetland!": "Good",
-    "It is normal to be near the wetland just like if I were residing at another area": "Normal",
-    "I don't feel good actually to reside nearby the wetland": "Bad",
-}
+2️⃣ Respondent Feelings Near Wetlands
 
-# 2. Keywords for flexible matching (if new text appears)
-good_kw = ['privilege', 'feel well', 'good to reside', 'happy', 'comfortable']
-ind_kw = ['normal', 'just like another area', 'neutral']
-bad_kw = ['don\'t feel good', 'not good', 'bad', 'unsafe', 'uncomfortable']
+st.subheader("😊 How Respondents Feel Near Wetlands")
+st.markdown("Count of respondents who feel Good, Normal, or Bad living near wetlands.")
+
+Map feelings
 
 def map_feeling(text):
-    if pd.isna(text):
-        return 'Unknown'
-    t = str(text).strip()
-    t_low = t.lower()
+if pd.isna(text): return 'Unknown'
+t = str(text).lower()
+if 'privilege' in t or 'feel well' in t: return 'Good'
+if 'normal' in t: return 'Normal'
+if "don't feel good" in t or 'bad' in t: return 'Bad'
+return 'Unknown'
 
-    # exact match
-    if t in exact_map:
-        return exact_map[t]
-
-    # keyword match
-    if any(k in t_low for k in good_kw):
-        return 'Good'
-    if any(k in t_low for k in ind_kw):
-        return 'Normal'
-    if any(k in t_low for k in bad_kw):
-        return 'Bad'
-
-    return 'Unknown'
-
-# 3. Apply
-merged_df['wetland_feel_short'] = merged_df['sense_place_wetland_feel_check'].apply(map_feeling)
-
-# 4. Count for wetland only
-wetland_df = merged_df[merged_df['eco_type'] == 'wetland']
+wetland_df['wetland_feel_short'] = wetland_df['sense_place_wetland_feel_check'].apply(map_feeling)
 feeling_counts = wetland_df['wetland_feel_short'].value_counts().reset_index()
 feeling_counts.columns = ['Feeling', 'Count']
-print(feeling_counts)
-plt.figure(figsize=(8,5))
-sns.set_style("whitegrid")
 
-colors = sns.color_palette("Set2", n_colors=len(feeling_counts))
-
-ax = sns.barplot(
-    data=feeling_counts,
-    x='Feeling',
-    y='Count',
-    palette=colors,
-    edgecolor='black',
-    linewidth=1.5
-)
-
+fig2, ax2 = plt.subplots(figsize=(8,5))
+sns.barplot(data=feeling_counts, x='Feeling', y='Count', palette='Set2', ax=ax2)
 for i, v in enumerate(feeling_counts['Count']):
-    plt.text(i, v + max(feeling_counts['Count']) * 0.02, str(v),
-             ha='center', fontsize=12, fontweight='bold')
+ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
+ax2.set_title("Respondent Feelings Near Wetlands")
+st.pyplot(fig2)
 
-plt.title("How Respondents Feel Living Near Wetlands", fontsize=14, weight='bold')
-plt.xlabel("Feeling", fontsize=12)
-plt.ylabel("Count", fontsize=12)
+3️⃣ Consequences if Wetland Depleted
 
-plt.tight_layout()
-plt.show()
-
-
-# #**What should happen if this wetland is significantly depleted or absent?**
-
-# In[299]:
-
-
-# Select wetland rows
-wetland_df3 = merged_df[merged_df['eco_type'] == 'wetland']
-
-# Columns for absent and half-depleted consequences
+st.subheader("⚠️ Consequences if Wetland is Absent or Half-Depleted")
 absent_cols = [
-    'abs_conseq_wetland_absent_life_affected',
-    'abs_conseq_wetland_absent_income_reduced',
-    'abs_conseq_wetland_absent_shift_place',
-    'abs_conseq_wetland_absent_no_conseq',
-    'abs_conseq_wetland_absent_other'
+'abs_conseq_wetland_absent_life_affected',
+'abs_conseq_wetland_absent_income_reduced',
+'abs_conseq_wetland_absent_shift_place',
+'abs_conseq_wetland_absent_no_conseq',
+'abs_conseq_wetland_absent_other'
 ]
-
 half_cols = [
-    'abs_conseq_wetland_half_life_affected',
-    'abs_conseq_wetland_half_income_reduced',
-    'abs_conseq_wetland_half_shift_place',
-    'abs_conseq_wetland_half_no_conseq',
-    'abs_conseq_wetland_half_other'
+'abs_conseq_wetland_half_life_affected',
+'abs_conseq_wetland_half_income_reduced',
+'abs_conseq_wetland_half_shift_place',
+'abs_conseq_wetland_half_no_conseq',
+'abs_conseq_wetland_half_other'
 ]
-
-# Count responses
-absent_counts = wetland_df3[absent_cols].apply(lambda x: (x == 1).sum())
-half_counts = wetland_df3[half_cols].apply(lambda x: (x == 1).sum())
-
-# Short labels
+absent_counts = wetland_df[absent_cols].sum()
+half_counts = wetland_df[half_cols].sum()
 labels = ['Life affected', 'Income reduced', 'Shift place', 'No consequence', 'Other']
-
-# Plot grouped bar chart
-import numpy as np
-import matplotlib.pyplot as plt
 
 x = np.arange(len(labels))
 width = 0.35
-
-plt.figure(figsize=(10,6))
-plt.bar(x - width/2, absent_counts.values, width, label='Absent', color='skyblue', edgecolor='black')
-plt.bar(x + width/2, half_counts.values, width, label='Half-Depleted', color='salmon', edgecolor='black')
-
-plt.xticks(x, labels, rotation=30, ha='right')
-plt.ylabel("Number of Respondents")
-plt.title("Consequences if Wetland is Absent or Half-Depleted", fontsize=14, weight='bold')
-plt.legend()
-plt.tight_layout()
-plt.show()
+fig3, ax3 = plt.subplots(figsize=(10,6))
+ax3.bar(x - width/2, absent_counts.values, width, label='Absent', color='skyblue', edgecolor='black')
+ax3.bar(x + width/2, half_counts.values, width, label='Half-Depleted', color='salmon', edgecolor='black')
+ax3.set_xticks(x)
+ax3.set_xticklabels(labels, rotation=30, ha='right')
+ax3.set_ylabel("Number of Respondents")
+ax3.set_title("Wetland Absence vs Half-Depletion Consequences")
+ax3.legend()
+st.pyplot(fig3)
 
 
-# #**Benefits of the wetlands on respondents' wellbeing**
+4️⃣ Wellbeing Benefits
 
-# In[300]:
-
-
-# Select wetland rows
-wetland_df3 = merged_df[merged_df['eco_type'] == 'wetland']
-
-# Columns related to wellbeing benefits
+st.subheader("💚 Benefits of Wetlands on Respondents' Wellbeing")
 wellbeing_cols = [
-    'wellbeing_wetland_physical_health',
-    'wellbeing_wetland_mental_visit',
-    'wellbeing_wetland_general_improve',
-    'wellbeing_wetland_other'
+'wellbeing_wetland_physical_health',
+'wellbeing_wetland_mental_visit',
+'wellbeing_wetland_general_improve',
+'wellbeing_wetland_other'
 ]
+wellbeing_labels = ['Physical health', 'Mental health/visits', 'General improvement', 'Other']
+wellbeing_counts = wetland_df[wellbeing_cols].sum()
+wellbeing_percent = (wellbeing_counts / len(wetland_df) * 100).round(2)
 
-# Short labels for plotting
-wellbeing_labels = [
-    'Physical health',
-    'Mental health/visits',
-    'General improvement',
-    'Other'
-]
-
-# Count responses (assuming binary 1/0)
-wellbeing_counts = wetland_df3[wellbeing_cols].apply(lambda x: (x == 1).sum())
-
-# Calculate percentages
-total_respondents = len(wetland_df3)
-wellbeing_percent = (wellbeing_counts / total_respondents * 100).round(2)
-
-# Plot
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-plt.figure(figsize=(10,6))
-sns.barplot(x=wellbeing_labels, y=wellbeing_counts.values, palette="Set3", edgecolor='black')
-plt.ylabel("Number of Respondents")
-plt.title("Benefits of Wetlands on Respondents' Wellbeing", fontsize=14, weight='bold')
-
-# Add counts and percentages on top
+fig4, ax4 = plt.subplots(figsize=(10,6))
+sns.barplot(x=wellbeing_labels, y=wellbeing_counts.values, palette="Set3", ax=ax4)
 for i, (count, perc) in enumerate(zip(wellbeing_counts.values, wellbeing_percent.values)):
-    plt.text(i, count + 2, f"{count} ({perc}%)", ha='center', fontweight='bold')
-
-plt.xticks(rotation=30, ha='right')
-plt.tight_layout()
-plt.show()
-
-
-# ##Biodiversity Counts by Wetland
-
-# In[301]:
+ax4.text(i, count + 1, f"{count} ({perc}%)", ha='center', fontweight='bold')
+ax4.set_title("Wetland Benefits on Wellbeing")
+ax4.set_ylabel("Number of Respondents")
+st.pyplot(fig4)
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+st.header("🦎 Biodiversity Counts by Wetland")
 
-# Filter wetland_df as before
+# Filter wetlands and select relevant columns
 wetland_df = merged_df[merged_df['eco_wetland_name'].notna()]
-
-# Select biodiversity-related columns
 biodiv_cols = [
     'eco_wetland_name',
     'biodiv_reptile_lizards_check',
@@ -1438,11 +872,11 @@ biodiv_cols = [
 
 biodiv_df = wetland_df[biodiv_cols]
 
-# Convert to numeric (1/0 or counts)
+# Convert to numeric
 for col in biodiv_cols[1:]:
     biodiv_df[col] = pd.to_numeric(biodiv_df[col], errors='coerce')
 
-# Aggregate counts per wetland
+# Aggregate counts
 biodiv_summary = biodiv_df.groupby('eco_wetland_name')[biodiv_cols[1:]].sum().reset_index()
 
 # Melt for plotting
@@ -1450,85 +884,60 @@ biodiv_melted = biodiv_summary.melt(id_vars='eco_wetland_name',
                                     var_name='Species',
                                     value_name='Count')
 
-# Sort wetland by total species counts for better visualization
 wetland_order = biodiv_melted.groupby('eco_wetland_name')['Count'].sum().sort_values(ascending=False).index
 
-# Set Seaborn style
-sns.set_theme(style="whitegrid")
-
 # Plot
-plt.figure(figsize=(14,8))
+st.subheader("Reptile Species Counts per Wetland")
+fig1, ax1 = plt.subplots(figsize=(12,7))
 sns.barplot(
     x='eco_wetland_name',
     y='Count',
     hue='Species',
     data=biodiv_melted,
     palette='viridis',
-    order=wetland_order
+    order=wetland_order,
+    ax=ax1
 )
-
-plt.title("Biodiversity Counts by Wetland", fontsize=18, fontweight='bold')
-plt.xlabel("Wetland Name", fontsize=14)
-plt.ylabel("Number of Species Observed", fontsize=14)
-plt.xticks(rotation=45, ha='right', fontsize=12)
-plt.yticks(fontsize=12)
-plt.legend(title="Species", fontsize=12, title_fontsize=13)
-plt.tight_layout()
-
-# Add a gradient background for visual impact
-plt.gca().set_facecolor('#f0f0f0')
+ax1.set_title("Biodiversity Counts by Wetland", fontsize=16, fontweight='bold')
+ax1.set_xlabel("Wetland Name", fontsize=12)
+ax1.set_ylabel("Number of Species Observed", fontsize=12)
+plt.xticks(rotation=45, ha='right')
 plt.grid(True, linestyle='--', alpha=0.5)
-
-plt.show()
-
-
-# ## 🦎 Wetland Reptile Biodiversity (Observed Counts)
-# 
-# Stacked bar chart of reptile species:
-# 
-# - **Rugezi**: ~400 total; ~160 **lizards** (purple), ~120 **geckos** (dark blue), ~120 **snakes** (teal).
-# - **Nyabarongo**: ~285; nearly all **snakes** (teal).
-# - **Muvumba**: ~190; ~100 **lizards**, ~45 **geckos**, ~45 **snakes**.
-# - **Bugarama**: ~125; mostly **other reptiles** (green).
-# 
-# **Key Insight:** **Rugezi** is reptile hotspot (highest diversity/count). **Nyabarongo** snake-dominated. **Bugarama** low overall, favors **other reptiles**. Prioritize **Rugezi** for reptile conservation.
-
-# #Average Willingness to Pay (WTP) for Wetland Conservation by Wetland
-
-# In[302]:
+st.pyplot(fig1)
 
 
-# Ensure we work on a copy to avoid SettingWithCopyWarning
-wetland_df_clean = wetland_df.copy()
+st.markdown('''
+## 🦎 Wetland Reptile Biodiversity (Observed Counts)
 
-# Convert WTP column to numeric, coerce errors to NaN
+Stacked bar chart of reptile species:
+
+- **Rugezi**: ~400 total; ~160 **lizards** (purple), ~120 **geckos** (dark blue), ~120 **snakes** (teal).
+- **Nyabarongo**: ~285; nearly all **snakes** (teal).
+- **Muvumba**: ~190; ~100 **lizards**, ~45 **geckos**, ~45 **snakes**.
+- **Bugarama**: ~125; mostly **other reptiles** (green).
+
+**Key Insight:** **Rugezi** is reptile hotspot (highest diversity/count). **Nyabarongo** snake-dominated. **Bugarama** low overall, favors **other reptiles**. Prioritize **Rugezi** for reptile conservation.
+''')
+
+st.header("💸 Average Willingness to Pay (WTP) for Wetland Conservation")
+
 wtp_col = 'wtp_wetland_amount_RWF'
-wetland_df_clean.loc[:, wtp_col] = pd.to_numeric(wetland_df_clean[wtp_col], errors='coerce')
-
-# Drop rows where WTP is NaN
+wetland_df_clean = wetland_df.copy()
+wetland_df_clean[wtp_col] = pd.to_numeric(wetland_df_clean[wtp_col], errors='coerce')
 wtp_df = wetland_df_clean.dropna(subset=[wtp_col])
-
-# Compute average and std per wetland
-wtp_summary = wtp_df.groupby('eco_wetland_name')[wtp_col].agg(['mean', 'std']).reset_index()
-
-# Sort descending by mean
+wtp_summary = wtp_df.groupby('eco_wetland_name')[wtp_col].agg(['mean','std']).reset_index()
 wtp_summary = wtp_summary.sort_values('mean', ascending=False)
 
-# Set plot style
-sns.set(style="whitegrid")
-plt.figure(figsize=(14,8))
-
-# Horizontal barplot
-barplot = sns.barplot(
+fig2, ax2 = plt.subplots(figsize=(12,7))
+sns.barplot(
     x='mean',
     y='eco_wetland_name',
     data=wtp_summary,
-    palette='viridis',  # beautiful colormap
-    edgecolor='black'
+    palette='viridis',
+    edgecolor='black',
+    ax=ax2
 )
-
-# Overlay standard deviation as error bars
-plt.errorbar(
+ax2.errorbar(
     x=wtp_summary['mean'],
     y=np.arange(len(wtp_summary)),
     xerr=wtp_summary['std'],
@@ -1537,273 +946,270 @@ plt.errorbar(
     elinewidth=2,
     capsize=5
 )
-
-# Annotate bar values
 for i, row in wtp_summary.iterrows():
-    plt.text(row['mean'] + max(wtp_summary['mean'])*0.01, i, f"{row['mean']:.0f} RWF", va='center', fontweight='bold')
-
-# Titles & labels
-plt.title('Average Willingness to Pay (WTP) for Wetland Conservation by Wetland', fontsize=16, fontweight='bold')
-plt.xlabel('Average WTP (RWF)', fontsize=14)
-plt.ylabel('Wetland Name', fontsize=14)
-
-plt.tight_layout()
-plt.show()
+    ax2.text(row['mean'] + max(wtp_summary['mean'])*0.01, i, f"{row['mean']:.0f} RWF", va='center', fontweight='bold')
+ax2.set_title('Average WTP by Wetland', fontsize=16, fontweight='bold')
+ax2.set_xlabel('Average WTP (RWF)', fontsize=12)
+ax2.set_ylabel('Wetland Name', fontsize=12)
+st.pyplot(fig2)
 
 
-# ## 💸 Avg. Willingness to Pay (WTP) for Wetland Conservation
-# 
-# Horizontal bar chart (RWF):
-# 
-# - **Bugarama**: **6,071 RWF** (highest)
-# - **Muvumba**: **3,700 RWF**
-# - **Rugezi**: **1,237 RWF** (lowest)
-# - **Nyabarongo**: Not shown → **zero or missing**
-# 
-# **Key Insight:** **Bugarama** residents value conservation **5x more** than Rugezi. Target **payment schemes or eco-fees in Bugarama** for strongest revenue potential.
+st.markdown('''
+## 💸 Avg. Willingness to Pay (WTP) for Wetland Conservation
+
+Horizontal bar chart (RWF):
+
+- **Bugarama**: **6,071 RWF** (highest)
+- **Muvumba**: **3,700 RWF**
+- **Rugezi**: **1,237 RWF** (lowest)
+- **Nyabarongo**: Not shown → **zero or missing**
+
+**Key Insight:** **Bugarama** residents value conservation **5x more** than Rugezi. Target **payment schemes or eco-fees in Bugarama** for strongest revenue potential.
+''')
 
 # #4. **FOREST ANALYSIS**
 
-# In[303]:
+st.header("🌳4. **FOREST ANALYSIS**")
 
-
-# Filter for Forests
-forest_df = merged_df[merged_df['eco_case_study_no'].isin([1, 2, 3, 4, 5, 10])]
-# List of numeric columns for Forests
-forest_numeric_columns = ['b_forest_income_gen',
- 'abs_conseq_forest_absent_income_reduced',
- 'abs_conseq_forest_half_income_reduced',
- 'stated_income_forest_monthly_RWF',
- 'stated_income_forest_annual_RWF',
- 'value_honey_market_price_RWF',
- 'value_honey_cost_RWF',
- 'value_mushroom_cost_RWF',
- 'wtp_forest_amount_RWF',
- 'crop_market_price'
+forest_df = merged_df[merged_df['eco_case_study_no'].isin([1,2,3,4,5,10])]
+forest_numeric_columns = [
+    'b_forest_income_gen',
+    'abs_conseq_forest_absent_income_reduced',
+    'abs_conseq_forest_half_income_reduced',
+    'stated_income_forest_monthly_RWF',
+    'stated_income_forest_annual_RWF',
+    'value_honey_market_price_RWF',
+    'value_honey_cost_RWF',
+    'wtp_forest_amount_RWF',
+    'crop_market_price'
 ]
 
-# Convert to numeric
 for col in forest_numeric_columns:
     forest_df[col] = pd.to_numeric(forest_df[col], errors='coerce')
 
-# Group by case study and compute average
 forest_summary = forest_df.groupby('eco_forest_name')[forest_numeric_columns].mean().reset_index()
-
-# Add Category column
 forest_summary.insert(1, 'Category', 'Forest')
 
-# Display summary
-forest_summary
+st.subheader("Average Forest Economic Metrics")
+st.dataframe(forest_summary)
+
+st.markdown('''
+## 🌳 Rwanda's Forests: Economic and Perceptual Reality
 
 
-# ## 🌳 Rwanda's Forests: Economic and Perceptual Reality
-# 
-# 
-# 
-# ### 💰 Direct Economic Dependence (Income & Provisioning)
-# 
-# | Forest Name | Income Generation (Proportion) | Annual Stated Income (RWF) | Honey Value (RWF/year) | WTP for Conservation (RWF/year) |
-# | :--- | :--- | :--- | :--- | :--- |
-# | **Nyungwe NP** | **Highest (4.87%)** | **RWF 6.53M** | RWF 58,793 | RWF 12,832 |
-# | **Volcanoes NP** | 4.70% | RWF 4.43M | RWF 13,778 | RWF 7,782 |
-# | **Akagera NP** | 2.29% | RWF 0.96M | **RWF 75,167** | RWF 6,075 |
-# | **Gishwati FR** | Lowest (0.53%) | RWF 6.66M | RWF 81,627 | RWF 1,308 |
-# 
-# ### Key Findings:
-# 
-# * **Income Concentration:** **Nyungwe** and **Volcanoes** have the **highest proportion of communities generating income** directly from the forest (around 4.7%–4.9%).
-# * **Provisioning Value Disparity:** While Nyungwe and Volcanoes report high *stated annual income*, **Akagera** and **Gishwati** report the highest **Honey Values** (provisioning products), suggesting a crucial, non-income-generating product base.
-# * **WTP Correlates with Use:** **Nyungwe** and **Volcanoes** communities show the highest **WTP** for conservation, confirming their high perceived value linked to direct use.
-# 
-# ---
-# 
-# ### 🌲 Perceived Value and Risk
-# 
-# The community perception of risk from forest loss is **not uniform**:
-# 
-# | Forest Name | Expected Income Loss (Forest Absent) | Water Regulation Recognition |
-# | :--- | :--- | :--- |
-# | **Nyungwe NP** | **Highest (8.84%)** | High |
-# | **Akagera NP** | High (18.59%) | High |
-# | **Volcanoes NP** | Low (3.17%) | High |
-# | **Arboretum Forest** | Lowest (0.00%) | High |
-# 
-# ### 📝 Strategic Implications
-# 
-# 1.  **Tailored Engagement:** The original two-model approach is strongly supported:
-#     * **"Provisioning" Forests (Nyungwe & Volcanoes):** Engagement must focus on **sustainable livelihood enhancement** to manage the highest risk of **direct income loss**.
-#     * **"Protective" Forests (Akagera, Arboretum, Mt. Kigali, Gishwati):** The strategy should be built around **Water Fund investments** and **ecosystem services branding**, as direct economic dependence is low.
-# 
-# 2.  **Water is the Universal Asset:** Every forest's value proposition is strengthened by its confirmed role in **Water Regulation**, making this the most straightforward and least conflict-prone area for investment.
+### 💰 Direct Economic Dependence (Income & Provisioning)
+
+| Forest Name | Income Generation (Proportion) | Annual Stated Income (RWF) | Honey Value (RWF/year) | WTP for Conservation (RWF/year) |
+| :--- | :--- | :--- | :--- | :--- |
+| **Nyungwe NP** | **Highest (4.87%)** | **RWF 6.53M** | RWF 58,793 | RWF 12,832 |
+| **Volcanoes NP** | 4.70% | RWF 4.43M | RWF 13,778 | RWF 7,782 |
+| **Akagera NP** | 2.29% | RWF 0.96M | **RWF 75,167** | RWF 6,075 |
+| **Gishwati FR** | Lowest (0.53%) | RWF 6.66M | RWF 81,627 | RWF 1,308 |
+
+### Key Findings:
+
+* **Income Concentration:** **Nyungwe** and **Volcanoes** have the **highest proportion of communities generating income** directly from the forest (around 4.7%–4.9%).
+* **Provisioning Value Disparity:** While Nyungwe and Volcanoes report high *stated annual income*, **Akagera** and **Gishwati** report the highest **Honey Values** (provisioning products), suggesting a crucial, non-income-generating product base.
+* **WTP Correlates with Use:** **Nyungwe** and **Volcanoes** communities show the highest **WTP** for conservation, confirming their high perceived value linked to direct use.
+
+---
+
+### 🌲 Perceived Value and Risk
+
+The community perception of risk from forest loss is **not uniform**:
+
+| Forest Name | Expected Income Loss (Forest Absent) | Water Regulation Recognition |
+| :--- | :--- | :--- |
+| **Nyungwe NP** | **Highest (8.84%)** | High |
+| **Akagera NP** | High (18.59%) | High |
+| **Volcanoes NP** | Low (3.17%) | High |
+| **Arboretum Forest** | Lowest (0.00%) | High |
+
+### 📝 Strategic Implications
+
+1.  **Tailored Engagement:** The original two-model approach is strongly supported:
+    * **"Provisioning" Forests (Nyungwe & Volcanoes):** Engagement must focus on **sustainable livelihood enhancement** to manage the highest risk of **direct income loss**.
+    * **"Protective" Forests (Akagera, Arboretum, Mt. Kigali, Gishwati):** The strategy should be built around **Water Fund investments** and **ecosystem services branding**, as direct economic dependence is low.
+
+2.  **Water is the Universal Asset:** Every forest's value proposition is strengthened by its confirmed role in **Water Regulation**, making this the most straightforward and least conflict-prone area for investment.
+''')
 
 # #4(a) **FOREST VISUALIZATION**
 
-# In[304]:
-
-
-# Melt the summary dataframe for plotting
-forest_melted = forest_summary.melt(id_vars=['eco_forest_name', 'Category'],
-                                    value_vars=forest_numeric_columns,
-                                    var_name='Indicator', value_name='Average Value')
-
-# Sort indicators for consistent order
-forest_melted['Indicator'] = forest_melted['Indicator'].replace({
-    'b_forest_income_gen': 'Avg. Forest Income Generation (RWF/year)',
-    'abs_conseq_forest_absent_income_reduced': 'Avg. Income Reduction if Forest Completely Lost (RWF/year)',
-    'abs_conseq_forest_half_income_reduced': 'Avg. Income Reduction if Forest Partially Lost (RWF/year)',
-    'stated_income_forest_monthly_RWF': 'Avg. Monthly Forest Income (RWF)',
-    'stated_income_forest_annual_RWF': 'Avg. Annual Forest Income (RWF)',
-    'value_honey_market_price_RWF': 'Avg. Market Price of Honey (RWF/unit)',
-    'value_honey_cost_RWF': 'Avg. Cost of Honey Production (RWF/unit)',
-    'value_mushroom_cost_RWF': 'Avg. Cost of Mushroom Production (RWF/unit)',
-    'wtp_forest_amount_RWF': 'Avg. Willingness to Pay for Forest Conservation (RWF/year)',
-    'crop_market_price': 'Avg. Market Price of Crops (RWF/unit)'
-})
-
-# Create a large figure
-plt.figure(figsize=(18, 12))
-
-# Use a categorical plot with facets for each indicator
-g = sns.catplot(
-    data=forest_melted,
-    x='eco_forest_name',
-    y='Average Value',
-    hue='eco_forest_name',
-    col='Indicator',
-    kind='bar',
-    col_wrap=2,
-    sharey=False,  # Allow different scales per plot
-    palette='Greens',
-    height=5,
-    aspect=1.5
+st.set_page_config(
+    page_title="Rwanda FOREST VISUALIZATION",
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
-# Rotate x labels for readability
-for ax in g.axes.flat:
-    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, horizontalalignment='right')
+# --- TITLE ---
+st.title("🌳 Rwanda Forests Dashboard")
+st.markdown("""
+Explore **forest ecosystem services**, **biodiversity**, **perceived benefits**, and **regulatory awareness** across Rwanda's case study forests.
+""")
 
-# Add a main title
-plt.subplots_adjust(top=0.92)
-g.fig.suptitle('Average Forest Benefits and Economic Values per Case Study', fontsize=18)
+# --- TAB SETUP ---
+tabs = st.tabs(["Forest Overview", "Forest Age", "Provisioning Benefits", 
+                "Regulatory Awareness", "Air Regulation", "Biodiversity Index", 
+                "Cultural & Recreational"])
 
-# Remove legend for individual plots and add a common one
-g.add_legend(title='Forest Name')
+# ---------------------------
+# TAB 1: Forest Overview (Multi-facet Plot)
+# ---------------------------
+with tabs[0]:
+    st.header("🏞️ Average Forest Benefits and Economic Values")
+    st.markdown("""
+    Each plot shows the **average value** of specific forest indicators per case study:
+    - Income generation
+    - Honey & mushroom production
+    - Willingness to pay for conservation
+    - Crop market values
+    """)
+    
+    # Melt for plotting
+    forest_melted = forest_summary.melt(id_vars=['eco_forest_name', 'Category'],
+                                        value_vars=forest_numeric_columns,
+                                        var_name='Indicator', value_name='Average Value')
 
-plt.show()
+    forest_melted['Indicator'] = forest_melted['Indicator'].replace({
+        'b_forest_income_gen': 'Avg. Forest Income Generation (RWF/year)',
+        'abs_conseq_forest_absent_income_reduced': 'Avg. Income Reduction if Forest Completely Lost (RWF/year)',
+        'abs_conseq_forest_half_income_reduced': 'Avg. Income Reduction if Forest Partially Lost (RWF/year)',
+        'stated_income_forest_monthly_RWF': 'Avg. Monthly Forest Income (RWF)',
+        'stated_income_forest_annual_RWF': 'Avg. Annual Forest Income (RWF)',
+        'value_honey_market_price_RWF': 'Avg. Market Price of Honey (RWF/unit)',
+        'value_honey_cost_RWF': 'Avg. Cost of Honey Production (RWF/unit)',
+        'value_mushroom_cost_RWF': 'Avg. Cost of Mushroom Production (RWF/unit)',
+        'wtp_forest_amount_RWF': 'Avg. Willingness to Pay for Forest Conservation (RWF/year)',
+        'crop_market_price': 'Avg. Market Price of Crops (RWF/unit)'
+    })
+    
+    g = sns.catplot(
+        data=forest_melted,
+        x='eco_forest_name',
+        y='Average Value',
+        hue='eco_forest_name',
+        col='Indicator',
+        kind='bar',
+        col_wrap=2,
+        sharey=False,
+        palette='Greens',
+        height=4,
+        aspect=1.5
+    )
+    for ax in g.axes.flat:
+        ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+    plt.subplots_adjust(top=0.9)
+    g.fig.suptitle('Average Forest Benefits per Case Study', fontsize=16)
+    g.add_legend(title='Forest Name')
+    st.pyplot(g.fig)
 
-
-# #Average age per forest
-
-# In[305]:
-
-
-# 1. Calculate average age per forest
-avg_age_forest = forest_df.groupby('eco_forest_name')['resp_age'].mean().sort_values(ascending=False)
-
-# 2. Pie chart
-plt.figure(figsize=(10,10))
-colors = plt.cm.Paired(range(len(avg_age_forest)))  # stylish colormap
-
-plt.pie(avg_age_forest, labels=avg_age_forest.index, autopct='%1.1f%%', startangle=140, colors=colors, wedgeprops={'edgecolor':'white', 'linewidth':1.5})
-plt.title("Average Age of Respondents per Forest", fontsize=16)
-plt.tight_layout()
-plt.show()
-
-
-
-# ## 🌲 Avg. Respondent Age per Forest
-# 
-# Pie chart of **average age contribution** across 6 sites:
-# 
-# - **Volcanoes NP**: 18.7%  
-# - **Gishwati**: 17.8%  
-# - **Nyungwe NP**: 16.3%  
-# - **Mount Kigali**: 16.1%  
-# - **Arboretum**: 16.0%  
-# - **Akagera NP**: 15.1%  
-# 
-# **Key Insight:** Ages **nearly identical** (~16–19% share) → **uniform young adult demographic** across all forests. **One-size-fits-all** outreach works.
-
-# #Provisioning Benefits by Forest (Wood, Income, Food/Livestock)
-# 
-
-# In[306]:
-
-
-# Select columns related to provisioning benefits
-provisioning_cols = [
-    'b_forest_wood_provision',
-    'b_forest_income_gen',
-    'b_forest_food_livestock'
-]
-
-# Filter and convert to numeric
-for col in provisioning_cols:
-    forest_df[col] = pd.to_numeric(forest_df[col], errors='coerce')
-
-# Group by forest and compute averages
-forest_provisioning = forest_df.groupby('eco_forest_name')[provisioning_cols].mean().reset_index()
-
-# Rename columns for aesthetics
-forest_provisioning.rename(columns={
-    'b_forest_wood_provision': 'Wood Provision',
-    'b_forest_income_gen': 'Income Generation',
-    'b_forest_food_livestock': 'Food/Livestock'
-}, inplace=True)
-
-# Melt for seaborn plotting
-forest_provisioning_melted = forest_provisioning.melt(id_vars='eco_forest_name',
-                                                      var_name='Benefit Type',
-                                                      value_name='Average Score')
-
-# Set style
-sns.set_style("whitegrid")
-plt.figure(figsize=(14, 8))
-
-# Stacked bar simulation using seaborn barplot with hue
-barplot = sns.barplot(
-    data=forest_provisioning_melted,
-    x='eco_forest_name',
-    y='Average Score',
-    hue='Benefit Type',
-    palette='viridis'
-)
-
-# Add values on top of bars
-for p in barplot.patches:
-    height = p.get_height()
-    barplot.annotate(f'{height:.2f}',
-                     (p.get_x() + p.get_width() / 2., height),
-                     ha='center', va='bottom', fontsize=10, color='black', rotation=0)
-
-# Titles and labels
-plt.title('Provisioning Benefits by Forest (Wood, Income, Food/Livestock)', fontsize=16, fontweight='bold')
-plt.xlabel('Forest Name', fontsize=12)
-plt.ylabel('Average Benefit Score', fontsize=12)
-plt.xticks(rotation=45, ha='right')
-plt.legend(title='Benefit Type', fontsize=10, title_fontsize=12)
-plt.tight_layout()
-
-plt.show()
+with tabs[1]:
+    st.header("👥 Average Age of Respondents per Forest")
+    avg_age_forest = forest_df.groupby('eco_forest_name')['resp_age'].mean().sort_values(ascending=False)
+    
+    fig, ax = plt.subplots(figsize=(8,8))
+    colors = plt.cm.Paired(range(len(avg_age_forest)))
+    ax.pie(avg_age_forest, labels=avg_age_forest.index, autopct='%1.1f%%', startangle=140, colors=colors,
+           wedgeprops={'edgecolor':'white', 'linewidth':1.5})
+    ax.set_title("Average Age Distribution Across Forests")
+    st.pyplot(fig)
 
 
-# ## 🌳 Provisioning Benefits by Forest (Avg. Score 0–0.09)
-# 
-# Stacked bars (Wood blue, Income teal, Food/Livestock green):
-# 
-# - **Volcanoes NP**: **0.09** – Food/Livestock **0.05**, Income **0.03**, Wood **0.01**
-# - **Nyungwe NP**: **0.09** – Income **0.05**, Food/Livestock **0.04**
-# - **Akagera NP**: **0.04** – Income & Food/Livestock **0.02** each
-# - **Gishwati**: **0.02** – Income & Wood **0.01** each
-# - **Arboretum & Mount Kigali**: **<0.01** – negligible
-# 
-# **Key Insight:** **Volcanoes & Nyungwe** dominate provisioning (esp. **income & food**). Others near **zero**. **Target sustainable income programs there only**.
 
-# #Forest Regulatory Awareness Across Forests
-# 
+st.markdown(''' 
+## 🌲 Avg. Respondent Age per Forest
 
-# In[307]:
+Pie chart of **average age contribution** across 6 sites:
 
+- **Volcanoes NP**: 18.7%  
+- **Gishwati**: 17.8%  
+- **Nyungwe NP**: 16.3%  
+- **Mount Kigali**: 16.1%  
+- **Arboretum**: 16.0%  
+- **Akagera NP**: 15.1%  
+
+**Key Insight:** Ages **nearly identical** (~16–19% share) → **uniform young adult demographic** across all forests. **One-size-fits-all** outreach works.
+''')
+
+with tabs[2]:
+    st.header("🌲 Provisioning Benefits by Forest (Wood, Income, Food/Livestock)")
+    
+    # Select columns related to provisioning benefits
+    provisioning_cols = [
+        'b_forest_wood_provision',
+        'b_forest_income_gen',
+        'b_forest_food_livestock'
+    ]
+    
+    # Filter and convert to numeric
+    for col in provisioning_cols:
+        forest_df[col] = pd.to_numeric(forest_df[col], errors='coerce')
+    
+    # Group by forest and compute averages
+    forest_provisioning = forest_df.groupby('eco_forest_name')[provisioning_cols].mean().reset_index()
+    
+    # Rename columns for aesthetics
+    forest_provisioning.rename(columns={
+        'b_forest_wood_provision': 'Wood Provision',
+        'b_forest_income_gen': 'Income Generation',
+        'b_forest_food_livestock': 'Food/Livestock'
+    }, inplace=True)
+    
+    # Melt for seaborn plotting
+    forest_provisioning_melted = forest_provisioning.melt(
+        id_vars='eco_forest_name',
+        var_name='Benefit Type',
+        value_name='Average Score'
+    )
+    
+    # Set style
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(figsize=(14, 8))
+    
+    # Stacked bar simulation using seaborn barplot with hue
+    barplot = sns.barplot(
+        data=forest_provisioning_melted,
+        x='eco_forest_name',
+        y='Average Score',
+        hue='Benefit Type',
+        palette='viridis',
+        ax=ax
+    )
+    
+    # Add values on top of bars
+    for p in barplot.patches:
+        height = p.get_height()
+        barplot.annotate(
+            f'{height:.2f}',
+            (p.get_x() + p.get_width() / 2., height),
+            ha='center', va='bottom', fontsize=10, color='black', rotation=0
+        )
+    
+    # Titles and labels
+    ax.set_title('Provisioning Benefits by Forest (Wood, Income, Food/Livestock)', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Forest Name', fontsize=12)
+    ax.set_ylabel('Average Benefit Score', fontsize=12)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+    ax.legend(title='Benefit Type', fontsize=10, title_fontsize=12)
+    plt.tight_layout()
+    
+    # Display in Streamlit
+    st.pyplot(fig)
+    
+st.markdown('''
+## 🌳 Provisioning Benefits by Forest (Avg. Score 0–0.09)
+    
+Stacked bars (Wood blue, Income teal, Food/Livestock green):
+    
+- **Volcanoes NP**: **0.09** – Food/Livestock **0.05**, Income **0.03**, Wood **0.01**
+- **Nyungwe NP**: **0.09** – Income **0.05**, Food/Livestock **0.04**
+- **Akagera NP**: **0.04** – Income & Food/Livestock **0.02** each
+- **Gishwati**: **0.02** – Income & Wood **0.01** each
+- **Arboretum & Mount Kigali**: **<0.01** – negligible
+
+**Key Insight:** **Volcanoes & Nyungwe** dominate provisioning (esp. **income & food**). Others near **zero**. **Target sustainable income programs there only**.
+''')
 
 # --- CLEAN + MAP AWARENESS COLUMN ---
 forest_df['reg_aware_forest_clean'] = (
@@ -1831,47 +1237,53 @@ forest_reg_summary = (
     .sort_values(by='Avg_Regulatory_Awareness', ascending=False)
 )
 
-# --- VISUALIZE ---
-import matplotlib.pyplot as plt
-import seaborn as sns
+# --- STREAMLIT DISPLAY ---
+with tabs[3]:
+    st.header("🌿 Forest Regulatory Awareness Across Forests")
+    st.markdown("""
+    Horizontal bar chart showing the **average regulatory awareness score** per forest.
+    - 1 = aware  
+    - 0 = not aware
+    """)
+    
+    plt.figure(figsize=(10, 6))
+    sns.set_style("whitegrid")
+    
+    ax = sns.barplot(
+        data=forest_reg_summary,
+        x='Avg_Regulatory_Awareness',
+        y='eco_forest_name',
+        palette='Greens'
+    )
+    
+    plt.title("Forest Regulatory Awareness Across Forests (Descending Order)", fontsize=16, weight='bold')
+    plt.xlabel("Average Awareness Score (1 = aware, 0 = not aware)", fontsize=12)
+    plt.ylabel("Forest Name", fontsize=12)
+    
+    max_val = forest_reg_summary['Avg_Regulatory_Awareness'].max()
+    plt.xlim(0, max(max_val * 1.1, 1))
+    
+    # add values next to bars
+    for i, v in enumerate(forest_reg_summary['Avg_Regulatory_Awareness']):
+        ax.text(v + 0.02, i, f"{v:.2f}", color='black', va='center')
+    
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
 
-plt.figure(figsize=(10, 6))
-sns.set_style("whitegrid")
+st.markdown('''
+## 🌿 Forest Regulatory Awareness (Avg. Score 0–1)
 
-ax = sns.barplot(
-    data=forest_reg_summary,
-    x='Avg_Regulatory_Awareness',
-    y='eco_forest_name',
-    palette='Greens'
-)
+Horizontal bars (descending):
 
-plt.title("Forest Regulatory Awareness Across Forests (Descending Order)", fontsize=16, weight='bold')
-plt.xlabel("Average Awareness Score (1 = aware, 0 = not aware)", fontsize=12)
-plt.ylabel("Forest Name", fontsize=12)
+- **Mount Kigali**: **0.92**  
+- **Volcanoes NP**: **0.83**  
+- **Gishwati**: **0.82**  
+- **Akagera NP**: **0.75**  
+- **Arboretum**: **0.60**  
+- **Nyungwe NP**: **0.57**  
 
-max_val = forest_reg_summary['Avg_Regulatory_Awareness'].max()
-plt.xlim(0, max(max_val * 1.1, 1))
-
-# add values next to bars
-for i, v in enumerate(forest_reg_summary['Avg_Regulatory_Awareness']):
-    ax.text(v + 0.02, i, f"{v:.2f}", color='black', va='center')
-
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌿 Forest Regulatory Awareness (Avg. Score 0–1)
-# 
-# Horizontal bars (descending):
-# 
-# - **Mount Kigali**: **0.92**  
-# - **Volcanoes NP**: **0.83**  
-# - **Gishwati**: **0.82**  
-# - **Akagera NP**: **0.75**  
-# - **Arboretum**: **0.60**  
-# - **Nyungwe NP**: **0.57**  
-# 
-# **Key Insight:** **Highest awareness near urban/protected sites** (Mt Kigali, Volcanoes). **Nyungwe lowest** despite value. **Leverage high-awareness forests** for compliance & education campaigns.
+**Key Insight:** **Highest awareness near urban/protected sites** (Mt Kigali, Volcanoes). **Nyungwe lowest** despite value. **Leverage high-awareness forests** for compliance & education campaigns.
+''')
 
 # #Perceived Clean Air Benefit Provided by Forests
 
@@ -1880,173 +1292,175 @@ plt.show()
 
 [col for col in merged_df.columns if 'air' in col.lower() or 'clean' in col.lower()]
 
+with tabs[4]:
+    st.header("🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)")
+    st.markdown("""
+    Horizontal bar chart showing the **average perceived air regulation benefit** provided by each forest.
+    """)
+    
+    
+    # Ensure we're only working with forests
+    forest_df_filtered = forest_df[forest_df['b_forest_air_reg'].notna()]
+    
+    # Convert to numeric if not already
+    forest_df_filtered['b_forest_air_reg'] = pd.to_numeric(forest_df_filtered['b_forest_air_reg'], errors='coerce')
+    
+    # Compute average per forest
+    air_reg_summary = forest_df_filtered.groupby('eco_forest_name')['b_forest_air_reg'].mean().sort_values(ascending=False).reset_index()
+    
+    # Plot
+    plt.figure(figsize=(14,8))
+    sns.set_style("whitegrid")
+    barplot = sns.barplot(
+        data=air_reg_summary,
+        y='eco_forest_name',
+        x='b_forest_air_reg',
+        palette=sns.color_palette("Greens", len(air_reg_summary))
+    )
+    
+    # Add value labels on bars
+    for i, v in enumerate(air_reg_summary['b_forest_air_reg']):
+        barplot.text(v + 0.02, i, f"{v:.2f}", color='black', va='center', fontweight='bold')
+    
+    plt.title('Perceived Air Regulation Benefit by Forest', fontsize=18, fontweight='bold')
+    plt.xlabel('Average Air Regulation Score', fontsize=14)
+    plt.ylabel('Forest Name', fontsize=14)
+    plt.xlim(0, air_reg_summary['b_forest_air_reg'].max()*1.15)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# In[309]:
+st.markdown(''''
+## 🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)
 
+Horizontal bars (descending):
 
-# Ensure we're only working with forests
-forest_df_filtered = forest_df[forest_df['b_forest_air_reg'].notna()]
+- **Mount Kigali**: **0.91**  
+- **Arboretum**: **0.86**  
+- **Nyungwe NP**: **0.85**  
+- **Gishwati**: **0.76**  
+- **Akagera NP**: **0.74**  
+- **Volcanoes NP**: **0.60**  
 
-# Convert to numeric if not already
-forest_df_filtered['b_forest_air_reg'] = pd.to_numeric(forest_df_filtered['b_forest_air_reg'], errors='coerce')
+**Key Insight:** **Urban-adjacent forests** (Mt Kigali, Arboretum) top **perceived air quality benefit**. **Volcanoes lowest** despite fame. **Market eco/wellness in high-perception zones** for credibility & support.
+''')
 
-# Compute average per forest
-air_reg_summary = forest_df_filtered.groupby('eco_forest_name')['b_forest_air_reg'].mean().sort_values(ascending=False).reset_index()
+with tab[5]:
+    st.header("Biodiversity & Ecosystem Support Value per Forest (Composite Index)")
+    
+    # In[310]:
+    
+    
+    # Select columns for biodiversity & ecosystem support
+    biodiv_cols = [
+        'b_forest_habitat_animal',
+        'b_forest_habitat_plant',
+        'b_forest_water_reg',
+        'b_forest_soil_control',
+        'b_forest_carbon_seq',
+        'b_forest_research',
+        'b_forest_medicaments',
+        'b_forest_hunting',
+        'b_forest_cultural'
+    ]
+    
+    # Filter valid numeric data
+    forest_biodiv_df = forest_df[biodiv_cols + ['eco_forest_name']].copy()
+    for col in biodiv_cols:
+        forest_biodiv_df[col] = pd.to_numeric(forest_biodiv_df[col], errors='coerce')
+    
+    # Compute composite index (average)
+    forest_biodiv_df['biodiv_index'] = forest_biodiv_df[biodiv_cols].mean(axis=1)
+    
+    # Aggregate per forest
+    biodiv_summary = forest_biodiv_df.groupby('eco_forest_name')['biodiv_index'].mean().sort_values(ascending=False).reset_index()
+    
+    # Plot
+    plt.figure(figsize=(14,8))
+    sns.set_style("whitegrid")
+    
+    barplot = sns.barplot(
+        data=biodiv_summary,
+        y='eco_forest_name',
+        x='biodiv_index',
+        palette=sns.color_palette("PRGn", len(biodiv_summary))
+    )
+    
+    # Add value labels
+    for i, v in enumerate(biodiv_summary['biodiv_index']):
+        barplot.text(v + 0.01, i, f"{v:.2f}", color='black', va='center', fontweight='bold')
+    
+    plt.title('Biodiversity & Ecosystem Support Index per Forest', fontsize=18, fontweight='bold')
+    plt.xlabel('Composite Ecosystem Support Score', fontsize=14)
+    plt.ylabel('Forest Name', fontsize=14)
+    plt.xlim(0, biodiv_summary['biodiv_index'].max() * 1.15)
+    plt.tight_layout()
+    st.pyplot()
 
-# Plot
-plt.figure(figsize=(14,8))
-sns.set_style("whitegrid")
-barplot = sns.barplot(
-    data=air_reg_summary,
-    y='eco_forest_name',
-    x='b_forest_air_reg',
-    palette=sns.color_palette("Greens", len(air_reg_summary))
-)
+st.markdown('''
+## 🏞️ Biodiversity & Ecosystem Support Index (0–0.35)
 
-# Add value labels on bars
-for i, v in enumerate(air_reg_summary['b_forest_air_reg']):
-    barplot.text(v + 0.02, i, f"{v:.2f}", color='black', va='center', fontweight='bold')
+Horizontal bars (descending):
 
-plt.title('Perceived Air Regulation Benefit by Forest', fontsize=18, fontweight='bold')
-plt.xlabel('Average Air Regulation Score', fontsize=14)
-plt.ylabel('Forest Name', fontsize=14)
-plt.xlim(0, air_reg_summary['b_forest_air_reg'].max()*1.15)
-plt.tight_layout()
-plt.show()
+- **Nyungwe NP**: **0.32**  
+- **Arboretum**: **0.31**  
+- **Mount Kigali**: **0.27**  
+- **Gishwati**: **0.27**  
+- **Volcanoes NP**: **0.25**  
+- **Akagera NP**: **0.21**  
 
+**Key Insight:** **Nyungwe & Arboretum lead** in perceived ecosystem support. **Akagera lowest**. **Prioritize conservation & eco-branding in top sites** (Nyungwe, Arboretum).
+''')
 
-# ## 🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)
-# 
-# Horizontal bars (descending):
-# 
-# - **Mount Kigali**: **0.91**  
-# - **Arboretum**: **0.86**  
-# - **Nyungwe NP**: **0.85**  
-# - **Gishwati**: **0.76**  
-# - **Akagera NP**: **0.74**  
-# - **Volcanoes NP**: **0.60**  
-# 
-# **Key Insight:** **Urban-adjacent forests** (Mt Kigali, Arboretum) top **perceived air quality benefit**. **Volcanoes lowest** despite fame. **Market eco/wellness in high-perception zones** for credibility & support.
+with tab[6]:
+st.header("Forest Cultural & Recreational Benefits by Forest")
 
-# #Biodiversity & Ecosystem Support Value per Forest (Composite Index)
-
-# In[310]:
-
-
-# Select columns for biodiversity & ecosystem support
-biodiv_cols = [
-    'b_forest_habitat_animal',
-    'b_forest_habitat_plant',
-    'b_forest_water_reg',
-    'b_forest_soil_control',
-    'b_forest_carbon_seq',
-    'b_forest_research',
-    'b_forest_medicaments',
-    'b_forest_hunting',
-    'b_forest_cultural'
-]
-
-# Filter valid numeric data
-forest_biodiv_df = forest_df[biodiv_cols + ['eco_forest_name']].copy()
-for col in biodiv_cols:
-    forest_biodiv_df[col] = pd.to_numeric(forest_biodiv_df[col], errors='coerce')
-
-# Compute composite index (average)
-forest_biodiv_df['biodiv_index'] = forest_biodiv_df[biodiv_cols].mean(axis=1)
-
-# Aggregate per forest
-biodiv_summary = forest_biodiv_df.groupby('eco_forest_name')['biodiv_index'].mean().sort_values(ascending=False).reset_index()
-
-# Plot
-plt.figure(figsize=(14,8))
-sns.set_style("whitegrid")
-
-barplot = sns.barplot(
-    data=biodiv_summary,
-    y='eco_forest_name',
-    x='biodiv_index',
-    palette=sns.color_palette("PRGn", len(biodiv_summary))
-)
-
-# Add value labels
-for i, v in enumerate(biodiv_summary['biodiv_index']):
-    barplot.text(v + 0.01, i, f"{v:.2f}", color='black', va='center', fontweight='bold')
-
-plt.title('Biodiversity & Ecosystem Support Index per Forest', fontsize=18, fontweight='bold')
-plt.xlabel('Composite Ecosystem Support Score', fontsize=14)
-plt.ylabel('Forest Name', fontsize=14)
-plt.xlim(0, biodiv_summary['biodiv_index'].max() * 1.15)
-plt.tight_layout()
-plt.show()
-
-
-# ## 🏞️ Biodiversity & Ecosystem Support Index (0–0.35)
-# 
-# Horizontal bars (descending):
-# 
-# - **Nyungwe NP**: **0.32**  
-# - **Arboretum**: **0.31**  
-# - **Mount Kigali**: **0.27**  
-# - **Gishwati**: **0.27**  
-# - **Volcanoes NP**: **0.25**  
-# - **Akagera NP**: **0.21**  
-# 
-# **Key Insight:** **Nyungwe & Arboretum lead** in perceived ecosystem support. **Akagera lowest**. **Prioritize conservation & eco-branding in top sites** (Nyungwe, Arboretum).
-
-# #Forest Cultural & Recreational Benefits by Forest
-# 
-# 
-
-# In[311]:
-
-
-# Filter relevant columns and remove NaNs
-benefit_cols = ['eco_forest_name', 'b_forest_cultural', 'b_forest_recreation']
-forest_benefits_df = forest_df[benefit_cols].dropna(subset=['b_forest_cultural', 'b_forest_recreation'])
-
-# Convert to numeric just in case
-forest_benefits_df['b_forest_cultural'] = pd.to_numeric(forest_benefits_df['b_forest_cultural'], errors='coerce')
-forest_benefits_df['b_forest_recreation'] = pd.to_numeric(forest_benefits_df['b_forest_recreation'], errors='coerce')
-
-# Compute average per forest
-avg_benefits = forest_benefits_df.groupby('eco_forest_name')[['b_forest_cultural', 'b_forest_recreation']].mean().reset_index()
-
-# Melt for plotting
-avg_benefits_melted = avg_benefits.melt(id_vars='eco_forest_name',
-                                        value_vars=['b_forest_cultural', 'b_forest_recreation'],
-                                        var_name='Benefit Type', value_name='Average Score')
-
-# Sort by total benefit
-avg_benefits_melted['Total'] = avg_benefits_melted.groupby('eco_forest_name')['Average Score'].transform('sum')
-avg_benefits_melted = avg_benefits_melted.sort_values('Total', ascending=False)
-
-# Plot
-plt.figure(figsize=(16,9))
-sns.set_style("whitegrid")
-barplot = sns.barplot(
-    data=avg_benefits_melted,
-    y='eco_forest_name',
-    x='Average Score',
-    hue='Benefit Type',
-    palette=['#FF6F61', '#6B5B95']  # Vibrant contrasting colors
-)
-
-# Add value labels
-for i, row in avg_benefits_melted.iterrows():
-    barplot.text(row['Average Score'] + 0.02,
-                 i % len(avg_benefits['eco_forest_name']),
-                 f"{row['Average Score']:.2f}",
-                 color='black',
-                 va='center',
-                 fontweight='bold')
-
-plt.title('Forest Cultural & Recreational Benefits by Forest', fontsize=20, fontweight='bold')
-plt.xlabel('Average Perceived Benefit Score', fontsize=14)
-plt.ylabel('Forest Name', fontsize=14)
-plt.legend(title='Benefit Type', fontsize=12)
-plt.xlim(0, avg_benefits_melted['Average Score'].max() * 1.15)
-plt.tight_layout()
-plt.show()
+    # Filter relevant columns and remove NaNs
+    benefit_cols = ['eco_forest_name', 'b_forest_cultural', 'b_forest_recreation']
+    forest_benefits_df = forest_df[benefit_cols].dropna(subset=['b_forest_cultural', 'b_forest_recreation'])
+    
+    # Convert to numeric just in case
+    forest_benefits_df['b_forest_cultural'] = pd.to_numeric(forest_benefits_df['b_forest_cultural'], errors='coerce')
+    forest_benefits_df['b_forest_recreation'] = pd.to_numeric(forest_benefits_df['b_forest_recreation'], errors='coerce')
+    
+    # Compute average per forest
+    avg_benefits = forest_benefits_df.groupby('eco_forest_name')[['b_forest_cultural', 'b_forest_recreation']].mean().reset_index()
+    
+    # Melt for plotting
+    avg_benefits_melted = avg_benefits.melt(id_vars='eco_forest_name',
+                                            value_vars=['b_forest_cultural', 'b_forest_recreation'],
+                                            var_name='Benefit Type', value_name='Average Score')
+    
+    # Sort by total benefit
+    avg_benefits_melted['Total'] = avg_benefits_melted.groupby('eco_forest_name')['Average Score'].transform('sum')
+    avg_benefits_melted = avg_benefits_melted.sort_values('Total', ascending=False)
+    
+    # Plot
+    plt.figure(figsize=(16,9))
+    sns.set_style("whitegrid")
+    barplot = sns.barplot(
+        data=avg_benefits_melted,
+        y='eco_forest_name',
+        x='Average Score',
+        hue='Benefit Type',
+        palette=['#FF6F61', '#6B5B95']  # Vibrant contrasting colors
+    )
+    
+    # Add value labels
+    for i, row in avg_benefits_melted.iterrows():
+        barplot.text(row['Average Score'] + 0.02,
+                     i % len(avg_benefits['eco_forest_name']),
+                     f"{row['Average Score']:.2f}",
+                     color='black',
+                     va='center',
+                     fontweight='bold')
+    
+    plt.title('Forest Cultural & Recreational Benefits by Forest', fontsize=20, fontweight='bold')
+    plt.xlabel('Average Perceived Benefit Score', fontsize=14)
+    plt.ylabel('Forest Name', fontsize=14)
+    plt.legend(title='Benefit Type', fontsize=12)
+    plt.xlim(0, avg_benefits_melted['Average Score'].max() * 1.15)
+    plt.tight_layout()
+    st.pyplot()
 
 
 # ## 🌲 Cultural & Recreational Benefits (Avg. Score 0–0.3)
@@ -6044,15 +5458,6 @@ print("="*90)
 # 
 # 
 
-# In[392]:
-
-
-
-# In[393]:
-
-
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 # === UPDATED DATA INCLUDING AKAGERA ===
 wetlands = ["Rugezi", "Bugurama", "Nyabarongo", "Muvumba", "Akagera"]
@@ -8392,6 +7797,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
