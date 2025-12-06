@@ -774,7 +774,7 @@ Bar chart of negative trade-offs from wetland use:
 # In[298]:
 
 
-2️⃣ Respondent Feelings Near Wetlands
+#2️⃣ Respondent Feelings Near Wetlands
 
 st.subheader("😊 How Respondents Feel Near Wetlands")
 st.markdown("Count of respondents who feel Good, Normal, or Bad living near wetlands.")
@@ -800,7 +800,7 @@ ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
 ax2.set_title("Respondent Feelings Near Wetlands")
 st.pyplot(fig2)
 
-3️⃣ Consequences if Wetland Depleted
+# 3️⃣ Consequences if Wetland Depleted
 
 st.subheader("⚠️ Consequences if Wetland is Absent or Half-Depleted")
 absent_cols = [
@@ -834,7 +834,7 @@ ax3.legend()
 st.pyplot(fig3)
 
 
-4️⃣ Wellbeing Benefits
+# 4️⃣ Wellbeing Benefits
 
 st.subheader("💚 Benefits of Wetlands on Respondents' Wellbeing")
 wellbeing_cols = [
@@ -7797,6 +7797,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
