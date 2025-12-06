@@ -1427,7 +1427,7 @@ with tabs[5]:
     
     ''')
 
-with tab[6]:
+with tabs[6]:
     st.header("Forest Cultural & Recreational Benefits by Forest")
 
     # Filter relevant columns and remove NaNs
@@ -7809,6 +7809,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
