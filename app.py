@@ -713,7 +713,7 @@ st.markdown('''
 # **Key Insight:** Income is **near-zero** except **fish in Bugarama** (dominant) and **minor crops in Muvumba**. Wetlands contribute **minimal livelihood revenue** overall—focus alternatives beyond extraction.
 ''')
 
-1️⃣ Average Trade-offs per Wetland
+# 1️⃣ Average Trade-offs per Wetland
 
 st.subheader("⚖️ Average Trade-offs from Wetlands")
 st.markdown("""
@@ -7797,6 +7797,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
