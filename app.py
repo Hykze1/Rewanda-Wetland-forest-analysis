@@ -775,7 +775,7 @@ Bar chart of negative trade-offs from wetland use:
 st.subheader("😊 How Respondents Feel Near Wetlands")
 st.markdown("Count of respondents who feel Good, Normal, or Bad living near wetlands.")
 
-Map feelings
+# Map feelings
 
 def map_feeling(text):
 if pd.isna(text): return 'Unknown'
@@ -7793,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
