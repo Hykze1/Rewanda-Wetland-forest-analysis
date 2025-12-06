@@ -23,6 +23,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import streamlit as st
 from IPython.display import Markdown, display
+from PIL import Image
 
 # ================================
 
@@ -39,6 +40,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 
+st.header(' Rwanda Wetland/ Forest Analaysis')
 
 
 merged_df = pd.read_excel("Wetland_forest_cleaned updated.xlsx")
@@ -1491,283 +1493,278 @@ with tabs[6]:
     
     **Key Insight:** **Recreation dominates** everywhere. **Akagera, Nyungwe, Mt Kigali** lead. **Cultural value tiny** but present in **Nyungwe & Mt Kigali**. **Prioritize eco-tourism there**.
     ''')
+
+with st.expander("🌳 Perceived Consequences of Forest Absence by Forest"):
+    st.header("Consequences of Forest Absence per Forest")
+
     
-st.header("#Consequences of Forest Absence per Forest")
-# 
+    # Filter for forests and ensure numeric values
+    conseq_cols = [
+        'abs_conseq_forest_absent_income_reduced',
+        'abs_conseq_forest_absent_life_affected',
+        'abs_conseq_forest_absent_shift_place',
+        'abs_conseq_forest_absent_no_conseq',
+        'abs_conseq_forest_absent_other'
+    ]
+    
+    forest_conseq_df = forest_df[['eco_forest_name'] + conseq_cols].copy()
+    
+    for col in conseq_cols:
+        forest_conseq_df[col] = pd.to_numeric(forest_conseq_df[col], errors='coerce').fillna(0)
+    
+    # Compute average per forest
+    forest_conseq_summary = forest_conseq_df.groupby('eco_forest_name')[conseq_cols].mean()
+    
+    # Sort forests by total consequences (descending)
+    forest_conseq_summary['Total'] = forest_conseq_summary.sum(axis=1)
+    forest_conseq_summary = forest_conseq_summary.sort_values('Total', ascending=False).drop(columns='Total')
+    
+    # Prepare for plotting
+    forest_conseq_summary.reset_index(inplace=True)
+    forest_conseq_melted = forest_conseq_summary.melt(id_vars='eco_forest_name',
+                                                     var_name='Consequence',
+                                                     value_name='Average Score')
+    
+    # Plot
+    plt.figure(figsize=(16,9))
+    sns.set_style("whitegrid")
+    palette = sns.color_palette("magma", len(conseq_cols))
+    
+    barplot = sns.barplot(
+        data=forest_conseq_melted,
+        y='eco_forest_name',
+        x='Average Score',
+        hue='Consequence',
+        palette=palette
+    )
+    
+    # Add value labels
+    for i, p in enumerate(barplot.patches):
+        height = p.get_height()
+        width = p.get_width()
+        x, y = p.get_xy()
+        barplot.text(x + width + 0.01, y + height/2, f"{width:.2f}", fontsize=9, va='center')
+    
+    plt.title('Perceived Consequences of Forest Absence by Forest', fontsize=20, fontweight='bold')
+    plt.xlabel('Average Impact Score', fontsize=14)
+    plt.ylabel('Forest Name', fontsize=14)
+    plt.legend(title='Consequence', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
 
-# In[312]:
+    st.markdown('''
+    ## 🌳 Perceived Consequences of Forest Absence (Avg. Score 0–0.8)
+    
+    Stacked bars:
+    
+    - **Nyungwe NP**: **0.81** – Life affected **0.81**, Income **0.09**, Shift **0.07**, Other **0.02**
+    - **Akagera NP**: **0.80** – Life **0.80**, No conseq **0.13**, Income **0.04**, Other **0.02**
+    - **Gishwati**: **0.77** – Life **0.77**, Shift **0.14**, Other **0.05**, Income **0.01**
+    - **Volcanoes NP**: **0.72** – Life **0.72**, Shift **0.15**, Other **0.07**, Income **0.03**
+    - **Mount Kigali**: **0.71** – Life **0.71**, Shift **0.16**, Other **0.04**, Income **0.02**
+    - **Arboretum**: **0.68** – Life **0.68**, Shift **0.27**, Other **0.02**, Income **0.00**
+    
+    **Key Insight:** **70–80% fear life impacted** if forest gone — **Nyungwe & Akagera highest**. **Strong public mandate** for protection. **Leverage for instant support & green funding**.
+    ''')
 
 
-# Filter for forests and ensure numeric values
-conseq_cols = [
-    'abs_conseq_forest_absent_income_reduced',
-    'abs_conseq_forest_absent_life_affected',
-    'abs_conseq_forest_absent_shift_place',
-    'abs_conseq_forest_absent_no_conseq',
-    'abs_conseq_forest_absent_other'
-]
-
-forest_conseq_df = forest_df[['eco_forest_name'] + conseq_cols].copy()
-
-for col in conseq_cols:
-    forest_conseq_df[col] = pd.to_numeric(forest_conseq_df[col], errors='coerce').fillna(0)
-
-# Compute average per forest
-forest_conseq_summary = forest_conseq_df.groupby('eco_forest_name')[conseq_cols].mean()
-
-# Sort forests by total consequences (descending)
-forest_conseq_summary['Total'] = forest_conseq_summary.sum(axis=1)
-forest_conseq_summary = forest_conseq_summary.sort_values('Total', ascending=False).drop(columns='Total')
-
-# Prepare for plotting
-forest_conseq_summary.reset_index(inplace=True)
-forest_conseq_melted = forest_conseq_summary.melt(id_vars='eco_forest_name',
-                                                 var_name='Consequence',
-                                                 value_name='Average Score')
-
-# Plot
-plt.figure(figsize=(16,9))
-sns.set_style("whitegrid")
-palette = sns.color_palette("magma", len(conseq_cols))
-
-barplot = sns.barplot(
-    data=forest_conseq_melted,
-    y='eco_forest_name',
-    x='Average Score',
-    hue='Consequence',
-    palette=palette
-)
-
-# Add value labels
-for i, p in enumerate(barplot.patches):
-    height = p.get_height()
-    width = p.get_width()
-    x, y = p.get_xy()
-    barplot.text(x + width + 0.01, y + height/2, f"{width:.2f}", fontsize=9, va='center')
-
-plt.title('Perceived Consequences of Forest Absence by Forest', fontsize=20, fontweight='bold')
-plt.xlabel('Average Impact Score', fontsize=14)
-plt.ylabel('Forest Name', fontsize=14)
-plt.legend(title='Consequence', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-st.pyplot(plt.gcf())
-
-
-# ## 🌳 Perceived Consequences of Forest Absence (Avg. Score 0–0.8)
-# 
-# Stacked bars:
-# 
-# - **Nyungwe NP**: **0.81** – Life affected **0.81**, Income **0.09**, Shift **0.07**, Other **0.02**
-# - **Akagera NP**: **0.80** – Life **0.80**, No conseq **0.13**, Income **0.04**, Other **0.02**
-# - **Gishwati**: **0.77** – Life **0.77**, Shift **0.14**, Other **0.05**, Income **0.01**
-# - **Volcanoes NP**: **0.72** – Life **0.72**, Shift **0.15**, Other **0.07**, Income **0.03**
-# - **Mount Kigali**: **0.71** – Life **0.71**, Shift **0.16**, Other **0.04**, Income **0.02**
-# - **Arboretum**: **0.68** – Life **0.68**, Shift **0.27**, Other **0.02**, Income **0.00**
-# 
-# **Key Insight:** **70–80% fear life impacted** if forest gone — **Nyungwe & Akagera highest**. **Strong public mandate** for protection. **Leverage for instant support & green funding**.
-
+with st.expander("🌲 Forest Provisioning Services by Forest"):
 # #Forest Provisioning Services by Forest
 
-# In[313]:
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Select provisioning columns
-provision_cols = [
-    'b_forest_wood_provision',
-    'b_forest_timber',
-    'b_forest_income_gen',
-    'b_forest_food_livestock',
-    'b_forest_honey',
-    'b_forest_mushroom',
-    'b_forest_fruits'
-]
-
-# Filter forest data and ensure numeric
-forest_df_provision = forest_df.copy()
-for col in provision_cols:
-    forest_df_provision[col] = pd.to_numeric(forest_df_provision[col], errors='coerce')
-
-# Compute average per forest
-forest_provision_summary = forest_df_provision.groupby('eco_forest_name')[provision_cols].mean().reset_index()
-
-# Melt for easier plotting
-forest_provision_melted = forest_provision_summary.melt(
-    id_vars='eco_forest_name',
-    value_vars=provision_cols,
-    var_name='Provision Type',
-    value_name='Average Score'
-)
-
-# Sort forests by total provisioning score for better visuals
-forest_order = forest_provision_summary.set_index('eco_forest_name')[provision_cols].sum(axis=1).sort_values(ascending=False).index
-
-# Plot
-plt.figure(figsize=(16,9))
-sns.set_style("whitegrid")
-palette = sns.color_palette("Spectral", len(provision_cols))
-
-barplot = sns.barplot(
-    data=forest_provision_melted,
-    y='eco_forest_name',
-    x='Average Score',
-    hue='Provision Type',
-    order=forest_order,
-    palette='deep'
-)
-
-# Add values on bars
-for p in barplot.patches:
-    width = p.get_width()
-    if width > 0:
-        barplot.text(width + 0.02, p.get_y() + p.get_height()/2, f'{width:.1f}', va='center', fontsize=9)
-
-plt.title('Forest Provisioning Services by Forest', fontsize=20, fontweight='bold')
-plt.xlabel('Average Provision Score', fontsize=14)
-plt.ylabel('Forest Name', fontsize=14)
-plt.legend(title='Provision Type', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌲 Forest Provisioning Services (Avg. Score 0–0.16)
-# 
-# Stacked bars:
-# 
-# - **Gishwati**: **0.10** – **Food/Livestock** (red) dominant  
-# - **Nyungwe NP**: **~0.01** – minor **Income** (green)  
-# - **Volcanoes NP**: **~0.01** – tiny **Income**  
-# - **Akagera NP**: **<0.01** – negligible  
-# - **Arboretum & Mount Kigali**: **~0.00** – near zero  
-# 
-# **Key Insight:** **Gishwati only site with meaningful provisioning** (food/livestock). **All others negligible** due to protection. **Balance conservation with local needs in Gishwati**.
-
-# #**4. CROP ANALYSIS Table**
-
-# In[314]:
-
-
-import pandas as pd
-
-# Case study column
-case_col = 'crop_type'
-
-# Compute numeric columns from crop_df itself
-numeric_cols =  [
-    # Original 10
-    "resp_age",
-    "resp_years_area_forest",
-    "resp_years_area_wetland",
-    "crop_area_hectare_equiv",
-    "crop_yield_kg_ha_year",
-    "crop_market_price",
-    "crop_annual_profit",
-    "crop_area_size",
-    "crop_harvest_frequency",
-    "crop_unit_to_kg",
-    "crop_cost_rent_land",
-    "crop_cost_manpower",
-    "crop_labor_count",
-    "crop_cost_fertilizer",
-    "crop_cost_seeds",
-    "crop_cost_pesticides",
-    "crop_expenses_total"
-]
-
-# Remove index/system columns if they appear
-remove_cols = ['_index', '_parent_index', '_submission__id']
-numeric_cols = [c for c in numeric_cols if c not in remove_cols]
-
-# Convert numeric columns to numeric
-merged_df[numeric_cols] = merged_df[numeric_cols].apply(pd.to_numeric, errors='coerce')
-
-# Group by crop_type and compute mean
-crop_summary = merged_df.groupby(case_col)[numeric_cols].mean().reset_index()
-
-# Add Category column
-crop_summary['Category'] = 'Crop'
-
-# Reorder columns
-crop_summary = crop_summary[[case_col, 'Category'] + numeric_cols]
-
-# Compute GRAND TOTAL row
-grand_total = pd.DataFrame(crop_summary[numeric_cols].mean()).T
-grand_total[case_col] = 'GRAND TOTAL Crops'
-grand_total['Category'] = 'Crop'
-grand_total = grand_total[[case_col, 'Category'] + numeric_cols]
-
-# Final table
-final_crop_table = pd.concat([crop_summary, grand_total], ignore_index=True)
-
-final_crop_table
-
-
-# #**4(a) CROP ANALYSIS VISUALIZATION**
-
-# In[315]:
-
-
-# Exclude GRAND TOTAL for plotting
-df_cases = final_crop_table[final_crop_table['crop_type'] != 'GRAND TOTAL Crops']
-
-# List of 20 relevant columns to visualize
-cols_to_plot = [
-    # Original 10
-    "resp_age",
-    "resp_years_area_forest",
-    "resp_years_area_wetland",
-    "crop_area_hectare_equiv",
-    "crop_yield_kg_ha_year",
-    "crop_market_price",
-    "crop_annual_profit",
-    "crop_area_size",
-    "crop_harvest_frequency",
-    "crop_unit_to_kg",
-    "crop_cost_rent_land",
-    "crop_cost_manpower",
-    "crop_labor_count",
-    "crop_cost_fertilizer",
-    "crop_cost_seeds",
-    "crop_cost_pesticides",
-    "crop_expenses_total"
-]
-
-# Plot each column
-for col in cols_to_plot:
-    # Sort by column descending
-    df_sorted = df_cases.sort_values(by=col, ascending=False)
-
-    plt.figure(figsize=(12,6))
-    sns.barplot(x='crop_type', y=col, data=df_sorted, palette='dark')
-    plt.xticks(rotation=45, ha='right')
-    plt.xlabel('Crop Type')
-    plt.ylabel(col.replace('_', ' ').title())
-    plt.title(f'{col.replace("_", " ").title()} per Crop Type')
+    st.header("Forest Provisioning Services by Forest")
+    # Select provisioning columns
+    provision_cols = [
+        'b_forest_wood_provision',
+        'b_forest_timber',
+        'b_forest_income_gen',
+        'b_forest_food_livestock',
+        'b_forest_honey',
+        'b_forest_mushroom',
+        'b_forest_fruits'
+    ]
+    
+    # Filter forest data and ensure numeric
+    forest_df_provision = forest_df.copy()
+    for col in provision_cols:
+        forest_df_provision[col] = pd.to_numeric(forest_df_provision[col], errors='coerce')
+    
+    # Compute average per forest
+    forest_provision_summary = forest_df_provision.groupby('eco_forest_name')[provision_cols].mean().reset_index()
+    
+    # Melt for easier plotting
+    forest_provision_melted = forest_provision_summary.melt(
+        id_vars='eco_forest_name',
+        value_vars=provision_cols,
+        var_name='Provision Type',
+        value_name='Average Score'
+    )
+    
+    # Sort forests by total provisioning score for better visuals
+    forest_order = forest_provision_summary.set_index('eco_forest_name')[provision_cols].sum(axis=1).sort_values(ascending=False).index
+    
+    # Plot
+    plt.figure(figsize=(16,9))
+    sns.set_style("whitegrid")
+    palette = sns.color_palette("Spectral", len(provision_cols))
+    
+    barplot = sns.barplot(
+        data=forest_provision_melted,
+        y='eco_forest_name',
+        x='Average Score',
+        hue='Provision Type',
+        order=forest_order,
+        palette='deep'
+    )
+    
+    # Add values on bars
+    for p in barplot.patches:
+        width = p.get_width()
+        if width > 0:
+            barplot.text(width + 0.02, p.get_y() + p.get_height()/2, f'{width:.1f}', va='center', fontsize=9)
+    
+    plt.title('Forest Provisioning Services by Forest', fontsize=20, fontweight='bold')
+    plt.xlabel('Average Provision Score', fontsize=14)
+    plt.ylabel('Forest Name', fontsize=14)
+    plt.legend(title='Provision Type', bbox_to_anchor=(1.05, 1), loc='upper left')
     plt.tight_layout()
-    plt.show()
+    st.pyplot(plt.gcf())
+    
+    st.markdown('''
+    ## 🌲 Forest Provisioning Services (Avg. Score 0–0.16)
+    
+    Stacked bars:
+    
+    - **Gishwati**: **0.10** – **Food/Livestock** (red) dominant  
+    - **Nyungwe NP**: **~0.01** – minor **Income** (green)  
+    - **Volcanoes NP**: **~0.01** – tiny **Income**  
+    - **Akagera NP**: **<0.01** – negligible  
+    - **Arboretum & Mount Kigali**: **~0.00** – near zero  
+    
+    **Key Insight:** **Gishwati only site with meaningful provisioning** (food/livestock). **All others negligible** due to protection. **Balance conservation with local needs in Gishwati**.
+    ''')
 
 
-# ## 🌾 Crop Production Summary (Averages Across Types)
-# 
-# | Metric | Value | Notes |
-# |--------|-------|-------|
-# | **Respondent Age** | 48.2 yrs | Mature farmers (40–60 range dominant). |
-# | **Yrs Near Forest** | 31.5 | Long-term residents; deep local knowledge. |
-# | **Yrs Near Wetland** | 36.0 | Stronger wetland ties than forests. |
-# | **Total Area (ha equiv)** | 6,214 | Scaled production footprint. |
-# | **Yield (kg/ha/yr)** | 7,300 | Moderate; maize/rice highest (~12k), sweet potatoes 0. |
-# | **Market Price (RWF)** | 391 | Per unit/kg; chick peas highest (502). |
-# | **Annual Profit (RWF)** | 1.05M | Per farm/crop cycle; rice/maize top (~2.8M). |
-# | **Area Size (ha)** | 444 | Active cultivation; maize largest (130). |
-# | **Harvest Freq** | 2.4x/yr | Seasonal; potatoes/maize 2–3x. |
-# | **Unit to kg** | 0.92 | Conversion factor; near 1:1. |
-# | **Expenses Total (RWF)** | 159k | Low overall; labor/fertilizer dominant (maize ~404k). |
-# 
-# **Key Insight:** **Maize & rice drive profits/yields** near wetlands/forests, but **high costs** (labor 47%, seeds 11%) squeeze margins. **Target efficiency in staples** for 20–30% profit boost; low sweet potato yield signals irrigation needs.
+with st.expander("🌾 Crop Analysis Table (Averages & Grand Total)"):
+    st.write(
+        """
+        This table summarizes the key metrics across different crop types, including numeric averages and the overall GRAND TOTAL.
+        Users can scroll horizontally if needed.
+        """
+    )
 
+    # Case study column
+    case_col = 'crop_type'
+    
+    # Compute numeric columns from crop_df itself
+    numeric_cols =  [
+        # Original 10
+        "resp_age",
+        "resp_years_area_forest",
+        "resp_years_area_wetland",
+        "crop_area_hectare_equiv",
+        "crop_yield_kg_ha_year",
+        "crop_market_price",
+        "crop_annual_profit",
+        "crop_area_size",
+        "crop_harvest_frequency",
+        "crop_unit_to_kg",
+        "crop_cost_rent_land",
+        "crop_cost_manpower",
+        "crop_labor_count",
+        "crop_cost_fertilizer",
+        "crop_cost_seeds",
+        "crop_cost_pesticides",
+        "crop_expenses_total"
+    ]
+    
+    # Remove index/system columns if they appear
+    remove_cols = ['_index', '_parent_index', '_submission__id']
+    numeric_cols = [c for c in numeric_cols if c not in remove_cols]
+    
+    # Convert numeric columns to numeric
+    merged_df[numeric_cols] = merged_df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+    
+    # Group by crop_type and compute mean
+    crop_summary = merged_df.groupby(case_col)[numeric_cols].mean().reset_index()
+    
+    # Add Category column
+    crop_summary['Category'] = 'Crop'
+    
+    # Reorder columns
+    crop_summary = crop_summary[[case_col, 'Category'] + numeric_cols]
+    
+    # Compute GRAND TOTAL row
+    grand_total = pd.DataFrame(crop_summary[numeric_cols].mean()).T
+    grand_total[case_col] = 'GRAND TOTAL Crops'
+    grand_total['Category'] = 'Crop'
+    grand_total = grand_total[[case_col, 'Category'] + numeric_cols]
+    
+    # Final table
+    final_crop_table = pd.concat([crop_summary, grand_total], ignore_index=True)
+    
+    st.dataframe(final_crop_table, height=500, width=1200)
+
+
+
+# 4(a) Crop Analysis Visualization
+with st.expander("🌾 4(a) Crop Analysis Visualization"):
+    # Exclude GRAND TOTAL for plotting
+    df_cases = final_crop_table[final_crop_table['crop_type'] != 'GRAND TOTAL Crops']
+
+    # List of relevant columns to visualize
+    cols_to_plot = [
+        "resp_age",
+        "resp_years_area_forest",
+        "resp_years_area_wetland",
+        "crop_area_hectare_equiv",
+        "crop_yield_kg_ha_year",
+        "crop_market_price",
+        "crop_annual_profit",
+        "crop_area_size",
+        "crop_harvest_frequency",
+        "crop_unit_to_kg",
+        "crop_cost_rent_land",
+        "crop_cost_manpower",
+        "crop_labor_count",
+        "crop_cost_fertilizer",
+        "crop_cost_seeds",
+        "crop_cost_pesticides",
+        "crop_expenses_total"
+    ]
+
+    # Loop through each column and plot
+    for col in cols_to_plot:
+        df_sorted = df_cases.sort_values(by=col, ascending=False)
+
+        plt.figure(figsize=(12,6))
+        sns.barplot(x='crop_type', y=col, data=df_sorted, palette='dark')
+        plt.xticks(rotation=45, ha='right')
+        plt.xlabel('Crop Type')
+        plt.ylabel(col.replace('_', ' ').title())
+        plt.title(f'{col.replace("_", " ").title()} per Crop Type')
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
+        plt.close()  # Close figure after rendering to avoid overlap
+
+    st.markdown('''
+    ## 🌾 Crop Production Summary (Averages Across Types)
+    
+    | Metric | Value | Notes |
+    |--------|-------|-------|
+    | **Respondent Age** | 48.2 yrs | Mature farmers (40–60 range dominant). |
+    | **Yrs Near Forest** | 31.5 | Long-term residents; deep local knowledge. |
+    | **Yrs Near Wetland** | 36.0 | Stronger wetland ties than forests. |
+    | **Total Area (ha equiv)** | 6,214 | Scaled production footprint. |
+    | **Yield (kg/ha/yr)** | 7,300 | Moderate; maize/rice highest (~12k), sweet potatoes 0. |
+    | **Market Price (RWF)** | 391 | Per unit/kg; chick peas highest (502). |
+    | **Annual Profit (RWF)** | 1.05M | Per farm/crop cycle; rice/maize top (~2.8M). |
+    | **Area Size (ha)** | 444 | Active cultivation; maize largest (130). |
+    | **Harvest Freq** | 2.4x/yr | Seasonal; potatoes/maize 2–3x. |
+    | **Unit to kg** | 0.92 | Conversion factor; near 1:1. |
+    | **Expenses Total (RWF)** | 159k | Low overall; labor/fertilizer dominant (maize ~404k). |
+    
+    **Key Insight:** **Maize & rice drive profits/yields** near wetlands/forests, but **high costs** (labor 47%, seeds 11%) squeeze margins. **Target efficiency in staples** for 20–30% profit boost; low sweet potato yield signals irrigation needs.
+    ''')
 # #Annual Profit by Crop Type
 
 # In[316]:
@@ -7809,6 +7806,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
