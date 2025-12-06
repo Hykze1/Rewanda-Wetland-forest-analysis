@@ -698,15 +698,16 @@ st.plotly_chart(fig_income, use_container_width=True)
 
 
 st.markdown('''
-# ## 💰 Wetland Income & Livelihood Sources (Avg. RWF)
-# 
-# Bar chart of average annual/per-period income per wetland:
-# 
-# - **Bugarama**: ~3.7e8 RWF from **Fish per Harvest** (maroon); all others ~0.
-# - **Muvumba**: ~0.1e8 RWF from **Crops** (orange); negligible elsewhere.
-# - **Rugezi & Nyabarongo**: Effectively **zero** across all sources.
-# 
-# **Key Insight:** Income is **near-zero** except **fish in Bugarama** (dominant) and **minor crops in Muvumba**. Wetlands contribute **minimal livelihood revenue** overall—focus alternatives beyond extraction.
+## 💰 Wetland Income & Livelihood Sources (Avg. RWF)
+
+Bar chart of average annual/per-period income per wetland:
+
+- **Bugarama**: ~3.7e8 RWF from **Fish per Harvest** (maroon); all others ~0.
+- **Muvumba**: ~0.1e8 RWF from **Crops** (orange); negligible elsewhere.
+- **Rugezi & Nyabarongo**: Effectively **zero** across all sources.
+
+**Key Insight:** Income is **near-zero** except **fish in Bugarama** (dominant) and **minor crops in Muvumba**. Wetlands contribute **minimal livelihood revenue** overall—focus alternatives beyond extraction.
+
 ''')
 
 # 1️⃣ Average Trade-offs per Wetland
@@ -764,9 +765,9 @@ Bar chart of negative trade-offs from wetland use:
 - **Nyabarongo**: **Zero**.
 
 **Key Insight:** Crop-related **negative impacts** dominate, but only in **Bugarama & Muvumba**—and even there, **very low**. Trade-offs are **minimal overall**; wetland use causes **little reported harm**.
-
-#**How respondents feel to be residing in the surroundings of the wetlands**
 ''')
+
+
 # In[298]:
 
 
@@ -1113,20 +1114,20 @@ with tabs[1]:
 
 
 
-st.markdown(''' 
-## 🌲 Avg. Respondent Age per Forest
-
-Pie chart of **average age contribution** across 6 sites:
-
-- **Volcanoes NP**: 18.7%  
-- **Gishwati**: 17.8%  
-- **Nyungwe NP**: 16.3%  
-- **Mount Kigali**: 16.1%  
-- **Arboretum**: 16.0%  
-- **Akagera NP**: 15.1%  
-
-**Key Insight:** Ages **nearly identical** (~16–19% share) → **uniform young adult demographic** across all forests. **One-size-fits-all** outreach works.
-''')
+    st.markdown(''' 
+    ## 🌲 Avg. Respondent Age per Forest
+    
+    Pie chart of **average age contribution** across 6 sites:
+    
+    - **Volcanoes NP**: 18.7%  
+    - **Gishwati**: 17.8%  
+    - **Nyungwe NP**: 16.3%  
+    - **Mount Kigali**: 16.1%  
+    - **Arboretum**: 16.0%  
+    - **Akagera NP**: 15.1%  
+    
+    **Key Insight:** Ages **nearly identical** (~16–19% share) → **uniform young adult demographic** across all forests. **One-size-fits-all** outreach works.
+    ''')
 
 with tabs[2]:
     st.header("🌲 Provisioning Benefits by Forest (Wood, Income, Food/Livestock)")
@@ -1193,48 +1194,49 @@ with tabs[2]:
     # Display in Streamlit
     st.pyplot(fig)
     
-st.markdown('''
-## 🌳 Provisioning Benefits by Forest (Avg. Score 0–0.09)
+    st.markdown('''
+    ## 🌳 Provisioning Benefits by Forest (Avg. Score 0–0.09)
+        
+    Stacked bars (Wood blue, Income teal, Food/Livestock green):
+        
+    - **Volcanoes NP**: **0.09** – Food/Livestock **0.05**, Income **0.03**, Wood **0.01**
+    - **Nyungwe NP**: **0.09** – Income **0.05**, Food/Livestock **0.04**
+    - **Akagera NP**: **0.04** – Income & Food/Livestock **0.02** each
+    - **Gishwati**: **0.02** – Income & Wood **0.01** each
+    - **Arboretum & Mount Kigali**: **<0.01** – negligible
     
-Stacked bars (Wood blue, Income teal, Food/Livestock green):
-    
-- **Volcanoes NP**: **0.09** – Food/Livestock **0.05**, Income **0.03**, Wood **0.01**
-- **Nyungwe NP**: **0.09** – Income **0.05**, Food/Livestock **0.04**
-- **Akagera NP**: **0.04** – Income & Food/Livestock **0.02** each
-- **Gishwati**: **0.02** – Income & Wood **0.01** each
-- **Arboretum & Mount Kigali**: **<0.01** – negligible
+    **Key Insight:** **Volcanoes & Nyungwe** dominate provisioning (esp. **income & food**). Others near **zero**. **Target sustainable income programs there only**.
+    ''')
 
-**Key Insight:** **Volcanoes & Nyungwe** dominate provisioning (esp. **income & food**). Others near **zero**. **Target sustainable income programs there only**.
-''')
-
-# --- CLEAN + MAP AWARENESS COLUMN ---
-forest_df['reg_aware_forest_clean'] = (
-    forest_df['reg_aware_forest']
-    .astype(str)
-    .str.strip()
-    .str.lower()
-)
-
-awareness_map = {
-    'yes, i am aware': 1,
-    "no, i don't know": 0
-}
-
-forest_df['reg_awareness_score'] = forest_df['reg_aware_forest_clean'].map(awareness_map)
-
-forest_df = forest_df.dropna(subset=['reg_awareness_score'])
-
-# --- GROUP + SORT DESCENDING ---
-forest_reg_summary = (
-    forest_df.groupby('eco_forest_name')['reg_awareness_score']
-    .mean()
-    .reset_index()
-    .rename(columns={'reg_awareness_score': 'Avg_Regulatory_Awareness'})
-    .sort_values(by='Avg_Regulatory_Awareness', ascending=False)
-)
 
 # --- STREAMLIT DISPLAY ---
 with tabs[3]:
+    # --- CLEAN + MAP AWARENESS COLUMN ---
+    forest_df['reg_aware_forest_clean'] = (
+        forest_df['reg_aware_forest']
+        .astype(str)
+        .str.strip()
+        .str.lower()
+    )
+    
+    awareness_map = {
+        'yes, i am aware': 1,
+        "no, i don't know": 0
+    }
+    
+    forest_df['reg_awareness_score'] = forest_df['reg_aware_forest_clean'].map(awareness_map)
+    
+    forest_df = forest_df.dropna(subset=['reg_awareness_score'])
+    
+    # --- GROUP + SORT DESCENDING ---
+    forest_reg_summary = (
+        forest_df.groupby('eco_forest_name')['reg_awareness_score']
+        .mean()
+        .reset_index()
+        .rename(columns={'reg_awareness_score': 'Avg_Regulatory_Awareness'})
+        .sort_values(by='Avg_Regulatory_Awareness', ascending=False)
+    )
+
     st.header("🌿 Forest Regulatory Awareness Across Forests")
     st.markdown("""
     Horizontal bar chart showing the **average regulatory awareness score** per forest.
@@ -1266,85 +1268,96 @@ with tabs[3]:
     plt.tight_layout()
     st.pyplot(plt.gcf())
 
-st.markdown('''
-## 🌿 Forest Regulatory Awareness (Avg. Score 0–1)
-
-Horizontal bars (descending):
-
-- **Mount Kigali**: **0.92**  
-- **Volcanoes NP**: **0.83**  
-- **Gishwati**: **0.82**  
-- **Akagera NP**: **0.75**  
-- **Arboretum**: **0.60**  
-- **Nyungwe NP**: **0.57**  
-
-**Key Insight:** **Highest awareness near urban/protected sites** (Mt Kigali, Volcanoes). **Nyungwe lowest** despite value. **Leverage high-awareness forests** for compliance & education campaigns.
-''')
+    st.markdown('''
+    ## 🌿 Forest Regulatory Awareness (Avg. Score 0–1)
+    
+    Horizontal bars (descending):
+    
+    - **Mount Kigali**: **0.92**  
+    - **Volcanoes NP**: **0.83**  
+    - **Gishwati**: **0.82**  
+    - **Akagera NP**: **0.75**  
+    - **Arboretum**: **0.60**  
+    - **Nyungwe NP**: **0.57**  
+    
+    **Key Insight:** **Highest awareness near urban/protected sites** (Mt Kigali, Volcanoes). **Nyungwe lowest** despite value. **Leverage high-awareness forests** for compliance & education campaigns.
+    ''')
 
 # #Perceived Clean Air Benefit Provided by Forests
 
 # In[308]:
 
 
-[col for col in merged_df.columns if 'air' in col.lower() or 'clean' in col.lower()]
 
 with tabs[4]:
     st.header("🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)")
     st.markdown("""
     Horizontal bar chart showing the **average perceived air regulation benefit** provided by each forest.
     """)
-    
-    
+
     # Ensure we're only working with forests
-    forest_df_filtered = forest_df[forest_df['b_forest_air_reg'].notna()]
-    
+    forest_df_filtered = forest_df[forest_df['b_forest_air_reg'].notna()].copy()
+
     # Convert to numeric if not already
-    forest_df_filtered['b_forest_air_reg'] = pd.to_numeric(forest_df_filtered['b_forest_air_reg'], errors='coerce')
-    
+    forest_df_filtered['b_forest_air_reg'] = pd.to_numeric(
+        forest_df_filtered['b_forest_air_reg'], errors='coerce'
+    )
+
     # Compute average per forest
-    air_reg_summary = forest_df_filtered.groupby('eco_forest_name')['b_forest_air_reg'].mean().sort_values(ascending=False).reset_index()
-    
+    air_reg_summary = (
+        forest_df_filtered
+        .groupby('eco_forest_name')['b_forest_air_reg']
+        .mean()
+        .sort_values(ascending=False)
+        .reset_index()
+    )
+
     # Plot
-    plt.figure(figsize=(14,8))
+    fig, ax = plt.subplots(figsize=(14, 8))
     sns.set_style("whitegrid")
+
     barplot = sns.barplot(
         data=air_reg_summary,
         y='eco_forest_name',
         x='b_forest_air_reg',
-        palette=sns.color_palette("Greens", len(air_reg_summary))
+        palette=sns.color_palette("Greens", len(air_reg_summary)),
+        ax=ax
     )
-    
+
     # Add value labels on bars
     for i, v in enumerate(air_reg_summary['b_forest_air_reg']):
-        barplot.text(v + 0.02, i, f"{v:.2f}", color='black', va='center', fontweight='bold')
-    
-    plt.title('Perceived Air Regulation Benefit by Forest', fontsize=18, fontweight='bold')
-    plt.xlabel('Average Air Regulation Score', fontsize=14)
-    plt.ylabel('Forest Name', fontsize=14)
-    plt.xlim(0, air_reg_summary['b_forest_air_reg'].max()*1.15)
+        ax.text(v + 0.02, i, f"{v:.2f}", color='black',
+                va='center', fontweight='bold')
+
+    ax.set_title('Perceived Air Regulation Benefit by Forest',
+                 fontsize=18, fontweight='bold')
+    ax.set_xlabel('Average Air Regulation Score', fontsize=14)
+    ax.set_ylabel('Forest Name', fontsize=14)
+    ax.set_xlim(0, air_reg_summary['b_forest_air_reg'].max() * 1.15)
+
     plt.tight_layout()
     st.pyplot(fig)
 
-st.markdown(''''
-## 🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)
 
-Horizontal bars (descending):
-
-- **Mount Kigali**: **0.91**  
-- **Arboretum**: **0.86**  
-- **Nyungwe NP**: **0.85**  
-- **Gishwati**: **0.76**  
-- **Akagera NP**: **0.74**  
-- **Volcanoes NP**: **0.60**  
-
-**Key Insight:** **Urban-adjacent forests** (Mt Kigali, Arboretum) top **perceived air quality benefit**. **Volcanoes lowest** despite fame. **Market eco/wellness in high-perception zones** for credibility & support.
-''')
+    st.markdown(''''
+    ## 🌬️ Perceived Air Regulation Benefit by Forest (Avg. Score 0–1)
+    
+    Horizontal bars (descending):
+    
+    - **Mount Kigali**: **0.91**  
+    - **Arboretum**: **0.86**  
+    - **Nyungwe NP**: **0.85**  
+    - **Gishwati**: **0.76**  
+    - **Akagera NP**: **0.74**  
+    - **Volcanoes NP**: **0.60**  
+    
+    **Key Insight:** **Urban-adjacent forests** (Mt Kigali, Arboretum) top **perceived air quality benefit**. **Volcanoes lowest** despite fame. **Market eco/wellness in high-perception zones** for credibility & support.
+    ''')
 
 with tab[5]:
     st.header("Biodiversity & Ecosystem Support Value per Forest (Composite Index)")
     
     # In[310]:
-    
     
     # Select columns for biodiversity & ecosystem support
     biodiv_cols = [
@@ -7793,6 +7806,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
