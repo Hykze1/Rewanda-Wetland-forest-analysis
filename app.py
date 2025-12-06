@@ -792,7 +792,7 @@ def map_feeling(text):
     fig2, ax2 = plt.subplots(figsize=(8,5))
     sns.barplot(data=feeling_counts, x='Feeling', y='Count', palette='Set2', ax=ax2)
     for i, v in enumerate(feeling_counts['Count']):
-    ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
+        ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
     ax2.set_title("Respondent Feelings Near Wetlands")
     st.pyplot(fig2)
 
@@ -846,7 +846,7 @@ wellbeing_percent = (wellbeing_counts / len(wetland_df) * 100).round(2)
 fig4, ax4 = plt.subplots(figsize=(10,6))
 sns.barplot(x=wellbeing_labels, y=wellbeing_counts.values, palette="Set3", ax=ax4)
 for i, (count, perc) in enumerate(zip(wellbeing_counts.values, wellbeing_percent.values)):
-ax4.text(i, count + 1, f"{count} ({perc}%)", ha='center', fontweight='bold')
+    ax4.text(i, count + 1, f"{count} ({perc}%)", ha='center', fontweight='bold')
 ax4.set_title("Wetland Benefits on Wellbeing")
 ax4.set_ylabel("Number of Respondents")
 st.pyplot(fig4)
@@ -7793,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
