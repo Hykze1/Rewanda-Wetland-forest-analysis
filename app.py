@@ -778,23 +778,23 @@ st.markdown("Count of respondents who feel Good, Normal, or Bad living near wetl
 # Map feelings
 
 def map_feeling(text):
-if pd.isna(text): return 'Unknown'
-t = str(text).lower()
-if 'privilege' in t or 'feel well' in t: return 'Good'
-if 'normal' in t: return 'Normal'
-if "don't feel good" in t or 'bad' in t: return 'Bad'
-return 'Unknown'
-
-wetland_df['wetland_feel_short'] = wetland_df['sense_place_wetland_feel_check'].apply(map_feeling)
-feeling_counts = wetland_df['wetland_feel_short'].value_counts().reset_index()
-feeling_counts.columns = ['Feeling', 'Count']
-
-fig2, ax2 = plt.subplots(figsize=(8,5))
-sns.barplot(data=feeling_counts, x='Feeling', y='Count', palette='Set2', ax=ax2)
-for i, v in enumerate(feeling_counts['Count']):
-ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
-ax2.set_title("Respondent Feelings Near Wetlands")
-st.pyplot(fig2)
+    if pd.isna(text): return 'Unknown'
+    t = str(text).lower()
+    if 'privilege' in t or 'feel well' in t: return 'Good'
+    if 'normal' in t: return 'Normal'
+    if "don't feel good" in t or 'bad' in t: return 'Bad'
+    return 'Unknown'
+    
+    wetland_df['wetland_feel_short'] = wetland_df['sense_place_wetland_feel_check'].apply(map_feeling)
+    feeling_counts = wetland_df['wetland_feel_short'].value_counts().reset_index()
+    feeling_counts.columns = ['Feeling', 'Count']
+    
+    fig2, ax2 = plt.subplots(figsize=(8,5))
+    sns.barplot(data=feeling_counts, x='Feeling', y='Count', palette='Set2', ax=ax2)
+    for i, v in enumerate(feeling_counts['Count']):
+    ax2.text(i, v + 0.5, str(v), ha='center', fontweight='bold')
+    ax2.set_title("Respondent Feelings Near Wetlands")
+    st.pyplot(fig2)
 
 # 3️⃣ Consequences if Wetland Depleted
 
@@ -7793,6 +7793,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
