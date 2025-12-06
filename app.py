@@ -289,8 +289,7 @@ wetland_df
 # In[283]:
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
+
 
 # Aggregate average age per wetland
 wetland_df  = merged_df.groupby("eco_wetland_name")["resp_age"].mean().sort_values(ascending=False)
@@ -5046,7 +5045,8 @@ print("Rugezi – Domestic Water Value: ", rugezi_water_total)
 
 import numpy as np
 
-raster_path = "invest wetland\Annual_Water_Yield_Rugezi_Output\wyield_Rugezi.tif"
+raster_path = "data/rasters/wyield_Rugezi.tif"
+
 
 with rasterio.open(raster_path) as src:
     wy_mm = src.read(1)
@@ -5068,7 +5068,7 @@ print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
 # In[368]:
 
 
-raster_path = "invest wetland\Carbon_Rugezi_Output\c_storage_bas_Rugezi.tif"
+raster_path = "data/rasters/c_storage_bas_Rugezi.tif"
 # Load raster
 with rasterio.open(raster_path) as src:
     carbon_tonnes = src.read(1)     # carbon storage (tonnes per pixel)
@@ -5091,7 +5091,7 @@ print(f"RUGEZI CARBON STORAGE = {total_carbon_tonnes:,.0f} tonnes")
 # In[369]:
 
 
-raster_path = "invest wetland\Erosion_sdr_Rugezi_output\sed_export_Rugezi.tif"
+raster_path = "data/rasters/sed_export_Rugezi.tif"
 
 
 # Load raster
@@ -5290,7 +5290,7 @@ print("Bugarama – Domestic Water Value:", bugarama_water_total)
 # In[375]:
 
 
-raster_path = "invest wetland\Annual_Water_Yield_Bugrama_Output\wyield_Bugarama.tif"
+raster_path = "data/rasters/wyield_Bugarama.tif"
 with rasterio.open(raster_path) as src:
     wy_mm = src.read(1)
     pixel_area_m2 = src.res[0] * src.res[1]
@@ -5312,7 +5312,7 @@ print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
 # In[376]:
 
 
-raster_path = "invest wetland\Carbon_Bugrama_Output\c_storage_bas_Bugrama.tif"
+raster_path = "data/rasters/c_storage_bas_Bugrama.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5334,7 +5334,7 @@ print(f"BUGARAMA CARBON VALUE = {value_billion:.2f} billion RWF")
 # In[377]:
 
 
-raster_path = "invest wetland\Erosion_sdr_Bugrama_output\sed_export_Bugrama.tif"
+raster_path = "data/rasters/sed_export_Bugrama.tif"
 
 # Step 2: Load raster
 with rasterio.open(raster_path) as src:
@@ -5578,7 +5578,7 @@ print("="*70)
 # In[381]:
 
 
-raster_path = "invest wetland\Annual_Water_Yield_NYABARONGO_Output\wyield_NYABARONGO.tif"
+raster_path = "data/rasters/wyield_NYABARONGO.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5605,7 +5605,7 @@ print(f"Water Regulation Value = {total_value_billion:.2f} billion RWF/year")
 # In[382]:
 
 
-raster_path = "invest wetland\Carbon_NYABARONGO_Output\c_storage_bas_NYABARONGO.tif"
+raster_path = "data/rasters/c_storage_bas_NYABARONGO.tif"
 
 
 with rasterio.open(raster_path) as src:
@@ -5625,7 +5625,7 @@ print(f"Carbon Storage Value = {total_value_billion:.2f} billion RWF")
 # In[383]:
 
 
-raster_path = "invest wetland\Erosion_sdr_NYABARONGO_output\sed_export_NYABARONGO.tif"
+raster_path = "data/rasters/sed_export_NYABARONGO.tif"
 
 with rasterio.open(raster_path) as src:
     erosion_arr = src.read(1)        # soil loss per pixel
@@ -5846,7 +5846,7 @@ print("Muvumba – Livestock Water Value:", muvumba_livestock_value)
 # In[388]:
 
 
-raster_path = "invest wetland\Annual_Water_Yield_Muvumba_Output\wyield_Muvumba.tif"
+raster_path = "data/rasters/wyield_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     water_yield_arr = src.read(1)  # water yield per pixel (m³/year)
@@ -5870,7 +5870,7 @@ print(f"Water Regulation Value (Muvumba Wetland) = {water_regulation_value_RWF/1
 # In[389]:
 
 
-raster_path = "invest wetland\Carbon_Muvumba_Output\c_storage_bas_Muvumba.tif"
+raster_path = "data/rasters/c_storage_bas_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     carbon_arr = src.read(1)       # carbon value per pixel (tonnes)
@@ -5898,7 +5898,7 @@ print(f"Annual Carbon Benefit (2% of stock) = {annual_carbon_benefit_RWF/1e9:.2f
 # In[390]:
 
 
-raster_path = "invest wetland\Erosion_sdr_Muvumba_output\sed_export_Muvumba.tif"
+raster_path = "data/rasters/sed_export_Muvumba.tif"
 
 with rasterio.open(raster_path) as src:
     sdr_arr = src.read(1)          # sediment export per pixel (tonnes/year)
@@ -6141,8 +6141,7 @@ print("Chart with Akagera included → saved as 'Rwanda_Wetlands_Including_Akage
 # In[394]:
 
 
-import folium
-from folium import IFrame
+
 
 # Rwanda map
 m = folium.Map(location=[-1.9403, 29.8739], zoom_start=8, tiles="OpenStreetMap")
@@ -8394,6 +8393,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
