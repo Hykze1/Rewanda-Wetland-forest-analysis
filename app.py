@@ -1354,7 +1354,7 @@ with tabs[4]:
     **Key Insight:** **Urban-adjacent forests** (Mt Kigali, Arboretum) top **perceived air quality benefit**. **Volcanoes lowest** despite fame. **Market eco/wellness in high-perception zones** for credibility & support.
     ''')
 
-with tab[5]:
+with tabs[5]:
     st.header("Biodiversity & Ecosystem Support Value per Forest (Composite Index)")
 
     # Select columns for biodiversity & ecosystem support
@@ -1424,6 +1424,7 @@ with tab[5]:
     - **Akagera NP**: **0.21**  
     
     **Key Insight:** **Nyungwe & Arboretum lead** in perceived ecosystem support. **Akagera lowest**. **Prioritize conservation & eco-branding in top sites** (Nyungwe, Arboretum).
+    
     ''')
 
 with tab[6]:
@@ -7808,6 +7809,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
