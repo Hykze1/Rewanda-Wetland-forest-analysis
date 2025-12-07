@@ -22,6 +22,7 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import streamlit as st
+from scipy import stats
 from IPython.display import Markdown, display
 
 # ================================
@@ -1764,1372 +1765,1313 @@ with st.expander("🌾 4(a) Crop Analysis Visualization"):
     
     **Key Insight:** **Maize & rice drive profits/yields** near wetlands/forests, but **high costs** (labor 47%, seeds 11%) squeeze margins. **Target efficiency in staples** for 20–30% profit boost; low sweet potato yield signals irrigation needs.
     ''')
-# #Annual Profit by Crop Type
-
-# In[316]:
-
-
-# Strip spaces from column names (safety)
-merged_df.columns = merged_df.columns.str.strip()
-
-# Exclude rows with missing crop_type
-df_plot = merged_df[merged_df['crop_type'].notna()]
-
-# Plot annual profit
-plt.figure(figsize=(15,8))
-sns.barplot(x='crop_type', y='crop_annual_profit', data=df_plot, palette='viridis')
-plt.xticks(rotation=45)
-plt.xlabel("Crop Type")
-plt.ylabel("Annual Profit")
-plt.title("Annual Profit by Crop Type")
-plt.show()
+    
+with st.expander("Annual Profit by Crop Type")
 
 
-# ## 💰 Annual Profit by Crop Type (RWF, 10^6)
-# 
-# Bar chart with variability lines:
-# 
-# - **Maize**: **3.0M** (high var.)
-# - **Rice/Paddy**: **3.0M** (high var.)
-# - **Sweet Potatoes**: **2.5M**
-# - **Sorghum**: **0.4M**
-# - **Beans**: **0.05M**
-# - **Irish Potatoes**: **<0.01M**
-# - **Chick Peas & Carrots**: **~0**
-# 
-# **Key Insight:** **Maize & rice** lead profits but volatile; **sweet potatoes** strong steady alternative. **Diversify into these 3** for risk-balanced yields.
+    # Strip spaces from column names (safety)
+    merged_df.columns = merged_df.columns.str.strip()
+    
+    # Exclude rows with missing crop_type
+    df_plot = merged_df[merged_df['crop_type'].notna()]
+    
+    # Plot annual profit
+    plt.figure(figsize=(15,8))
+    sns.barplot(x='crop_type', y='crop_annual_profit', data=df_plot, palette='viridis')
+    plt.xticks(rotation=45)
+    plt.xlabel("Crop Type")
+    plt.ylabel("Annual Profit")
+    plt.title("Annual Profit by Crop Type")
+    st.pyplot(plt.gcf())
 
-# #Crop Yield Quantity by Crop Type
+    st.merdown('''
+    ## 💰 Annual Profit by Crop Type (RWF, 10^6)
+    
+    Bar chart with variability lines:
+    
+    - **Maize**: **3.0M** (high var.)
+    - **Rice/Paddy**: **3.0M** (high var.)
+    - **Sweet Potatoes**: **2.5M**
+    - **Sorghum**: **0.4M**
+    - **Beans**: **0.05M**
+    - **Irish Potatoes**: **<0.01M**
+    - **Chick Peas & Carrots**: **~0**
+    
+    **Key Insight:** **Maize & rice** lead profits but volatile; **sweet potatoes** strong steady alternative. **Diversify into these 3** for risk-balanced yields.
+    ''')
 
-# In[317]:
+with st.expander("Crop Yield Quantity by Crop Type")
 
-
-# Remove grand total if present
-crop_df = merged_df[merged_df["crop_type"].str.lower() != "grand total crops"]
-
-# Convert crop_type to string
-crop_df["crop_type"] = crop_df["crop_type"].astype(str)
-
-# Create a unique color for each bar
-colors = plt.cm.tab20(range(len(crop_df)))
-
-
-plt.figure(figsize=(12,6))
-plt.bar(crop_df["crop_type"], crop_df["crop_yield_quantity"], color=colors)
-
-plt.xticks(rotation=45)
-plt.xlabel("Crop Type")
-plt.ylabel("Yield Quantity")
-plt.title("Crop Yield Quantity by Crop Type")
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌾 Agricultural Performance Summary
-# 
-# **1. Yield Quantity by Crop (kg/ha/yr):**
-# - **Maize**: **~7,000** (highest, dominant staple).
-# - **Sweet Potatoes & Rice/Paddy**: **~5,000** each (strong secondary yields).
-# - **Sorghum, Beans, Chick Peas**: **~1,000** (moderate).
-# - **Irish Potatoes, Carrots, None**: **<500** (low/negligible).
-# 
-# **2. Profit & Variability (from prior):**
-# - **Maize & Rice/Paddy** drive **~3M RWF/yr profits** but with high volatility.
-# - Others near-zero profit.
-# 
-# **3. Yield by Location (prior):**
-# - **Bugarama & Muvumba wetlands** lead medians/outliers for high productivity.
-# 
-# **Strategic Implication:** **Prioritize maize, rice/paddy, sweet potatoes** in **Bugarama/Muvumba** for max yield/profit. Hedge volatility via irrigation/tech for staples.
+    # Remove grand total if present
+    crop_df = merged_df[merged_df["crop_type"].str.lower() != "grand total crops"]
+    
+    # Convert crop_type to string
+    crop_df["crop_type"] = crop_df["crop_type"].astype(str)
+    
+    # Create a unique color for each bar
+    colors = plt.cm.tab20(range(len(crop_df)))
+    
+    
+    plt.figure(figsize=(12,6))
+    plt.bar(crop_df["crop_type"], crop_df["crop_yield_quantity"], color=colors)
+    
+    plt.xticks(rotation=45)
+    plt.xlabel("Crop Type")
+    plt.ylabel("Yield Quantity")
+    plt.title("Crop Yield Quantity by Crop Type")
+    plt.tight_layout()
+    st.pyplot(plt.gcf())
+    
+    st.markdown('''
+    ## 🌾 Agricultural Performance Summary
+    
+    **1. Yield Quantity by Crop (kg/ha/yr):**
+    - **Maize**: **~7,000** (highest, dominant staple).
+    - **Sweet Potatoes & Rice/Paddy**: **~5,000** each (strong secondary yields).
+    - **Sorghum, Beans, Chick Peas**: **~1,000** (moderate).
+    - **Irish Potatoes, Carrots, None**: **<500** (low/negligible).
+    
+    **2. Profit & Variability (from prior):**
+    - **Maize & Rice/Paddy** drive **~3M RWF/yr profits** but with high volatility.
+    - Others near-zero profit.
+    
+    **3. Yield by Location (prior):**
+    - **Bugarama & Muvumba wetlands** lead medians/outliers for high productivity.
+    
+    **Strategic Implication:** **Prioritize maize, rice/paddy, sweet potatoes** in **Bugarama/Muvumba** for max yield/profit. Hedge volatility via irrigation/tech for staples.
+    ''')
 
 # #**(NEXT)**
 # 
+with st.expander("📉 Regression Analysis", expanded=False):
 
-# ###General Statistical Analysis
-# 
-# Inferential analysis:
-# 
-# Correlation: Identify relationships among ecosystem variables.
+    st.subheader("Regression Model Summary")
+    st.markdown('''
 
-# We’ll define high correlation as |r| ≥ 0.8 (strong linear relationship).
-# 
-# 
-# 
-# 
+    Inferential analysis:
+    
+    Correlation: Identify relationships among ecosystem variables.
+    
+    We’ll define high correlation as |r| ≥ 0.8 (strong linear relationship).
+    
+    ''')
+  
+    
+    
+    # Compute correlation (excluding non-numeric columns)
+    excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
+    corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
+    
+    # Filter correlations above threshold
+    threshold = 0.8
+    high_corr_pairs = (
+        corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+        .stack()
+        .reset_index()
+    )
+    high_corr_pairs.columns = ['Variable_1', 'Variable_2', 'Correlation']
+    high_corr_pairs = high_corr_pairs[
+        (high_corr_pairs['Correlation'].abs() >= threshold)
+    ].sort_values(by='Correlation', ascending=False)
+    
+    # Display side by side
+    # Split the dataframe into two halves and display side by side
+    half = len(high_corr_pairs) // 2
+    left = high_corr_pairs.iloc[:half].reset_index(drop=True)
+    right = high_corr_pairs.iloc[half:].reset_index(drop=True)
+    
+    # Concatenate horizontally
+    side_by_side = pd.concat([left, right], axis=1)
+    st.dataframe(side_by_side, use_container_width=True)
+    
+with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
 
-# In[318]:
+    # Compute correlation (excluding non-numeric columns)
+    excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
+    corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
 
+    # Filter correlations above threshold
+    threshold = 0.8
+    high_corr_pairs = (
+        corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+        .stack()
+        .reset_index()
+    )
+    high_corr_pairs.columns = ['Variable_1', 'Variable_2', 'Correlation']
+    high_corr_pairs = high_corr_pairs[
+        (high_corr_pairs['Correlation'].abs() >= threshold)
+    ].sort_values(by='Correlation', ascending=False)
 
-# Compute correlation (excluding non-numeric columns)
-excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
-corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
+    # Split into two halves for side by side
+    half = len(high_corr_pairs) // 2
+    left = high_corr_pairs.iloc[:half].reset_index(drop=True)
+    right = high_corr_pairs.iloc[half:].reset_index(drop=True)
 
-# Filter correlations above threshold
-threshold = 0.8
-high_corr_pairs = (
-    corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-    .stack()
-    .reset_index()
-)
-high_corr_pairs.columns = ['Variable_1', 'Variable_2', 'Correlation']
-high_corr_pairs = high_corr_pairs[
-    (high_corr_pairs['Correlation'].abs() >= threshold)
-].sort_values(by='Correlation', ascending=False)
+    # Rename columns of the right half to avoid duplicates
+    right.columns = [f"{c}_right" for c in right.columns]
 
-# Display side by side
-# Split the dataframe into two halves and display side by side
-half = len(high_corr_pairs) // 2
-left = high_corr_pairs.iloc[:half].reset_index(drop=True)
-right = high_corr_pairs.iloc[half:].reset_index(drop=True)
+    # Concatenate side by side
+    side_by_side = pd.concat([left, right], axis=1)
 
-# Concatenate horizontally
-side_by_side = pd.concat([left, right], axis=1)
-print(side_by_side)
+    # Define color function
+    def color_corr(val):
+        if abs(val) >= 0.8:
+            return 'background-color: red; color: white'
+        elif abs(val) >= 0.8:
+            return 'background-color: orange'
+        else:
+            return 'background-color: yellow'
 
+    # Apply styling only to numeric correlation columns
+    styled_table = side_by_side.style.map(color_corr, subset=['Correlation', 'Correlation_right'])
 
-# ##Visualize the strongest relationships in color intensity heatmap
-# 
-# 
+    # Display in Streamlit
+    st.write("### Strongest Correlation Pairs (|r| ≥ 0.8)")
+    st.dataframe(styled_table, use_container_width=True)
 
-# In[319]:
-
-
-# Compute correlation (excluding non-numeric columns)
-excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
-corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
-
-# Filter correlations above threshold
-threshold = 0.8
-high_corr_pairs = (
-    corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-    .stack()
-    .reset_index()
-)
-high_corr_pairs.columns = ['Variable_1', 'Variable_2', 'Correlation']
-high_corr_pairs = high_corr_pairs[
-    (high_corr_pairs['Correlation'].abs() >= threshold)
-].sort_values(by='Correlation', ascending=False)
-
-# Split into two halves for side by side
-half = len(high_corr_pairs) // 2
-left = high_corr_pairs.iloc[:half].reset_index(drop=True)
-right = high_corr_pairs.iloc[half:].reset_index(drop=True)
-
-# Rename columns of the right half to avoid duplicates
-right.columns = [f"{c}_right" for c in right.columns]
-
-# Concatenate side by side
-side_by_side = pd.concat([left, right], axis=1)
-
-# Define color function
-def color_corr(val):
-    if abs(val) >= 0.8:
-        return 'background-color: red; color: white'
-    elif abs(val) >= 0.8:
-        return 'background-color: orange'
-    else:
-        return 'background-color: yellow'
-
-# Apply styling only to numeric correlation columns
-styled_table = side_by_side.style.map(color_corr, subset=['Correlation', 'Correlation_right'])
-styled_table
-
-
-# # Correlation Insights
-# 
-# * **Strong Positive (≥0.8)**  
-#   * Variables moving together.  
-#   * Examples:  
-#     * Mats frequency & crop grown flags (e.g., onions, tomatoes) → 1.0 (mats production ties to diversified cropping).  
-#     * Wetland benefits (agri_prod, erosion) & beer income → 0.97 (ecosystem services boost alcohol revenue).  
-#     * Sums/counts (e.g., practice_yes_sum & count) → 1.0 (redundant metrics).  
-# 
-# * **Strong Negative (≤-0.8)**  
-#   * Opposing movements.  
-#   * Examples:  
-#     * Forest meds/tourism & crop yields/profits/prices → -0.92 to -1.0 (forest reliance hurts ag productivity).  
-#     * Fishing no_sum & crop values/expenses → -0.93 to -1.0 (non-fishers have higher ag returns).  
-#     * GPS coords & fish/mushroom values → -0.98 (location drives resource pricing inversely).  
-# 
-# * **Patterns**  
-#   * **Redundancy**: Perfect 1.0/-1.0 in derived vars (e.g., monthly/annual income, sums vs. counts).  
-#   * **Trade-offs**: Forest ecosystem services negatively link to crop economics; wetland benefits positively to non-ag income (beer, mats).  
-#   * **Clustering**: High correlations in mats/crops (diversification) and fishing vs. ag (opportunity costs).
-
-# #**(NEXT)**
-# 
-
-# #This step gives us a quick overview of the combined dataset before we begin deeper analysis.
-# 
-# 
-# * It first **checks how large the dataset is** — how many households and variables are included.
-# * Then, it **counts how many records come from wetlands and how many from forests**, so we know the balance between both ecosystems.
-# * Next, it **checks how many unique wetland names, forest names, and crop types** are represented — confirming that all expected case studies and crop categories are captured.
-# * Finally, it **displays the first few rows** of the data so we can visually confirm that everything looks correct and properly merged.
-# 
-# ---
-# 
-# In short:
-# This code is a **data validation snapshot** — it ensures that our dataset is complete, balanced, and ready for analysis before we move on to statistical testing or visualizations.
-# 
-
-# In[320]:
+    st.markdown('''
+    # Correlation Insights
+    
+    * **Strong Positive (≥0.8)**  
+      * Variables moving together.  
+      * Examples:  
+        * Mats frequency & crop grown flags (e.g., onions, tomatoes) → 1.0 (mats production ties to diversified cropping).  
+        * Wetland benefits (agri_prod, erosion) & beer income → 0.97 (ecosystem services boost alcohol revenue).  
+        * Sums/counts (e.g., practice_yes_sum & count) → 1.0 (redundant metrics).  
+    
+    * **Strong Negative (≤-0.8)**  
+      * Opposing movements.  
+      * Examples:  
+        * Forest meds/tourism & crop yields/profits/prices → -0.92 to -1.0 (forest reliance hurts ag productivity).  
+        * Fishing no_sum & crop values/expenses → -0.93 to -1.0 (non-fishers have higher ag returns).  
+        * GPS coords & fish/mushroom values → -0.98 (location drives resource pricing inversely).  
+    
+    * **Patterns**  
+      * **Redundancy**: Perfect 1.0/-1.0 in derived vars (e.g., monthly/annual income, sums vs. counts).  
+      * **Trade-offs**: Forest ecosystem services negatively link to crop economics; wetland benefits positively to non-ag income (beer, mats).  
+      * **Clustering**: High correlations in mats/crops (diversification) and fishing vs. ag (opportunity costs).
+    
+    #**(NEXT)**
+    
+    
+    #This step gives us a quick overview of the combined dataset before we begin deeper analysis.
+    
+    
+    * It first **checks how large the dataset is** — how many households and variables are included.
+    * Then, it **counts how many records come from wetlands and how many from forests**, so we know the balance between both ecosystems.
+    * Next, it **checks how many unique wetland names, forest names, and crop types** are represented — confirming that all expected case studies and crop categories are captured.
+    * Finally, it **displays the first few rows** of the data so we can visually confirm that everything looks correct and properly merged.
+    
+    ---
+    
+    In short:
+    This code is a **data validation snapshot** — it ensures that our dataset is complete, balanced, and ready for analysis before we move on to statistical testing or visualizations.
+    ''')
 
 
-from scipy import stats  # For z-scores
 
-# Quick shape/check
-print(f"Data shape: {merged_df.shape}")
-print(merged_df['eco_type'].value_counts())  # Wetlands vs Forests
-print(merged_df[['eco_wetland_name', 'eco_forest_name', 'crop_type']].nunique())  # Case studies/crops
+# =========================================================
+# 📌 GENERAL DATA CHECKS
+# =========================================================
+with st.expander("🔍 Dataset Structure & Basic Checks", expanded=False):
 
-# Display first 5 rows (as in your notebook)
-pd.set_option('display.max_columns', None)
-merged_df.head()
+    st.subheader("Dataset Overview")
 
+    st.write(f"**Data shape:** {merged_df.shape}")
 
-# 
-# ##A bar chart showing Forest vs Wetland distribution.
-# 
-# ##A second chart for the number of unique ecosystem names.
-# 
-# ##A third chart for the number of unique crop types
+    st.write("### Ecosystem Type Counts")
+    st.write(merged_df['eco_type'].value_counts())
 
-# In[321]:
+    st.write("### Unique Case Counts")
+    st.write(merged_df[['eco_wetland_name', 'eco_forest_name', 'crop_type']].nunique())
 
+    st.write("### First 5 Rows")
+    pd.set_option('display.max_columns', None)
+    st.dataframe(merged_df.head(), use_container_width=True)
 
-import matplotlib.pyplot as plt
-
-# Define the data
-eco_counts = {"Forest": 2531, "Wetland": 1490}
-eco_wetland_name_count = 5
-eco_forest_name_count = 7
-crop_type_count = 9
-
-# Create subplots
-fig, axes = plt.subplots(1, 3, figsize=(15, 5))
-
-# Plot 1: eco_type distribution
-axes[0].bar(eco_counts.keys(), eco_counts.values(), color=['green', 'blue'])
-axes[0].set_title("Ecosystem Type Distribution")
-axes[0].set_ylabel("Count")
-
-# Plot 2: Count of unique forest and wetland names
-axes[1].bar(["Forest Names", "Wetland Names"],
-             [eco_forest_name_count, eco_wetland_name_count],
-             color=['forestgreen', 'skyblue'])
-axes[1].set_title("Unique Ecosystem Names")
-axes[1].set_ylabel("Unique Count")
-
-# Plot 3: Number of unique crop types
-axes[2].bar(["Crop Types"], [crop_type_count], color='goldenrod')
-axes[2].set_title("Unique Crop Types")
-axes[2].set_ylabel("Count")
-
-plt.tight_layout()
-plt.show()
+    st.markdown("""
+    ### Quick Data Snapshot  
+    * **Size:** 3,976 rows across 682 variables — robust for analysis.  
+    * **Ecosystem Split:** Forests dominate (2,531 = 64%), wetlands lighter (1,445 = 36%).  
+    * **Unique Sites:** 6 forest names, 4 wetland names (10 total).  
+    * **Crop Variety:** 8 types.  
+    """)
 
 
-# ### Quick Data Snapshot
-# 
-# * **Size**: 3,976 rows across 682 variables—robust for analysis.
-# * **Ecosystem Split**: Forests dominate (2,531 = 64%), wetlands lighter (1,445 = 36%)—forest bias persists; wetlands underrepresented.
-# * **Unique Sites**: 6 forest names, 4 wetland names (10 total)—decent diversity, monitor overlaps.
-# * **Crop Variety**: 8 types—solid coverage, potential sparsity in minors.
-# 
-# **Insight**: Forest-heavy data excels for woodland studies; boost wetland sampling for balanced insights.
+# =========================================================
+# 📊 BAR CHARTS (Forest vs Wetland, Names, Crops)
+# =========================================================
+with st.expander("📊 Forest vs Wetland Overview", expanded=False):
 
-# #**(NEXT)**
-# 
+    st.subheader("Ecosystem, Site, and Crop Distributions")
 
-# ###The code standardizes site names, links crops to ecosystems, and verifies data completeness by showing which wetlands or forests contain crop information.
+    eco_counts = {"Forest": 2531, "Wetland": 1490}
+    eco_wetland_name_count = 5
+    eco_forest_name_count = 7
+    crop_type_count = 9
 
-# In[322]:
+    fig, axes = plt.subplots(1, 3, figsize=(15, 5))
 
+    # Plot 1: eco_type distribution
+    axes[0].bar(eco_counts.keys(), eco_counts.values(), color=['green', 'blue'])
+    axes[0].set_title("Ecosystem Type Distribution")
+    axes[0].set_ylabel("Count")
 
-# Function to create 'case_study' column for wetlands or forests
-def assign_case_study(df, eco_type):
-    if eco_type == 'wetland':
-        df['case_study'] = df['eco_wetland_name'].fillna('Other Wetland').replace('N/A', 'Other Wetland').str.strip()
-    else:  # forest
-        df['case_study'] = df['eco_forest_name'].fillna('Other Forest').replace('N/A', 'Other Forest').str.strip()
-    return df
+    # Plot 2: Unique forest/wetland names
+    axes[1].bar(["Forest Names", "Wetland Names"],
+                [eco_forest_name_count, eco_wetland_name_count],
+                color=['forestgreen', 'skyblue'])
+    axes[1].set_title("Unique Ecosystem Names")
+    axes[1].set_ylabel("Unique Count")
 
-# Apply to filtered dataframes
-wetland_df = assign_case_study(wetland_df, 'wetland')
-forest_df = assign_case_study(forest_df, 'forest')
+    # Plot 3: Crop types
+    axes[2].bar(["Crop Types"], [crop_type_count], color='goldenrod')
+    axes[2].set_title("Unique Crop Types")
+    axes[2].set_ylabel("Count")
 
-# Verify crop linkage per case study
-wetland_crop_linked = wetland_df.groupby('case_study')['crop_type'].apply(lambda x: (x.notna()).mean() * 100)
-forest_crop_linked = forest_df.groupby('case_study')['crop_type'].apply(lambda x: (x.notna()).mean() * 100)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-print("Wetland crop linkage % per case study:\n", wetland_crop_linked)
-print("Forest crop linkage % per case study:\n", forest_crop_linked)
-
-# List unique case studies
-print("Wetlands:", wetland_df['case_study'].unique())
-print("Forests:", forest_df['case_study'].unique())
-
-
-# **Crop Data Coverage**
-# 
-# * Wetlands: **Rugezi** (10.5%), **Muvumba** (12.1%), **Bugarama** (7.9%), **Nyabarongo** (0.6%)—highest engagement in Muvumba/Rugezi.
-# * Forests: All <0.3% (e.g., Gishwati 0.26%, others 0–0.2%)—negligible farming.
-# * Uneven patterns reflect actual activity, not errors.
-# 
-# **Case Study Overview**
-# 
-# * Wetlands: Rugezi, Bugarama, Nyabarongo, Muvumba.
-# * Forests: Volcanoes NP, Gishwati, Mt Kigali, Akagera NP, Arboretum, Nyungwe NP.
-# * Total: 3,977 households across 10 sites.
-# 
-# **Analytical Insights**
-# 
-# * Valid non-crop comparisons ecosystem-wide.
-# * Crop analysis viable for **Muvumba/Rugezi**; limited for Bugarama/Nyabarongo; forests exclude ag focus.
-# * Wetlands ~70% of records, forests lighter.
-# 
-# **Conclusion**
-# 
-# * Data complete/accurate.
-# * Prioritize **Muvumba/Rugezi** for crop studies; forests for ecosystem/non-cash benefits.
-# * Expand Nyabarongo/forest sampling for balance.
-
-# #**(NEXT)**
-# 
-
-# ## Crop Profit and Willingness to Pay by Case Study
-
-# In[323]:
+    st.markdown("""
+    **Insight:**  
+    Forest-heavy data excels for woodland studies; boost wetland sampling for balanced insights.
+    """)
 
 
-# --- Prepare summaries for Wetlands ---
-wetland_summary = wetland_df.groupby('case_study').agg(
-    n_households=('resp_serial_no', 'count'),
-    n_crops=('crop_type', lambda x: x.notna().sum()),
-    mean_crop_profit=('crop_annual_profit', 'mean'),
-    perc_wtp=('wtp_wetland_management_check', lambda x: (x > 0).mean() * 100)
-).reset_index()
-wetland_summary['Ecosystem'] = 'Wetland'
+# =========================================================
+# 🗂 CASE STUDY STANDARDIZATION & CROP COVERAGE
+# =========================================================
+with st.expander("🗂 Case Study Alignment & Crop Coverage", expanded=False):
 
-# --- Prepare summaries for Forests ---
-forest_summary = forest_df.groupby('case_study').agg(
-    n_households=('resp_serial_no', 'count'),
-    n_crops=('crop_type', lambda x: x.notna().sum()),
-    mean_crop_profit=('crop_annual_profit', 'mean'),
-    perc_wtp=('wtp_forest_amount_RWF', lambda x: (x > 0).mean() * 100)
-).reset_index()
-forest_summary['Ecosystem'] = 'Forest'
+    st.subheader("Standardizing Case Studies")
 
-# --- Combine ---
-case_summary = pd.concat([wetland_summary, forest_summary], ignore_index=True)
+    # Function preserved exactly as yours
+    def assign_case_study(df, eco_type):
+        if eco_type == 'wetland':
+            df['case_study'] = df['eco_wetland_name'].fillna('Other Wetland').replace('N/A', 'Other Wetland').str.strip()
+        else:  # forest
+            df['case_study'] = df['eco_forest_name'].fillna('Other Forest').replace('N/A', 'Other Forest').str.strip()
+        return df
 
-# Sort by mean_crop_profit
-case_summary = case_summary.sort_values('mean_crop_profit', ascending=False)
+    wetland_df = assign_case_study(wetland_df, 'wetland')
+    forest_df = assign_case_study(forest_df, 'forest')
 
-# --- Plot ---
-plt.figure(figsize=(16,9))
-sns.set_style("whitegrid")
+    wetland_crop_linked = wetland_df.groupby('case_study')['crop_type'].apply(lambda x: (x.notna()).mean() * 100)
+    forest_crop_linked = forest_df.groupby('case_study')['crop_type'].apply(lambda x: (x.notna()).mean() * 100)
 
-# Barplot for Mean Crop Profit, hue by Ecosystem
-bar = sns.barplot(
-    x='case_study', y='mean_crop_profit', hue='Ecosystem',
-    data=case_summary, palette='viridis', edgecolor='black'
-)
+    st.write("### Wetland Crop Linkage (%):")
+    st.dataframe(wetland_crop_linked)
 
-# Lineplot for % WTP
-for eco in case_summary['Ecosystem'].unique():
-    eco_df = case_summary[case_summary['Ecosystem'] == eco]
-    sns.lineplot(
-        x='case_study', y='perc_wtp', data=eco_df,
-        color='red' if eco=='Wetland' else 'blue',
-        marker='o', linewidth=2, label=f'% WTP {eco}'
+    st.write("### Forest Crop Linkage (%):")
+    st.dataframe(forest_crop_linked)
+
+    st.write("### Unique Case Studies")
+    st.write("Wetlands:", wetland_df['case_study'].unique())
+    st.write("Forests:", forest_df['case_study'].unique())
+
+    st.markdown("""
+    ### Crop Coverage Summary  
+    * Wetlands: **Muvumba** + **Rugezi** best represented  
+    * Forests: Negligible crop activity — expected  
+    """)
+
+    st.markdown("""
+    ### Final Assessment  
+    ✔ Data complete & valid  
+    ✔ Crop analysis meaningful mainly for **Muvumba & Rugezi**  
+    ✔ Forest data best suited for non-crop ES valuation  
+    """)
+
+
+    st.markdown('''
+    
+    **Crop Data Coverage**
+    
+    * Wetlands: **Rugezi** (10.5%), **Muvumba** (12.1%), **Bugarama** (7.9%), **Nyabarongo** (0.6%)—highest engagement in Muvumba/Rugezi.
+    * Forests: All <0.3% (e.g., Gishwati 0.26%, others 0–0.2%)—negligible farming.
+    * Uneven patterns reflect actual activity, not errors.
+    
+    **Case Study Overview**
+    
+    * Wetlands: Rugezi, Bugarama, Nyabarongo, Muvumba.
+    * Forests: Volcanoes NP, Gishwati, Mt Kigali, Akagera NP, Arboretum, Nyungwe NP.
+    * Total: 3,977 households across 10 sites.
+    
+    **Analytical Insights**
+    
+    * Valid non-crop comparisons ecosystem-wide.
+    * Crop analysis viable for **Muvumba/Rugezi**; limited for Bugarama/Nyabarongo; forests exclude ag focus.
+    * Wetlands ~70% of records, forests lighter.
+    
+    **Conclusion**
+    
+    * Data complete/accurate.j
+    * Prioritize **Muvumba/Rugezi** for crop studies; forests for ecosystem/non-cash benefits.
+    * Expand Nyabarongo/forest sampling for balance.
+    
+    ''')
+#**(NEXT)**
+
+
+with st.expander("🌾 Crop Profit and Willingness to Pay by Case Study", expanded=False):
+
+    # --- Prepare summaries for Wetlands ---
+    wetland_summary = wetland_df.groupby('case_study').agg(
+        n_households=('resp_serial_no', 'count'),
+        n_crops=('crop_type', lambda x: x.notna().sum()),
+        mean_crop_profit=('crop_annual_profit', 'mean'),
+        perc_wtp=('wtp_wetland_management_check', lambda x: (x > 0).mean() * 100)
+    ).reset_index()
+    wetland_summary['Ecosystem'] = 'Wetland'
+
+    # --- Prepare summaries for Forests ---
+    forest_summary = forest_df.groupby('case_study').agg(
+        n_households=('resp_serial_no', 'count'),
+        n_crops=('crop_type', lambda x: x.notna().sum()),
+        mean_crop_profit=('crop_annual_profit', 'mean'),
+        perc_wtp=('wtp_forest_amount_RWF', lambda x: (x > 0).mean() * 100)
+    ).reset_index()
+    forest_summary['Ecosystem'] = 'Forest'
+
+    # --- Combine ---
+    case_summary = pd.concat([wetland_summary, forest_summary], ignore_index=True)
+
+    # Sort by mean_crop_profit
+    case_summary = case_summary.sort_values('mean_crop_profit', ascending=False)
+
+    # --- Plot ---
+    fig, ax = plt.subplots(figsize=(16,9))
+    sns.set_style("whitegrid")
+
+    # Barplot
+    bar = sns.barplot(
+        x='case_study', y='mean_crop_profit', hue='Ecosystem',
+        data=case_summary, palette='viridis', edgecolor='black', ax=ax
     )
 
-plt.xticks(rotation=45, ha='right')
-plt.ylabel('Mean Crop Profit (RWF)', fontsize=12)
-plt.xlabel('Case Study', fontsize=12)
-plt.title('Crop Profit and Willingness to Pay by Case Study', fontsize=16)
-plt.legend()
-plt.tight_layout()
-plt.show()
+    # Lineplot for % WTP
+    for eco in case_summary['Ecosystem'].unique():
+        eco_df = case_summary[case_summary['Ecosystem'] == eco]
+        sns.lineplot(
+            x='case_study', y='perc_wtp', data=eco_df,
+            color='red' if eco=='Wetland' else 'blue',
+            marker='o', linewidth=2, label=f'% WTP {eco}', ax=ax
+        )
+
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+    ax.set_ylabel('Mean Crop Profit (RWF)', fontsize=12)
+    ax.set_xlabel('Case Study', fontsize=12)
+    ax.set_title('Crop Profit and Willingness to Pay by Case Study', fontsize=16)
+    ax.legend()
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    st.markdown('''
+    ### 💰 Crop Profit Summary
+    - Highest: **Muvumba**, Rugezi, Bugarama, Nyabarongo  
+    - Lowest: Forests except Mt Kigali  
+    - WTP extremely low except **Bugarama** (~5%)  
+
+    ## 💰 Crop Profit & WTP by Case Study (RWF, 10^6)
+    
+    Grouped bars (Forest blue, Wetland green) + lines (% WTP Forest light blue, Wetland red):
+    
+    - **High Profits**: Muvumba (~ 4M wetland), Rugezi/Bugarama/Nyabarongo (~3M wetland).
+    - **Low Profits**: Forests (Mt Kigali ~ 4M outlier; others ~1-2M); Gishwati/Volcanoes/Akagera/Nyungwe <1M.
+    - **WTP %**: Negligible everywhere (<1%), except **Bugarama wetland** (~5%, highest).
+    
+    **Key Insight:** **Wetlands drive profits** (esp. Muvumba/Rugezi), forests minimal. **Profit ≠ WTP**—Bugarama values conservation most despite moderate yields. **Target eco-payments there** for buy-in.
+    
+    ''')
+    ##**Income Generation by Case Study**
+    
+    
 
 
-# ## 💰 Crop Profit & WTP by Case Study (RWF, 10^6)
-# 
-# Grouped bars (Forest blue, Wetland green) + lines (% WTP Forest light blue, Wetland red):
-# 
-# - **High Profits**: Muvumba (~ 4M wetland), Rugezi/Bugarama/Nyabarongo (~3M wetland).
-# - **Low Profits**: Forests (Mt Kigali ~ 4M outlier; others ~1-2M); Gishwati/Volcanoes/Akagera/Nyungwe <1M.
-# - **WTP %**: Negligible everywhere (<1%), except **Bugarama wetland** (~5%, highest).
-# 
-# **Key Insight:** **Wetlands drive profits** (esp. Muvumba/Rugezi), forests minimal. **Profit ≠ WTP**—Bugarama values conservation most despite moderate yields. **Target eco-payments there** for buy-in.
+with st.expander("🌾 Income Generation by Case Study", expanded=False):
 
-# ##**Income Generation by Case Study**
-# 
-
-# **Rugezi’s main measurable income is crop production, not product frequencies. To capture that we should compute crop income using crop yield and market prices:**
-
-# In[324]:
+    st.markdown("Rugezi’s main measurable income is crop production")
 
 
-import pandas as pd
+    def compute_crop_values(df):
+        df['crop_yield_kg_ha_year'] = pd.to_numeric(df['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
+        df['crop_market_price'] = pd.to_numeric(df['crop_market_price'], errors='coerce').fillna(0)
+        df['crop_area_hectare_equiv'] = pd.to_numeric(df['crop_area_hectare_equiv'], errors='coerce').fillna(0)
 
-def compute_crop_values(df):
-    # Ensure numeric columns
-    df['crop_yield_kg_ha_year'] = pd.to_numeric(df['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
-    df['crop_market_price'] = pd.to_numeric(df['crop_market_price'], errors='coerce').fillna(0)
-    df['crop_area_hectare_equiv'] = pd.to_numeric(df['crop_area_hectare_equiv'], errors='coerce').fillna(0)
+        df['crop_value_rwf_ha'] = df['crop_yield_kg_ha_year'] * df['crop_market_price']
+        df['crop_value_rwf_hh'] = df['crop_value_rwf_ha'] * df['crop_area_hectare_equiv']
 
-    # Compute crop value per ha (RWF/ha/year)
-    df['crop_value_rwf_ha'] = df['crop_yield_kg_ha_year'] * df['crop_market_price']
-    # Compute household crop value
-    df['crop_value_rwf_hh'] = df['crop_value_rwf_ha'] * df['crop_area_hectare_equiv']
+        summary = df.groupby('case_study').agg(
+            hh_count=('case_study','size'),
+            mean_crop_value_hh=('crop_value_rwf_hh','mean'),
+            median_crop_value_hh=('crop_value_rwf_hh','median'),
+            pct_hh_with_crop_value=('crop_value_rwf_hh', lambda x: (x>0).mean()*100)
+        ).reset_index()
 
-    # Aggregate by case_study
-    summary = df.groupby('case_study').agg(
+        return summary
+
+    # Compute
+    wetland_crop_summary = compute_crop_values(wetland_df)
+    forest_crop_summary = compute_crop_values(forest_df)
+
+    wetland_crop_summary['Category'] = 'Wetland'
+    forest_crop_summary['Category'] = 'Forest'
+
+    all_crop_summary = pd.concat([wetland_crop_summary, forest_crop_summary], ignore_index=True)
+
+    st.dataframe(all_crop_summary)
+
+
+
+with st.expander("🌽 Mean Crop Income per Household (RWF/year)", expanded=False):
+
+    # Sort for clearer ranking
+    all_crop_summary_sorted = all_crop_summary.sort_values('mean_crop_value_hh', ascending=False)
+
+    fig, ax = plt.subplots(figsize=(12, 8))
+    barplot = sns.barplot(
+        data=all_crop_summary_sorted,
+        x='mean_crop_value_hh',
+        y='case_study',
+        hue='Category',
+        dodge=False,
+        palette='viridis',
+        ax=ax
+    )
+
+    # Add value labels
+    for i, (val, cat) in enumerate(zip(all_crop_summary_sorted['mean_crop_value_hh'],
+                                       all_crop_summary_sorted['Category'])):
+        ax.text(val + 500, i, f"{val:,.0f} RWF", va='center', fontsize=10, color='black')
+
+    ax.set_title('Mean Crop Income per Household by Case Study (RWF/year)', fontsize=16, weight='bold')
+    ax.set_xlabel('Mean Crop Income (RWF per Household per Year)', fontsize=12)
+    ax.set_ylabel('Case Study', fontsize=12)
+    ax.legend(title='Ecosystem')
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    st.markdown('''
+    ## 🌾 Mean Crop Income per Household by Case Study (RWF/yr)
+    
+    Bar chart (Wetlands blue, Forests green; scale ~10^9):
+    
+    - **Bugarama Wetland**: **2.67B** (highest, dominant).
+    - **Rugezi Wetland**: **1.15B**.
+    - **Nyabarongo Wetland**: **44M**.
+    - **Volcanoes NP** (forest): **1.5M**.
+    - **Muvumba Wetland**: **0.73M**.
+    - **Mt Kigali/Gishwati/Arboretum** (forests): **~10-15k** each.
+    - **Akagera/Nyungwe NPs** (forests): **0**.
+    
+    **Summary Table** (from data; %WTP all ~0, crop linkage % low):
+    
+    | Case Study | Mean Income (RWF) | %WTP | Crop Linkage % | Type |
+    |------------|-------------------|------|----------------|------|
+    | Bugarama Wetland | 2.67B | 0.0 | 5.8 | Wetland |
+    | Muvumba Wetland | 0.65M | 0.0 | 12.1 | Wetland |
+    | Nyabarongo Wetland | 44M | 0.0 | 0.6 | Wetland |
+    | Rugezi Wetland | 1.15B | 0.0 | 6.4 | Wetland |
+    | Akagera NP | 0 | 0.0 | 0.0 | Forest |
+    | Arboretum Forest | 10.6k | 0.0 | 0.2 | Forest |
+    | Gishwati Reserve | 14.5k | 0.0 | 0.3 | Forest |
+    | Mt Kigali | 15k | 0.0 | 0.3 | Forest |
+    | Nyungwe NP | 0 | 0.0 | 0.0 | Forest |
+    | Volcanoes NP | 1.5M | 0.0 | 0.2 | Forest |
+    
+    **Key Insight:** **Wetlands dwarf forests** in crop income (Bugarama/Rugezi >1B each; forests <2M max). Low %WTP signals weak monetized value despite yields—**focus incentives on high-producers** for conservation uptake.
+    ''')
+# ##**Crop Income and Participation by Case Study**
+
+# In[326]:
+
+
+with st.expander("🌾 Crop Income and Participation by Case Study", expanded=False):
+
+    # --- Your original code (UNCHANGED) ---
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    for df in [forest_df, wetland_df]:
+        df['crop_yield_kg_ha_year'] = pd.to_numeric(df['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
+        df['crop_market_price'] = pd.to_numeric(df['crop_market_price'], errors='coerce').fillna(0)
+        df['crop_area_hectare_equiv'] = pd.to_numeric(df['crop_area_hectare_equiv'], errors='coerce').fillna(0)
+
+        df['crop_value_rwf_ha'] = df['crop_yield_kg_ha_year'] * df['crop_market_price']
+        df['crop_value_rwf_hh'] = df['crop_value_rwf_ha'] * df['crop_area_hectare_equiv']
+
+    combined_df = pd.concat([forest_df, wetland_df], ignore_index=True)
+
+    case_crop_summary = combined_df.groupby('case_study').agg(
         hh_count=('case_study','size'),
         mean_crop_value_hh=('crop_value_rwf_hh','mean'),
         median_crop_value_hh=('crop_value_rwf_hh','median'),
         pct_hh_with_crop_value=('crop_value_rwf_hh', lambda x: (x>0).mean()*100)
     ).reset_index()
 
-    return summary
+    case_crop_summary_sorted = case_crop_summary.sort_values('mean_crop_value_hh', ascending=False)
 
-# Compute summaries for wetlands and forests
-wetland_crop_summary = compute_crop_values(wetland_df)
-forest_crop_summary = compute_crop_values(forest_df)
+    fig, ax1 = plt.subplots(figsize=(12, 7))
+    sns.barplot(
+        data=case_crop_summary_sorted,
+        x='case_study',
+        y='mean_crop_value_hh',
+        ax=ax1,
+        palette='viridis'
+    )
 
-# Optionally combine into one dataframe for plotting
-wetland_crop_summary['Category'] = 'Wetland'
-forest_crop_summary['Category'] = 'Forest'
+    ax1.set_ylabel('Mean Crop Income (RWF/hh/year)', fontsize=12, weight='bold')
+    ax1.set_xlabel('Case Study', fontsize=12, weight='bold')
+    ax1.set_title('Crop Income and Household Participation by Case Study', fontsize=14, weight='bold')
+    ax1.tick_params(axis='x', rotation=45)
 
-all_crop_summary = pd.concat([wetland_crop_summary, forest_crop_summary], ignore_index=True)
+    for i, val in enumerate(case_crop_summary_sorted['mean_crop_value_hh']):
+        ax1.text(i, val + 500, f"{val:,.0f}", ha='center', va='bottom', fontsize=10, fontweight='bold')
 
-all_crop_summary
+    ax2 = ax1.twinx()
+    sns.lineplot(
+        data=case_crop_summary_sorted,
+        x='case_study',
+        y='pct_hh_with_crop_value',
+        ax=ax2,
+        color='darkred',
+        marker='o',
+        linewidth=2,
+        label='% Households with Crop Data'
+    )
 
+    ax2.set_ylabel('% of Households Reporting Crop Value', fontsize=12, weight='bold')
+    ax2.set_ylim(0, 110)
+    ax2.legend(loc='upper right', fontsize=11, frameon=True)
 
-# ###**Mean Crop Income per Household by Case Study (RWF/year)**
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# In[325]:
-
-
-# Sort by mean crop value for clearer ranking
-all_crop_summary_sorted = all_crop_summary.sort_values('mean_crop_value_hh', ascending=False)
-
-plt.figure(figsize=(12, 8))
-barplot = sns.barplot(
-    data=all_crop_summary_sorted,
-    x='mean_crop_value_hh',
-    y='case_study',
-    hue='Category',   # separate Wetland vs Forest
-    dodge=False,      # group bars
-    palette='viridis'
-)
-
-# Add value labels at end of bars
-for i, (val, cat) in enumerate(zip(all_crop_summary_sorted['mean_crop_value_hh'], all_crop_summary_sorted['Category'])):
-    plt.text(val + 500, i, f"{val:,.0f} RWF", va='center', fontsize=10, color='black')
-
-plt.title('Mean Crop Income per Household by Case Study (RWF/year)', fontsize=16, weight='bold')
-plt.xlabel('Mean Crop Income (RWF per Household per Year)', fontsize=12)
-plt.ylabel('Case Study', fontsize=12)
-plt.legend(title='Ecosystem')
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌾 Mean Crop Income per Household by Case Study (RWF/yr)
-# 
-# Bar chart (Wetlands blue, Forests green; scale ~10^9):
-# 
-# - **Bugarama Wetland**: **2.67B** (highest, dominant).
-# - **Rugezi Wetland**: **1.15B**.
-# - **Nyabarongo Wetland**: **44M**.
-# - **Volcanoes NP** (forest): **1.5M**.
-# - **Muvumba Wetland**: **0.73M**.
-# - **Mt Kigali/Gishwati/Arboretum** (forests): **~10-15k** each.
-# - **Akagera/Nyungwe NPs** (forests): **0**.
-# 
-# **Summary Table** (from data; %WTP all ~0, crop linkage % low):
-# 
-# | Case Study | Mean Income (RWF) | %WTP | Crop Linkage % | Type |
-# |------------|-------------------|------|----------------|------|
-# | Bugarama Wetland | 2.67B | 0.0 | 5.8 | Wetland |
-# | Muvumba Wetland | 0.65M | 0.0 | 12.1 | Wetland |
-# | Nyabarongo Wetland | 44M | 0.0 | 0.6 | Wetland |
-# | Rugezi Wetland | 1.15B | 0.0 | 6.4 | Wetland |
-# | Akagera NP | 0 | 0.0 | 0.0 | Forest |
-# | Arboretum Forest | 10.6k | 0.0 | 0.2 | Forest |
-# | Gishwati Reserve | 14.5k | 0.0 | 0.3 | Forest |
-# | Mt Kigali | 15k | 0.0 | 0.3 | Forest |
-# | Nyungwe NP | 0 | 0.0 | 0.0 | Forest |
-# | Volcanoes NP | 1.5M | 0.0 | 0.2 | Forest |
-# 
-# **Key Insight:** **Wetlands dwarf forests** in crop income (Bugarama/Rugezi >1B each; forests <2M max). Low %WTP signals weak monetized value despite yields—**focus incentives on high-producers** for conservation uptake.
-
-# ##**Crop Income and Participation by Case Study**
-
-# In[326]:
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Ensure numeric columns are properly converted
-for df in [forest_df, wetland_df]:
-    df['crop_yield_kg_ha_year'] = pd.to_numeric(df['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
-    df['crop_market_price'] = pd.to_numeric(df['crop_market_price'], errors='coerce').fillna(0)
-    df['crop_area_hectare_equiv'] = pd.to_numeric(df['crop_area_hectare_equiv'], errors='coerce').fillna(0)
-
-    # Compute crop value per ha and per household
-    df['crop_value_rwf_ha'] = df['crop_yield_kg_ha_year'] * df['crop_market_price']
-    df['crop_value_rwf_hh'] = df['crop_value_rwf_ha'] * df['crop_area_hectare_equiv']
-
-# Combine forest and wetland datasets
-combined_df = pd.concat([forest_df, wetland_df], ignore_index=True)
-
-# Aggregate by case study
-case_crop_summary = combined_df.groupby('case_study').agg(
-    hh_count=('case_study','size'),
-    mean_crop_value_hh=('crop_value_rwf_hh','mean'),
-    median_crop_value_hh=('crop_value_rwf_hh','median'),
-    pct_hh_with_crop_value=('crop_value_rwf_hh', lambda x: (x>0).mean()*100)
-).reset_index()
-
-# Now the plotting works
-case_crop_summary_sorted = case_crop_summary.sort_values('mean_crop_value_hh', ascending=False)
-
-fig, ax1 = plt.subplots(figsize=(12, 7))
-
-# Bar plot: mean crop income
-sns.barplot(
-    data=case_crop_summary_sorted,
-    x='case_study',
-    y='mean_crop_value_hh',
-    ax=ax1,
-    palette='viridis'
-)
-
-ax1.set_ylabel('Mean Crop Income (RWF/hh/year)', fontsize=12, weight='bold')
-ax1.set_xlabel('Case Study', fontsize=12, weight='bold')
-ax1.set_title('Crop Income and Household Participation by Case Study', fontsize=14, weight='bold')
-ax1.tick_params(axis='x', rotation=45)
-
-# Annotate bar values
-for i, val in enumerate(case_crop_summary_sorted['mean_crop_value_hh']):
-    ax1.text(i, val + 500, f"{val:,.0f}", ha='center', va='bottom', fontsize=10, fontweight='bold')
-
-# Secondary axis: % households reporting crop value
-ax2 = ax1.twinx()
-sns.lineplot(
-    data=case_crop_summary_sorted,
-    x='case_study',
-    y='pct_hh_with_crop_value',
-    ax=ax2,
-    color='darkred',
-    marker='o',
-    linewidth=2,
-    label='% Households with Crop Data'
-)
-
-ax2.set_ylabel('% of Households Reporting Crop Value', fontsize=12, weight='bold')
-ax2.set_ylim(0, 110)
-ax2.legend(loc='upper right', fontsize=11, frameon=True)
-
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌾 Crop Income & Household Participation by Case Study
-# 
-# Dual-axis chart (bars: mean income RWF/yr 10^9; line: % households reporting crops):
-# 
-# - **Bugarama Wetland**: **2.67B** income, **5%** participation (highest yield).
-# - **Rugezi Wetland**: **1.51B**, **6%**.
-# - **Nyabarongo Wetland**: **44M**, **0%**.
-# - **Muvumba Wetland**: **0.73M**, **12%** (broadest engagement).
-# - **Volcanoes NP**: **1.5M**, **0%**.
-# - **Forests (Mt Kigali, Gishwati, Arboretum)**: **<15k**, **0%**.
-# - **Akagera/Nyungwe NPs**: **0**, **0%**.
-# 
-# **Key Insight:** **Wetlands dominate income** (Bugarama/Rugezi >90% total); forests negligible. **Participation low overall** (max 12% Muvumba)—signals untapped potential.
-# 
-# **Implication:** Scale agri-invest in **Bugarama/Rugezi** for volume; boost **Muvumba** for inclusive growth. Forests: pivot to non-crop eco-services.
-
+    # Summary
+    st.markdown('''
+     
+    
+    ## 🌾 Crop Income & Household Participation by Case Study
+    
+    Dual-axis chart (bars: mean income RWF/yr 10^9; line: % households reporting crops):
+    
+    - **Bugarama Wetland**: **2.67B** income, **5%** participation (highest yield).
+    - **Rugezi Wetland**: **1.51B**, **6%**.
+    - **Nyabarongo Wetland**: **44M**, **0%**.
+    - **Muvumba Wetland**: **0.73M**, **12%** (broadest engagement).
+    - **Volcanoes NP**: **1.5M**, **0%**.
+    - **Forests (Mt Kigali, Gishwati, Arboretum)**: **<15k**, **0%**.
+    - **Akagera/Nyungwe NPs**: **0**, **0%**.
+    
+    **Key Insight:** **Wetlands dominate income** (Bugarama/Rugezi >90% total); forests negligible. **Participation low overall** (max 12% Muvumba)—signals untapped potential.
+    
+    **Implication:** Scale agri-invest in **Bugarama/Rugezi** for volume; boost **Muvumba** for inclusive growth. Forests: pivot to non-crop eco-services.
+    ''')
 # #**Income Generation by Products and Case Study (Percentage of Households)**
 
 # In[327]:
 
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+with st.expander("💼 Income Generation by Products & Case Study", expanded=False):
 
-# ------------------------------
-# Define relevant income/activity columns
-# ------------------------------
-income_cols = [
-    'v_wood_hh_get',
-    'v_timber_hh_get',
-    'v_charcoal_hh_make',
-    'v_honey_hh_make',
-    'v_mushroom_hh_get',
-    'v_fish_hh_do',
-    'farming_hh_wetland_use',
-    'livestock_hh_practice'
-]
+    income_cols = [
+        'v_wood_hh_get','v_timber_hh_get','v_charcoal_hh_make','v_honey_hh_make',
+        'v_mushroom_hh_get','v_fish_hh_do','farming_hh_wetland_use','livestock_hh_practice'
+    ]
 
-# ------------------------------
-# Combine forest_df and wetland_df
-# ------------------------------
-combined_df = pd.concat([forest_df, wetland_df], ignore_index=True)
+    combined_df = pd.concat([forest_df, wetland_df], ignore_index=True)
 
-# ------------------------------
-# Melt dataframe to long format
-# ------------------------------
-income_melted = combined_df[['case_study'] + income_cols].melt(
-    id_vars='case_study',
-    var_name='Product',
-    value_name='Response'
-)
+    income_melted = combined_df[['case_study'] + income_cols].melt(
+        id_vars='case_study',
+        var_name='Product',
+        value_name='Response'
+    )
 
-# ------------------------------
-# Clean and standardize responses
-# ------------------------------
-income_melted['Response'] = income_melted['Response'].astype(str).str.lower()
-income_melted['Response'] = income_melted['Response'].replace({'yes': 1, 'no': 0})
-income_melted['Response'] = pd.to_numeric(income_melted['Response'], errors='coerce').fillna(0)
+    income_melted['Response'] = income_melted['Response'].astype(str).str.lower()
+    income_melted['Response'] = income_melted['Response'].replace({'yes': 1, 'no': 0})
+    income_melted['Response'] = pd.to_numeric(income_melted['Response'], errors='coerce').fillna(0)
 
-# ------------------------------
-# Group by case study and product
-# Calculate percentage of 'yes' responses
-# ------------------------------
-income_case_summary = (
-    income_melted.groupby(['case_study', 'Product'])['Response']
-    .mean()
-    .reset_index()
-)
-income_case_summary['Response'] = income_case_summary['Response'] * 100
+    income_case_summary = (
+        income_melted.groupby(['case_study', 'Product'])['Response']
+        .mean()
+        .reset_index()
+    )
+    income_case_summary['Response'] *= 100
 
-# ------------------------------
-# Pivot for visualization
-# ------------------------------
-income_pivot_pct = income_case_summary.pivot(
-    index='Product',
-    columns='case_study',
-    values='Response'
-).fillna(0)
+    income_pivot_pct = income_case_summary.pivot(
+        index='Product',
+        columns='case_study',
+        values='Response'
+    ).fillna(0)
 
-# ------------------------------
-# Fantastic visualization
-# ------------------------------
-plt.figure(figsize=(16, 9))
-sns.set_style("whitegrid")
-income_pivot_pct.plot(
-    kind='bar',
-    figsize=(16, 9),
-    width=0.8,
-    colormap='viridis'
-)
+    fig, ax = plt.subplots(figsize=(16, 9))
+    sns.set_style("whitegrid")
+    income_pivot_pct.plot(
+        kind='bar',
+        figsize=(16, 9),
+        width=0.8,
+        colormap='viridis',
+        ax=ax
+    )
 
-plt.title('Income Generation by Products and Case Study (Percentage of Households)', fontsize=18, weight='bold')
-plt.xlabel('Product Type', fontsize=14, weight='bold')
-plt.ylabel('Households Involved (%)', fontsize=14, weight='bold')
-plt.xticks(rotation=45, ha='right', fontsize=12)
-plt.yticks(fontsize=12)
-plt.legend(title='Case Study', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=12)
-plt.tight_layout()
-plt.show()
+    plt.title('Income Generation by Products and Case Study (%)', fontsize=18, weight='bold')
+    plt.xlabel('Product Type', fontsize=14, weight='bold')
+    plt.ylabel('Households Involved (%)', fontsize=14, weight='bold')
+    plt.xticks(rotation=45, ha='right', fontsize=12)
+    plt.legend(title='Case Study', bbox_to_anchor=(1.05,1), loc='upper left')
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown('''
 
 
-# ## 💼 Income Generation by Products & Case Study (% Households)
-# 
-# Stacked bars by product (farming, livestock, charcoal, fish, honey, mushroom, timber, wood):
-# 
-# - **Wetlands Dominate**: **Rugezi** (yellow): 40% farming, 25% fish, 15% livestock. **Bugarama** (light blue): 30% farming, 20% fish. **Muvumba** (green): 10% farming/livestock.
-# - **Forests Minimal**: **Gishwati** (cyan): 10% honey, 5-10% timber/wood. Others <5% total.
-# - **Low Overall**: Charcoal/mushroom negligible; no single product >40%.
-# 
-# **Key Insight:** **Wetlands fuel ag/fish/livestock economies** (Rugezi/Bugarama >60% involvement); **Gishwati forests** unique for NTFP (honey/timber).
-# 
-# **Implication:** Tailor investments—**agri/fisheries in wetlands**, **sustainable NTFP in Gishwati**—for max local adoption.
-
+    ## 💼 Income Generation by Products & Case Study (% Households)
+    
+    Stacked bars by product (farming, livestock, charcoal, fish, honey, mushroom, timber, wood):
+    
+    - **Wetlands Dominate**: **Rugezi** (yellow): 40% farming, 25% fish, 15% livestock. **Bugarama** (light blue): 30% farming, 20% fish. **Muvumba** (green): 10% farming/livestock.
+    - **Forests Minimal**: **Gishwati** (cyan): 10% honey, 5-10% timber/wood. Others <5% total.
+    - **Low Overall**: Charcoal/mushroom negligible; no single product >40%.
+    
+    **Key Insight:** **Wetlands fuel ag/fish/livestock economies** (Rugezi/Bugarama >60% involvement); **Gishwati forests** unique for NTFP (honey/timber).
+    
+    **Implication:** Tailor investments—**agri/fisheries in wetlands**, **sustainable NTFP in Gishwati**—for max local adoption.
+    ''')
 # ##**Average Household Crop Income (RWF) by Crop Type and Case Study**
 
-# In[328]:
+with st.expander("🌾 Average Household Crop Income by Crop Type & Case Study", expanded=False):
+
+    # --- Your original code (UNCHANGED) ---
+
+    for df in [wetland_df, forest_df]:
+        df['crop_annual_profit'] = pd.to_numeric(df['crop_annual_profit'], errors='coerce')
+
+    wetland_crop_df = wetland_df.dropna(subset=['crop_type', 'crop_annual_profit'])
+    forest_crop_df  = forest_df.dropna(subset=['crop_type', 'crop_annual_profit'])
+
+    wetland_crop_income_summary = (
+        wetland_crop_df.groupby(['crop_type', 'eco_wetland_name'], as_index=False)
+                       .agg(mean_crop_income_rwf=('crop_annual_profit', 'mean'))
+    )
+
+    forest_crop_income_summary = (
+        forest_crop_df.groupby(['crop_type', 'eco_forest_name'], as_index=False)
+                      .agg(mean_crop_income_rwf=('crop_annual_profit', 'mean'))
+    )
+
+    combined_crop_income_summary = pd.concat([
+        wetland_crop_income_summary.rename(columns={'eco_wetland_name':'case_study'}),
+        forest_crop_income_summary.rename(columns={'eco_forest_name':'case_study'})
+    ], ignore_index=True)
 
 
-import pandas as pd
+    pivot_mean_crop = combined_crop_income_summary.pivot(
+        index='crop_type',
+        columns='case_study',
+        values='mean_crop_income_rwf'
+    ).fillna(0)
 
-# Ensure numeric columns
-for df in [wetland_df, forest_df]:
-    df['crop_annual_profit'] = pd.to_numeric(df['crop_annual_profit'], errors='coerce')
+    fig, ax = plt.subplots(figsize=(16, 8))
+    pivot_mean_crop.plot(
+        kind='bar',
+        stacked=True,
+        ax=ax,
+        colormap='viridis',
+        edgecolor='black'
+    )
 
-# Filter only households with crop data
-wetland_crop_df = wetland_df.dropna(subset=['crop_type', 'crop_annual_profit'])
-forest_crop_df  = forest_df.dropna(subset=['crop_type', 'crop_annual_profit'])
+    plt.title('Average Household Crop Income (RWF) by Crop Type & Ecosystem', fontsize=18, weight='bold')
+    plt.ylabel('Mean Income (RWF)', fontsize=14)
+    plt.xlabel('Crop Type', fontsize=14)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
 
-# Compute mean income per crop type per wetland
-wetland_crop_income_summary = (
-    wetland_crop_df.groupby(['crop_type', 'eco_wetland_name'], as_index=False)
-                   .agg(mean_crop_income_rwf=('crop_annual_profit', 'mean'))
-)
+    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.1f}M'))
+    plt.legend(title='Case Study', bbox_to_anchor=(1.05, 1), loc='upper left')
 
-# Compute mean income per crop type per forest
-forest_crop_income_summary = (
-    forest_crop_df.groupby(['crop_type', 'eco_forest_name'], as_index=False)
-                  .agg(mean_crop_income_rwf=('crop_annual_profit', 'mean'))
-)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# Optional: combine for overall summary
-combined_crop_income_summary = pd.concat([
-    wetland_crop_income_summary.rename(columns={'eco_wetland_name':'case_study'}),
-    forest_crop_income_summary.rename(columns={'eco_forest_name':'case_study'})
-], ignore_index=True)
+    st.markdown("""
+    ### 🌾 Crop Income by Type  
+    **Rice & Maize dominate** (>95% income), wetlands lead strongly.  
+    Forests contribute almost **nothing** to crop income.  
+    """)
 
-combined_crop_income_summary
 
 
 # In[329]:
 
 
-import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
-
 # Combine crop income summaries for plotting
-combined_crop_income_summary = pd.concat([
-    wetland_crop_income_summary.rename(columns={'eco_wetland_name':'case_study'}),
-    forest_crop_income_summary.rename(columns={'eco_forest_name':'case_study'})
-], ignore_index=True)
+    combined_crop_income_summary = pd.concat([
+        wetland_crop_income_summary.rename(columns={'eco_wetland_name':'case_study'}),
+        forest_crop_income_summary.rename(columns={'eco_forest_name':'case_study'})
+    ], ignore_index=True)
 
-# Pivot for stacked bar plotting
-pivot_mean_crop = combined_crop_income_summary.pivot(
-    index='crop_type',
-    columns='case_study',
-    values='mean_crop_income_rwf'
-).fillna(0)
+    # Pivot for stacked bar plotting
+    pivot_mean_crop = combined_crop_income_summary.pivot(
+        index='crop_type',
+        columns='case_study',
+        values='mean_crop_income_rwf'
+    ).fillna(0)
 
-# Plot stacked bar chart
-fig, ax = plt.subplots(figsize=(16,8))
-pivot_mean_crop.plot(
-    kind='bar',
-    stacked=True,
-    ax=ax,
-    colormap='viridis',   # You can choose another colormap
-    edgecolor='black'
-)
-
-# Titles and labels
-plt.title('Average Household Crop Income (RWF) by Crop Type and Ecosystem', fontsize=18, fontweight='bold')
-plt.ylabel('Mean Income (RWF)', fontsize=14)
-plt.xlabel('Crop Type', fontsize=14)
-plt.xticks(rotation=45, ha='right', fontsize=12)
-
-# Format y-axis into millions for readability
-ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.1f}M'))
-
-# Move legend outside the plot
-plt.legend(title='Case Study', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10)
-plt.tight_layout()
-plt.show()
-
-
-# ## 🌾 Avg. Household Crop Income by Type & Ecosystem (RWF)
-# 
-# Stacked bars by crop (carrots/beans/irish pot/maize/rice-paddy/sorghum; 0–20M scale):
-# 
-# - **Rice/Paddy**: **~18M** total; Muvumba (green) ~10M dominant, Rugezi (yellow) ~5M, others minor.
-# - **Maize**: **~12M**; Muvumba ~6M, Rugezi ~4M, Arboretum (purple) ~2M.
-# - **Irish Potatoes**: **~0.5M**; mostly Rugezi (yellow).
-# - **Carrots/Beans/Sorghum**: **~0** across all.
-# - **Forests** (purple/blue/cyan/orange): Negligible (<1M total).
-# 
-# **Key Insight:** **Rice & maize** generate **95%+ income**, led by **Muvumba/Rugezi wetlands**; forests irrelevant for crops.
-# 
-# **Implication:** Scale rice/maize in Muvumba (high ROI via inputs); ignore forests for ag—pivot to eco-services.
-
-# #**Top Earning Crops per Wetland**
-
-# In[330]:
-
-
-# Ensure numeric columns
-wetland_df['crop_value_rwf_hh'] = pd.to_numeric(wetland_df['crop_value_rwf_hh'], errors='coerce').fillna(0)
-
-# Aggregate crop income by wetland and crop_type
-crop_income_summary = (
-    wetland_df
-    .groupby(['eco_wetland_name', 'crop_type'])
-    .agg(
-        mean_crop_income_rwf=('crop_value_rwf_hh', 'mean'),
-        median_crop_income_rwf=('crop_value_rwf_hh', 'median'),
-        hh_count=('crop_value_rwf_hh', 'size')
-    )
-    .reset_index()
-)
-
-# Select top 3 crops per wetland
-top_crops = (
-    crop_income_summary
-    .sort_values(['eco_wetland_name', 'mean_crop_income_rwf'], ascending=[True, False])
-    .groupby('eco_wetland_name')
-    .head(3)
-    .reset_index(drop=True)
-)
-
-top_crops
-
-
-# In[331]:
-
-
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# Set seaborn style
-sns.set(style="whitegrid")
-
-# Initialize figure
-plt.figure(figsize=(14, 8))
-
-# Create color palette
-palette = sns.color_palette("viridis", n_colors=len(top_crops['eco_wetland_name'].unique()))
-
-# Plot each wetland's top crops with offset colors
-for i, wetland in enumerate(top_crops['eco_wetland_name'].unique()):
-    subset = top_crops[top_crops['eco_wetland_name'] == wetland]
-    plt.bar(
-        x=[f"{crop} ({wetland})" for crop in subset['crop_type']],
-        height=subset['mean_crop_income_rwf'],
-        color=palette[i],
+    # Plot stacked bar chart
+    fig, ax = plt.subplots(figsize=(16,8))
+    pivot_mean_crop.plot(
+        kind='bar',
+        stacked=True,
+        ax=ax,
+        colormap='viridis',
         edgecolor='black'
     )
 
-# Labels and title
-plt.ylabel("Average Crop Income (RWF)", fontsize=12, fontweight='bold')
-plt.xlabel("Crop Type (Wetland)", fontsize=12, fontweight='bold')
-plt.title("Top Earning Crops per Wetland", fontsize=16, fontweight='bold')
+    # Titles and labels
+    plt.title('Average Household Crop Income (RWF) by Crop Type and Ecosystem', fontsize=18, fontweight='bold')
+    plt.ylabel('Mean Income (RWF)', fontsize=14)
+    plt.xlabel('Crop Type', fontsize=14)
+    plt.xticks(rotation=45, ha='right', fontsize=12)
 
-# Rotate x-axis labels
-plt.xticks(rotation=45, ha='right')
+    # Format y-axis into millions
+    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, _: f'{x/1e6:.1f}M'))
 
-# Add value labels on top of bars
-for i, row in top_crops.iterrows():
-    plt.text(
-        x=i,
-        y=row['mean_crop_income_rwf'] + 500,  # slightly above bar
-        s=f"{row['mean_crop_income_rwf']:,.0f}",
-        ha='center',
-        fontsize=9,
-        rotation=90
+    # Move legend outside plot
+    plt.legend(title='Case Study', bbox_to_anchor=(1.05, 1), loc='upper left', fontsize=10)
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    st.markdown('''
+
+    ## 🌾 Avg. Household Crop Income by Type & Ecosystem (RWF)
+    
+    Stacked bars by crop (carrots/beans/irish pot/maize/rice-paddy/sorghum; 0–20M scale):
+    
+    - **Rice/Paddy**: **~18M** total; Muvumba (green) ~10M dominant, Rugezi (yellow) ~5M, others minor.
+    - **Maize**: **~12M**; Muvumba ~6M, Rugezi ~4M, Arboretum (purple) ~2M.
+    - **Irish Potatoes**: **~0.5M**; mostly Rugezi (yellow).
+    - **Carrots/Beans/Sorghum**: **~0** across all.
+    - **Forests** (purple/blue/cyan/orange): Negligible (<1M total).
+    
+    **Key Insight:** **Rice & maize** generate **95%+ income**, led by **Muvumba/Rugezi wetlands**; forests irrelevant for crops.
+    
+    **Implication:** Scale rice/maize in Muvumba (high ROI via inputs); ignore forests for ag—pivot to eco-services.
+    
+    ''')
+# #**Top Earning Crops per Wetland**
+
+with st.expander("🏆 Top Earning Crops per Wetland", expanded=False):
+
+    # Ensure numeric columns
+    wetland_df['crop_value_rwf_hh'] = pd.to_numeric(wetland_df['crop_value_rwf_hh'], errors='coerce').fillna(0)
+
+    # Aggregate crop income by wetland and crop_type
+    crop_income_summary = (
+        wetland_df
+        .groupby(['eco_wetland_name', 'crop_type'])
+        .agg(
+            mean_crop_income_rwf=('crop_value_rwf_hh', 'mean'),
+            median_crop_income_rwf=('crop_value_rwf_hh', 'median'),
+            hh_count=('crop_value_rwf_hh', 'size')
+        )
+        .reset_index()
     )
 
-plt.tight_layout()
-plt.show()
+    # Select top 3 crops per wetland
+    top_crops = (
+        crop_income_summary
+        .sort_values(['eco_wetland_name', 'mean_crop_income_rwf'], ascending=[True, False])
+        .groupby('eco_wetland_name')
+        .head(3)
+        .reset_index(drop=True)
+    )
 
+    st.dataframe(top_crops)
 
-# ## 🌾 Top Earning Crops per Wetland (Avg. RWF/hh/yr)
-# 
-# Bar chart by wetland-crop pair (scale 0–4M):
-# 
-# - **Bugarama Rice/Paddy**: **~3.8M** (highest).
-# - **Bugarama Maize**: **~2.3M**.
-# - **Muvumba Rice/Paddy**: **~1.5M**.
-# - **Muvumba Maize**: **~1.5M**.
-# - **Nyabarongo Rice/Paddy**: **~1.5M**.
-# - **Rugezi Irish Potatoes**: **~0.5M**.
-# - **Rugezi Maize**: **~0.3M**.
-# - Others (chick peas, carrots, beans, sorghum): **<0.3M**.
-# 
-# **Key Takeaway**: **Bugarama rice/paddy dominates**; maize/rice consistent across sites—staples drive 90%+ value.
-# 
-# **Investment Angle**: Target **Bugarama rice** for 25%+ ROI via seeds/irrigation; diversify Muvumba maize for resilience.
+    # Plot
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    sns.set(style="whitegrid")
 
+    fig = plt.figure(figsize=(14, 8))
+
+    palette = sns.color_palette("viridis", n_colors=len(top_crops['eco_wetland_name'].unique()))
+
+    for i, wetland in enumerate(top_crops['eco_wetland_name'].unique()):
+        subset = top_crops[top_crops['eco_wetland_name'] == wetland]
+        plt.bar(
+            x=[f"{crop} ({wetland})" for crop in subset['crop_type']],
+            height=subset['mean_crop_income_rwf'],
+            color=palette[i],
+            edgecolor='black'
+        )
+
+    plt.ylabel("Average Crop Income (RWF)", fontsize=12, fontweight='bold')
+    plt.xlabel("Crop Type (Wetland)", fontsize=12, fontweight='bold')
+    plt.title("Top Earning Crops per Wetland", fontsize=16, fontweight='bold')
+    plt.xticks(rotation=45, ha='right')
+
+    # Labels
+    for i, row in top_crops.iterrows():
+        plt.text(
+            x=i,
+            y=row['mean_crop_income_rwf'] + 500,
+            s=f"{row['mean_crop_income_rwf']:,.0f}",
+            ha='center',
+            fontsize=9,
+            rotation=90
+        )
+
+    plt.tight_layout()
+    st.pyplot(fig)
+    
+    st.markdown('''
+    ## 🌾 Top Earning Crops per Wetland (Avg. RWF/hh/yr)
+    
+    Bar chart by wetland-crop pair (scale 0–4M):
+    
+    - **Bugarama Rice/Paddy**: **~3.8M** (highest).
+    - **Bugarama Maize**: **~2.3M**.
+    - **Muvumba Rice/Paddy**: **~1.5M**.
+    - **Muvumba Maize**: **~1.5M**.
+    - **Nyabarongo Rice/Paddy**: **~1.5M**.
+    - **Rugezi Irish Potatoes**: **~0.5M**.
+    - **Rugezi Maize**: **~0.3M**.
+    - Others (chick peas, carrots, beans, sorghum): **<0.3M**.
+    
+    **Key Takeaway**: **Bugarama rice/paddy dominates**; maize/rice consistent across sites—staples drive 90%+ value.
+    
+    **Investment Angle**: Target **Bugarama rice** for 25%+ ROI via seeds/irrigation; diversify Muvumba maize for resilience.
+    ''')
 # #(**NEXT**)
 
-# ##**% of Households Willing to Pay (WTP) by Ecosystem**
+with st.expander("💸 % Households Willing to Pay (WTP) by Ecosystem", expanded=False):
 
-# In[332]:
+    # Clean numeric
+    forest_df['wtp_forest_amount_RWF'] = pd.to_numeric(forest_df['wtp_forest_amount_RWF'], errors='coerce')
+    wetland_df['wtp_wetland_amount_RWF'] = pd.to_numeric(wetland_df['wtp_wetland_amount_RWF'], errors='coerce')
 
+    forest_df['wtp_flag'] = forest_df['wtp_forest_amount_RWF'].apply(lambda x: 1 if x > 0 else 0)
+    wetland_df['wtp_flag'] = wetland_df['wtp_wetland_amount_RWF'].apply(lambda x: 1 if x > 0 else 0)
 
-# --- Step 1: Ensure numeric WTP columns ---
-forest_df['wtp_forest_amount_RWF'] = pd.to_numeric(forest_df['wtp_forest_amount_RWF'], errors='coerce')
-wetland_df['wtp_wetland_amount_RWF'] = pd.to_numeric(wetland_df['wtp_wetland_amount_RWF'], errors='coerce')
+    forest_summary = forest_df.groupby('case_study')['wtp_flag'].agg(['mean','count']).reset_index()
+    forest_summary['mean_pct'] = forest_summary['mean'] * 100
+    forest_summary['ecosystem'] = 'Forest'
 
-# --- Step 2: Compute % of households with WTP ---
-forest_df['wtp_flag'] = forest_df['wtp_forest_amount_RWF'].apply(lambda x: 1 if x > 0 else 0)
-wetland_df['wtp_flag'] = wetland_df['wtp_wetland_amount_RWF'].apply(lambda x: 1 if x > 0 else 0)
+    wetland_summary = wetland_df.groupby('case_study')['wtp_flag'].agg(['mean','count']).reset_index()
+    wetland_summary['mean_pct'] = wetland_summary['mean'] * 100
+    wetland_summary['ecosystem'] = 'Wetland'
 
-forest_summary = forest_df.groupby('case_study')['wtp_flag'].agg(['mean','count']).reset_index()
-forest_summary['mean_pct'] = forest_summary['mean'] * 100
-forest_summary['ecosystem'] = 'Forest'
+    wtp_summary = pd.concat([forest_summary, wetland_summary], ignore_index=True)
 
-wetland_summary = wetland_df.groupby('case_study')['wtp_flag'].agg(['mean','count']).reset_index()
-wetland_summary['mean_pct'] = wetland_summary['mean'] * 100
-wetland_summary['ecosystem'] = 'Wetland'
+    # Plot
+    fig = plt.figure(figsize=(14,7))
+    sns.set_style("whitegrid")
 
-wtp_summary = pd.concat([forest_summary, wetland_summary], ignore_index=True)
+    palette = sns.color_palette("Set2", n_colors=wtp_summary['ecosystem'].nunique())
 
-# --- Step 3: Plot ---
-plt.figure(figsize=(14,7))
-sns.set_style("whitegrid")
-
-# Create vibrant palette
-palette = sns.color_palette("Set2", n_colors=wtp_summary['ecosystem'].nunique())
-
-bar_plot = sns.barplot(
-    data=wtp_summary,
-    x='case_study',
-    y='mean_pct',
-    hue='ecosystem',
-    palette=palette,
-    edgecolor='black'
-)
-
-# Annotate bars with %
-for p in bar_plot.patches:
-    height = p.get_height()
-    bar_plot.annotate(f"{height:.1f}%",
-                      (p.get_x() + p.get_width()/2., height),
-                      ha='center', va='bottom', fontsize=10, fontweight='bold', color='black', rotation=0)
-
-# Labels and title
-plt.title('% of Households Willing to Pay (WTP) by Ecosystem', fontsize=16, fontweight='bold')
-plt.ylabel('% of Households', fontsize=13, fontweight='bold')
-plt.xlabel('Case Study', fontsize=13, fontweight='bold')
-plt.xticks(rotation=45, ha='right')
-plt.ylim(0, 105)  # gives space for annotations
-plt.legend(title='Ecosystem', fontsize=11, title_fontsize=12)
-plt.tight_layout()
-plt.show()
-
-
-# ## 💸 % Households Willing to Pay (WTP) by Ecosystem
-# 
-# Bar chart (% scale 0–25%):
-# 
-# - **Forests (Green)**: Nyungwe NP **18.9%** (highest), Volcanoes NP **14.7%**, Mt Kigali **7.4%**, Gishwati **6.2%**, Arboretum **3.6%**, Akagera **0%**.
-# - **Wetlands (Orange)**: Rugezi **23.8%** (overall top), Bugarama **5.0%**, Muvumba **1.9%**, Nyabarongo **0%**.
-# 
-# **Key Insight:** WTP low overall (<25%), but **Rugezi wetland** leads—signals strong conservation value perception. Forests average ~8.5%, wetlands ~7.6%; target Rugezi/Nyungwe for eco-funding pilots.
-
-# #**(NEXT)**
-# 
-
-# #Willingness to Pay (% Yes) Summary by Ecosystem Type
-
-# In[333]:
-
-
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
-# --------------------------------------------------------
-# 1. Clean WTP columns (1=yes, 0=no, nan=missing)
-# --------------------------------------------------------
-merged_df['wtp_forest'] = merged_df['wtp_forest_management_check'].fillna(0).astype(int)
-merged_df['wtp_wetland'] = merged_df['wtp_wetland_management_check'].fillna(0).astype(int)
-
-# --------------------------------------------------------
-# 2. Compute %YES per ecosystem
-# --------------------------------------------------------
-wtp_summary = pd.DataFrame({
-    'ecosystem': ['Forest Ecosystems', 'Wetland Ecosystems'],
-    'wtp_yes_pct': [
-        merged_df['wtp_forest'].mean() * 100,
-        merged_df['wtp_wetland'].mean() * 100
-    ]
-})
-
-# --------------------------------------------------------
-# 3. OUT-OF-THIS-WORLD VISUALIZATION
-# --------------------------------------------------------
-plt.figure(figsize=(12, 7))
-sns.set_style("whitegrid")
-
-# Gradient colors
-colors = sns.color_palette("viridis", 2)
-
-bars = plt.bar(
-    wtp_summary['ecosystem'],
-    wtp_summary['wtp_yes_pct'],
-    edgecolor='black',
-    linewidth=1.5,
-    color=colors,
-)
-
-# Add glowing text labels
-for bar in bars:
-    height = bar.get_height()
-    plt.text(
-        bar.get_x() + bar.get_width()/2,
-        height + 1.5,
-        f"{height:.1f}%",
-        ha='center',
-        va='bottom',
-        fontsize=14,
-        fontweight='bold',
-        color="#222",
-        bbox=dict(
-            boxstyle="round,pad=0.3",
-            fc="white",
-            ec="black",
-            alpha=0.8
-        )
+    bar_plot = sns.barplot(
+        data=wtp_summary,
+        x='case_study',
+        y='mean_pct',
+        hue='ecosystem',
+        palette=palette,
+        edgecolor='black'
     )
 
-# Title & labels
-plt.title("Willingness to Pay (% Yes) by Ecosystem Type", fontsize=16, weight='bold')
-plt.ylabel("Percent of Respondents Willing to Pay (%)", fontsize=13)
-plt.xlabel("Ecosystem Type", fontsize=13)
+    for p in bar_plot.patches:
+        height = p.get_height()
+        bar_plot.annotate(
+            f"{height:.1f}%",
+            (p.get_x() + p.get_width()/2., height),
+            ha='center', va='bottom', fontsize=10, fontweight='bold'
+        )
 
-plt.ylim(0, max(wtp_summary['wtp_yes_pct']) + 10)
-plt.tight_layout()
-plt.show()
+    plt.title('% of Households Willing to Pay (WTP) by Ecosystem', fontsize=16, fontweight='bold')
+    plt.ylabel('% of Households', fontsize=13, fontweight='bold')
+    plt.xlabel('Case Study', fontsize=13, fontweight='bold')
+    plt.xticks(rotation=45, ha='right')
+    plt.ylim(0, 105)
+    plt.tight_layout()
 
+    st.pyplot(fig)
 
-# This clean bar chart shows the **% of households willing to pay (saying “Yes”)** for ecosystem conservation in Rwanda:
-# 
-# - **Forests**: **6.9%**  
-# - **Wetlands**: **3.5%**
-# 
-# **Insight**: **Forest communities are ~97% more willing to pay** than wetland ones — signaling stronger perceived value near forests. Overall WTP (~5%) is low but **ripe for growth**.
-# 
-# **Investor Takeaway**:  
-# **Forests are the low-hanging fruit** — leverage 6.9% buy-in for **15–25% ROI** via carbon credits, eco-tourism, or PES schemes. Use wetlands’ 3.5% as a **low-cost pilot** for awareness to close the gap. **Start in forests, scale to wetlands — Rugezi test optional.**
+    st.markdown("""
+     ## 💸 % Households Willing to Pay (WTP) by Ecosystem
+    
+    Bar chart (% scale 0–25%):
+    
+    - **Forests (Green)**: Nyungwe NP **18.9%** (highest), Volcanoes NP **14.7%**, Mt Kigali **7.4%**, Gishwati **6.2%**, Arboretum **3.6%**, Akagera **0%**.
+    - **Wetlands (Orange)**: Rugezi **23.8%** (overall top), Bugarama **5.0%**, Muvumba **1.9%**, Nyabarongo **0%**.
+    
+    **Key Insight:** WTP low overall (<25%), but **Rugezi wetland** leads—signals strong conservation value perception. Forests average ~8.5%, wetlands ~7.6%; target Rugezi/Nyungwe for eco-funding pilots.
 
-# #Top 10 Household Perceived Benefits of Wetlands
-
-# In[334]:
-
-
-# Filter for wetland case studies
-wetlands_df = merged_df[merged_df['eco_type'] == 'wetland'].copy()
-
-# Extract top 10 benefits across all households
-benefits_series = wetlands_df['wetland_benefit_initial_list'].dropna().str.split(',').explode().str.strip()
-top_benefits = benefits_series.value_counts().reset_index()
-top_benefits.columns = ['Benefit', 'Count']
-top_benefits = top_benefits.head(10).iloc[::-1]  # reverse for horizontal barplot
-
-# Plot
-sns.set_style("whitegrid")
-plt.figure(figsize=(10, 6))
-
-sns.barplot(
-    data=top_benefits,
-    x='Count',
-    y='Benefit',
-    palette='magma',
-    edgecolor='black'
-)
-
-plt.title("Top 10 Household Perceived Benefits of Wetlands", fontsize=16, fontweight='bold')
-plt.xlabel("Number of Respondents", fontsize=12)
-plt.ylabel("")
-
-# Annotate bars
-for i, val in enumerate(top_benefits['Count']):
-    plt.text(val + 1, i, f"{val}", va='center', fontweight='bold')
-
-plt.tight_layout()
-plt.show()
+    """)
 
 
-# ## 🌿 Top 10 Perceived Wetland Benefits (% Households)
-# 
-# Horizontal bar chart (respondents count; top-ranked):
-# 
-# - **Ag Production**: **135** (top; drives livelihoods).
-# - **Plant Habitat Refuge**: **83**.
-# - **Aesthetics/Beauty**: **47**.
-# - **Other Food for Humans**: **42**.
-# - **Income Generation**: **41**.
-# - **Air Pollution Control**: **34**.
-# - **Animal Habitat Refuge**: **34**.
-# - **Tourism**: **30**.
-# - **Domestic Water**: **24**.
-# - **Erosion Control**: **23**.
-# 
-# **Key Insight:** **Ag & habitat** dominate (60%+ responses)—communities prioritize productivity & ecology over tourism/income.
-# 
-# **Implication:** Frame conservation as **ag-boosting** (e.g., irrigation, soil health) for 20–30% higher buy-in; integrate eco-tourism in habitat hotspots like Rugezi.
+    
+# #**(NEXT)**
 
+
+with st.expander("📘 WTP Summary by Ecosystem Type", expanded=False):
+
+    merged_df['wtp_forest'] = merged_df['wtp_forest_management_check'].fillna(0).astype(int)
+    merged_df['wtp_wetland'] = merged_df['wtp_wetland_management_check'].fillna(0).astype(int)
+
+    wtp_summary = pd.DataFrame({
+        'ecosystem': ['Forest Ecosystems', 'Wetland Ecosystems'],
+        'wtp_yes_pct': [
+            merged_df['wtp_forest'].mean() * 100,
+            merged_df['wtp_wetland'].mean() * 100
+        ]
+    })
+
+    fig = plt.figure(figsize=(12,7))
+    sns.set_style("whitegrid")
+
+    colors = sns.color_palette("viridis", 2)
+
+    bars = plt.bar(
+        wtp_summary['ecosystem'],
+        wtp_summary['wtp_yes_pct'],
+        edgecolor='black',
+        linewidth=1.5,
+        color=colors,
+    )
+
+    for bar in bars:
+        height = bar.get_height()
+        plt.text(
+            bar.get_x() + bar.get_width()/2,
+            height + 1.5,
+            f"{height:.1f}%",
+            ha='center',
+            fontsize=14,
+            fontweight='bold',
+            color="#222",
+            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="black", alpha=0.8)
+        )
+
+    plt.title("Willingness to Pay (% Yes) by Ecosystem Type", fontsize=16, weight='bold')
+    plt.ylabel("Percent of Respondents Willing to Pay (%)", fontsize=13)
+    plt.xlabel("Ecosystem Type", fontsize=13)
+    plt.ylim(0, max(wtp_summary['wtp_yes_pct']) + 10)
+    plt.tight_layout()
+
+    st.pyplot(fig)
+
+    st.markdown('''
+    
+    This clean bar chart shows the **% of households willing to pay (saying “Yes”)** for ecosystem conservation in Rwanda:
+    
+    - **Forests**: **6.9%**  
+    - **Wetlands**: **3.5%**
+    
+    **Insight**: **Forest communities are ~97% more willing to pay** than wetland ones — signaling stronger perceived value near forests. Overall WTP (~5%) is low but **ripe for growth**.
+    
+    **Investor Takeaway**:  
+    **Forests are the low-hanging fruit** — leverage 6.9% buy-in for **15–25% ROI** via carbon credits, eco-tourism, or PES schemes. Use wetlands’ 3.5% as a **low-cost pilot** for awareness to close the gap. **Start in forests, scale to wetlands — Rugezi test optional.**
+    ''')
+    
+with st.expander("🏆 Top 10 Household Perceived Benefits of Wetlands", expanded=False):
+    
+    # Filter for wetland case studies
+    wetlands_df = merged_df[merged_df['eco_type'] == 'wetland'].copy()
+
+    # Extract top 10 benefits
+    benefits_series = wetlands_df['wetland_benefit_initial_list'].dropna().str.split(',').explode().str.strip()
+    top_benefits = benefits_series.value_counts().reset_index()
+    top_benefits.columns = ['Benefit', 'Count']
+    top_benefits = top_benefits.head(10).iloc[::-1]  # reverse for horizontal barplot
+
+    # Plot
+    sns.set_style("whitegrid")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.barplot(
+        data=top_benefits,
+        x='Count',
+        y='Benefit',
+        palette='magma',
+        edgecolor='black',
+        ax=ax
+    )
+    ax.set_title("Top 10 Household Perceived Benefits of Wetlands", fontsize=16, fontweight='bold')
+    ax.set_xlabel("Number of Respondents", fontsize=12)
+    ax.set_ylabel("")
+
+    # Annotate bars
+    for i, val in enumerate(top_benefits['Count']):
+        ax.text(val + 1, i, f"{val}", va='center', fontweight='bold')
+
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    st.markdown("""
+    ## 🌿 Top 10 Perceived Wetland Benefits (% Households)
+    
+    Horizontal bar chart (respondents count; top-ranked):
+    
+    - **Ag Production**: **135** (top; drives livelihoods).
+    - **Plant Habitat Refuge**: **83**.
+    - **Aesthetics/Beauty**: **47**.
+    - **Other Food for Humans**: **42**.
+    - **Income Generation**: **41**.
+    - **Air Pollution Control**: **34**.
+    - **Animal Habitat Refuge**: **34**.
+    - **Tourism**: **30**.
+    - **Domestic Water**: **24**.
+    - **Erosion Control**: **23**.
+    
+    **Key Insight:** **Ag & habitat** dominate (60%+ responses)—communities prioritize productivity & ecology over tourism/income.
+    
+    **Implication:** Frame conservation as **ag-boosting** (e.g., irrigation, soil health) for 20–30% higher buy-in; integrate eco-tourism in habitat hotspots like Rugezi.
+
+    """)
+
+    
 # #**(NEXT)**
 # 
 
-# ## **Respondent Education Levels %**
+with st.expander("🎓 Respondent Education Levels (%)", expanded=False):
 
-# In[335]:
+    # Select only the education column and drop missing
+    edu_df = merged_df[['resp_education']].dropna()
 
+    # Compute counts and percentages
+    edu_summary = edu_df['resp_education'].value_counts().reset_index()
+    edu_summary.columns = ['resp_education', 'count']
+    edu_summary['percent'] = edu_summary['count'] / edu_summary['count'].sum() * 100
 
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+    # Pie chart
+    fig, ax = plt.subplots(figsize=(8, 8))
+    colors = sns.color_palette('Set2', len(edu_summary))
+    ax.pie(
+        edu_summary['percent'],
+        labels=edu_summary['resp_education'],
+        autopct='%1.1f%%',
+        startangle=140,
+        colors=colors,
+        wedgeprops={'edgecolor':'black', 'linewidth':1.2},
+        textprops={'fontsize':12, 'weight':'bold'}
+    )
+    ax.set_title('Respondent Education Levels (%)', fontsize=16, fontweight='bold')
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# --- Step 1: Select only the education column and drop missing ---
-edu_df = merged_df[['resp_education']].dropna()
+    st.markdown("""
+    **Education Levels (% Households):**  
+    - **Primary School**: 52.7% (largest group; basic literacy)  
+    - **No Formal Education**: 27.0%  
+    - **University**: 18.9%  
+    - **Secondary School**: 1.4%  
 
-# --- Step 2: Compute counts and percentages ---
-edu_summary = edu_df['resp_education'].value_counts().reset_index()
-edu_summary.columns = ['resp_education', 'count']
-edu_summary['percent'] = edu_summary['count'] / edu_summary['count'].sum() * 100
-
-# --- Step 3: Pie chart ---
-plt.figure(figsize=(8,8))
-colors = sns.color_palette('Set2', len(edu_summary))
-
-plt.pie(
-    edu_summary['percent'],
-    labels=edu_summary['resp_education'],
-    autopct='%1.1f%%',
-    startangle=140,
-    colors=colors,
-    wedgeprops={'edgecolor':'black', 'linewidth':1.2},
-    textprops={'fontsize':12, 'weight':'bold'}
-)
-
-plt.title('Respondent Education Levels (%)', fontsize=16, fontweight='bold')
-plt.tight_layout()
-plt.show()
-
-
-# **Education Levels (% Households):**
-# 
-# * **Primary School**: **52.7%** (largest group; basic literacy).
-# * **No Formal Education**: **27.0%**.
-# * **University**: **18.9%** (surprising high-end segment).
-# * **Secondary School**: **1.4%** (minimal).
-# 
-# **Implications:**
-# 
-# * **80%+ primary-or-below** limits eco-awareness, explaining low WTP (~5–7%).
-# * **Target education pilots** in low-literacy sites (e.g., no formal groups) to lift engagement 25–35% via simple workshops on wetland value.
-# * **University cohort** (18.9%) ideal for advocacy roles; leverage for ROI-boosting eco-projects in Rugezi.
-
+    **Implications:**  
+    - 80%+ primary-or-below limits eco-awareness → explains low WTP (~5–7%).  
+    - Target education pilots in low-literacy sites to lift engagement 25–35% via simple workshops on wetland value.  
+    - University cohort (18.9%) ideal for advocacy roles; leverage for ROI-boosting eco-projects in Rugezi.
+    """)
 # #**(NEXT)**
 # 
 
-# #T-Test (H1) + Regression (H2) - Using  WTP Cols
+st.header("🧪 Hypothesis Testing & Regression Analysis")
 
-# In[336]:
+# ===============================
+# Tabs for organization
+# ===============================
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "T-Test H1", 
+    "Regression H2", 
+    "Chi-Square WTP", 
+    "Visualizations"
+])
 
+# -------------------------------
+# Tab 1: T-Test (H1)
+# -------------------------------
+with tab1:
+    st.subheader("H1: Years Lived vs WTP")
+    
+    forest_years = merged_df[merged_df['eco_type']=='forest']['resp_years_area_forest'].dropna()
+    wetland_years = merged_df[merged_df['eco_type']=='wetland']['resp_years_area_wetland'].dropna()
 
-from scipy.stats import ttest_ind
-import statsmodels.api as sm
+    if len(forest_years)>1 and len(wetland_years)>1:
+        t, p = ttest_ind(forest_years, wetland_years, equal_var=False)
+        st.write(f"Welch t-test: t = {t:.2f}, p = {p:.4f}")
+        st.markdown("**Interpretation:**" +
+                    (" Reject null hypothesis → significant difference." if p<0.05 
+                     else " Fail to reject null → no significant difference."))
+    else:
+        st.warning("Insufficient data for T-test.")
 
-# ---------- 1. Refined WTP Measure ----------
-# Using the correct columns from your dataset
-wtp_cols = ['wtp_wetland_amount_RWF', 'wtp_forest_amount_RWF']
+with tab2:
+    st.subheader("H2: Crop Profit → WTP Regression")
 
-# Convert to numeric 0/1: if >0 assume 1 (willing), else 0
-for col in wtp_cols:
-    merged_df[col + '_num'] = merged_df[col].apply(lambda x: 1 if pd.notna(x) and x > 0 else 0)
-
-# Average WTP across forest and wetland
-merged_df['wtp_avg_num_ref'] = merged_df[[c + '_num' for c in wtp_cols]].mean(axis=1, skipna=True)
-
-# ---------- 2. Calculate Age ----------
-current_year = 2025
-if 'resp_birth_year' in merged_df.columns:
-    merged_df['resp_age'] = (current_year - merged_df['resp_birth_year']).clip(18, 100)
-    print("Age Summary:")
-    print(merged_df['resp_age'].describe())
-else:
-    print("Column 'resp_birth_year' missing. Skipping age calculation.")
-
-# ---------- 3. Years living near wetland/forest ----------
-if 'resp_start_year_wetland' in merged_df.columns:
-    merged_df['resp_years_area_wetland'] = (current_year - merged_df['resp_start_year_wetland']).clip(0, 100)
-if 'resp_start_year_forest' in merged_df.columns:
-    merged_df['resp_years_area_forest'] = (current_year - merged_df['resp_start_year_forest']).clip(0, 100)
-
-# ---------- 4. H1 Engagement Test: Years lived ----------
-forest_years = merged_df[merged_df['eco_type'] == 'forest']['resp_years_area_forest'].dropna()
-wetland_years = merged_df[merged_df['eco_type'] == 'wetland']['resp_years_area_wetland'].dropna()
-
-if len(forest_years) > 1 and len(wetland_years) > 1:
-    t, p = ttest_ind(forest_years, wetland_years, equal_var=False)
-    print(f"H1 Welch t-test: t={t:.2f}, p={p:.4f}")
-else:
-    print("H1 insufficient data for t-test")
-
-# ---------- 5. H2 Profit → WTP Regression ----------
-# Only respondents with crop data
-merged_df['has_crop_data'] = merged_df['crop_type'].notna()
-crop_subset = merged_df[merged_df['has_crop_data']]
-
-if len(crop_subset) > 0:
-    # Eco type dummy: forest=1, wetland=0
-    crop_subset['eco_dummy'] = (crop_subset['eco_type'] == 'forest').astype(int)
-
-    # Ensure numeric for crop profit
-    crop_subset['crop_annual_profit'] = pd.to_numeric(crop_subset['crop_annual_profit'], errors='coerce').fillna(0)
-
-    # Regression: WTP ~ crop profit + eco + age
-    X = sm.add_constant(crop_subset[['crop_annual_profit', 'eco_dummy', 'resp_age']].fillna(0))
-    y = crop_subset['wtp_avg_num_ref'].fillna(0)
-
+    merged_df['wtp_avg_num_ref'] = merged_df[['wtp_wetland_amount_RWF', 'wtp_forest_amount_RWF']].apply(
+        lambda row: np.mean([1 if x>0 else 0 for x in row if pd.notna(x)]), axis=1
+    )
+    merged_df['eco_dummy'] = (merged_df['eco_type']=='forest').astype(int)
+    merged_df['crop_annual_profit'] = pd.to_numeric(merged_df['crop_annual_profit'], errors='coerce').fillna(0)
+    merged_df['resp_age'] = pd.to_numeric(merged_df['resp_age'], errors='coerce').fillna(0)
+    
+    X = sm.add_constant(merged_df[['crop_annual_profit', 'eco_dummy', 'resp_age']].fillna(0))
+    y = merged_df['wtp_avg_num_ref'].fillna(0)
     model = sm.OLS(y, X).fit()
-    print(model.summary())
-else:
-    print("No crop data available for regression")
+    
+    st.text(model.summary())
+    st.markdown("**Interpretation:** Check coefficients and p-values to see which factors influence WTP.")
 
-print("✔ Done")
-
-
-# In[337]:
-
-
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-
-# Ensure numeric
-merged_df['crop_annual_profit'] = pd.to_numeric(merged_df['crop_annual_profit'], errors='coerce').fillna(0)
-merged_df['wtp_avg_num_ref'] = pd.to_numeric(merged_df['wtp_avg_num_ref'], errors='coerce').fillna(0)
-merged_df['resp_age'] = pd.to_numeric(merged_df['resp_age'], errors='coerce').fillna(0)
-
-# Scatter plot
-scatter = sns.scatterplot(
-    data=merged_df,
-    x='crop_annual_profit',
-    y='wtp_avg_num_ref',
-    hue='resp_age',
-    size='crop_annual_profit',
-    sizes=(30, 200),
-    palette='viridis',
-    alpha=0.7,
-    edgecolor='k',
-    linewidth=0.5
-)
-
-# Add regression line
-sns.regplot(
-    data=merged_df,
-    x='crop_annual_profit',
-    y='wtp_avg_num_ref',
-    scatter=False,
-    ax=scatter,
-    color='red',
-    line_kws={'linewidth':2, 'linestyle':'--'}
-)
-
-# Titles and labels
-plt.title('Household Willingness to Pay vs Crop Annual Profit', fontsize=16, weight='bold')
-plt.xlabel('Crop Annual Profit (RWF)', fontsize=14)
-plt.ylabel('Average WTP (0–1 scale)', fontsize=14)
-
-# Grid and legend
-plt.grid(True, linestyle='--', alpha=0.3)
-plt.legend(title='Age', bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
-plt.tight_layout()
-plt.show()
-
-
-# ### Willingness to Pay vs. Crop Earnings
 # 
-# This scatter plot shows how much households are willing to pay (WTP) for wetland/forest protection, compared to their yearly crop profits. Dots represent households, colored by age (younger = purple, older = yellow).
-# 
-# * **Main Pattern**: As crop profits rise (left to right, 0–8M RWF/year), WTP edges up slightly—but stays low overall (under 0.5 on the scale). Most folks earn little and offer little in return.
-# * **Age Role**: Older households (yellow dots) cluster a bit higher on WTP, hinting experience boosts value for nature.
-# * **Big Picture**: Profits don't strongly drive WTP—only a weak link. Low earnings mean low spare cash for eco-fees.
-# 
-# **What It Means for Everyday Folks**: Wealthier farmers aren't much more eager to chip in for conservation. Focus on education/awareness to build support—could lift WTP 20–30% without relying on income alone. Start with older locals as champions.
 
-# # **Rwanda Eco-Study Summary**
-# 
-# Rwanda's wetlands and forests shape rural life for **3,976 households** (64% forest-adjacent, 36% wetland), with respondents averaging **48 years old** and **31–36 years residency** per ecosystem. Data spans **10 sites** (6 forests, 4 wetlands) and **8 crops**, but **crop reporting is low** (max 12% households in Muvumba)—highlighting untapped potential amid low fishing/farming engagement (virtually absent) and minimal human impacts (e.g., Rugezi's diseases/defecation).
-# 
-# Wetlands fuel **crop-driven economies** (maize/rice 95% value; Bugarama/Rugezi >1B RWF/hh/yr total, Muvumba broad 12% participation), while forests emphasize **ecosystem services** (water regulation 31–49%, biodiversity hotspots like Rugezi reptiles). Perceived benefits prioritize **ag production (135 responses)**, habitats, and aesthetics; trade-offs minimal (crop negatives in Bugarama/Muvumba). Correlations reveal **forest reliance hurts crop yields** (-0.92 to -1.0), but wetland services boost non-ag income (e.g., beer/mats).
-# 
-# **WTP Regression** (n=99 crop households; weak R²=0.028) shows:
-# * **Age**: Mild positive link (older = higher WTP).
-# * **Crop Profit**: Neutral/negative (no strong driver).
-# * Overall WTP low (~5% "Yes"): Forests **6.9%** > Wetlands **3.5%**; Rugezi peaks at 23.8%.
-# 
-# Education skews basic (**52.7% primary, 27% none**), explaining low eco-literacy/WTP—yet **18.9% university** offers advocacy potential.
-# 
-# ### **Investment Takeaway**
-# * **Wetlands (Rugezi/Muvumba/Bugarama)**: Scale rice/maize for **20–30% ROI** via irrigation/tech; low participation signals 15% yield gains possible.
-# * **Forests (Nyungwe/Gishwati)**: Leverage NTFP (honey/timber) and carbon/tourism for **15–25% returns**; education pilots could double WTP.
-# **Bottom Line**: Wetlands for quick agri-wins; forests for eco-diversification. Boost awareness/education across both for sustained green growth—start Rugezi pilots.
+    # Ensure numeric
+    merged_df['crop_annual_profit'] = pd.to_numeric(merged_df['crop_annual_profit'], errors='coerce').fillna(0)
+    merged_df['wtp_avg_num_ref'] = pd.to_numeric(merged_df['wtp_avg_num_ref'], errors='coerce').fillna(0)
+    merged_df['resp_age'] = pd.to_numeric(merged_df['resp_age'], errors='coerce').fillna(0)
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(12,7))
+    sns.set_style("whitegrid")
+    
+    # Scatter plot
+    scatter = sns.scatterplot(
+        data=merged_df,
+        x='crop_annual_profit',
+        y='wtp_avg_num_ref',
+        hue='resp_age',
+        size='crop_annual_profit',
+        sizes=(30, 200),
+        palette='viridis',
+        alpha=0.7,
+        edgecolor='k',
+        linewidth=0.5,
+        ax=ax
+    )
+    
+    # Regression line
+    sns.regplot(
+        data=merged_df,
+        x='crop_annual_profit',
+        y='wtp_avg_num_ref',
+        scatter=False,
+        ax=ax,
+        color='red',
+        line_kws={'linewidth':2, 'linestyle':'--'}
+    )
+    
+    # Titles and labels
+    ax.set_title('Household Willingness to Pay vs Crop Annual Profit', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Crop Annual Profit (RWF)', fontsize=14)
+    ax.set_ylabel('Average WTP (0–1 scale)', fontsize=14)
+    
+    # Grid and legend
+    ax.grid(True, linestyle='--', alpha=0.3)
+    ax.legend(title='Age', bbox_to_anchor=(1.05, 1), loc='upper left', borderaxespad=0)
+    plt.tight_layout()
+    
+    # Render in Streamlit
+    st.pyplot(fig)
 
+    st.markdown('''
+
+    ### Willingness to Pay vs. Crop Earnings
+    
+    This scatter plot shows how much households are willing to pay (WTP) for wetland/forest protection, compared to their yearly crop profits. Dots represent households, colored by age (younger = purple, older = yellow).
+    
+    * **Main Pattern**: As crop profits rise (left to right, 0–8M RWF/year), WTP edges up slightly—but stays low overall (under 0.5 on the scale). Most folks earn little and offer little in return.
+    * **Age Role**: Older households (yellow dots) cluster a bit higher on WTP, hinting experience boosts value for nature.
+    * **Big Picture**: Profits don't strongly drive WTP—only a weak link. Low earnings mean low spare cash for eco-fees.
+    
+    **What It Means for Everyday Folks**: Wealthier farmers aren't much more eager to chip in for conservation. Focus on education/awareness to build support—could lift WTP 20–30% without relying on income alone. Start with older locals as champions.
+    
+    # **Rwanda Eco-Study Summary**
+    
+    Rwanda's wetlands and forests shape rural life for **3,976 households** (64% forest-adjacent, 36% wetland), with respondents averaging **48 years old** and **31–36 years residency** per ecosystem. Data spans **10 sites** (6 forests, 4 wetlands) and **8 crops**, but **crop reporting is low** (max 12% households in Muvumba)—highlighting untapped potential amid low fishing/farming engagement (virtually absent) and minimal human impacts (e.g., Rugezi's diseases/defecation).
+    
+    Wetlands fuel **crop-driven economies** (maize/rice 95% value; Bugarama/Rugezi >1B RWF/hh/yr total, Muvumba broad 12% participation), while forests emphasize **ecosystem services** (water regulation 31–49%, biodiversity hotspots like Rugezi reptiles). Perceived benefits prioritize **ag production (135 responses)**, habitats, and aesthetics; trade-offs minimal (crop negatives in Bugarama/Muvumba). Correlations reveal **forest reliance hurts crop yields** (-0.92 to -1.0), but wetland services boost non-ag income (e.g., beer/mats).
+    
+    **WTP Regression** (n=99 crop households; weak R²=0.028) shows:
+    * **Age**: Mild positive link (older = higher WTP).
+    * **Crop Profit**: Neutral/negative (no strong driver).
+    * Overall WTP low (~5% "Yes"): Forests **6.9%** > Wetlands **3.5%**; Rugezi peaks at 23.8%.
+    
+    Education skews basic (**52.7% primary, 27% none**), explaining low eco-literacy/WTP—yet **18.9% university** offers advocacy potential.
+    
+    ### **Investment Takeaway**
+    * **Wetlands (Rugezi/Muvumba/Bugarama)**: Scale rice/maize for **20–30% ROI** via irrigation/tech; low participation signals 15% yield gains possible.
+    * **Forests (Nyungwe/Gishwati)**: Leverage NTFP (honey/timber) and carbon/tourism for **15–25% returns**; education pilots could double WTP.
+    **Bottom Line**: Wetlands for quick agri-wins; forests for eco-diversification. Boost awareness/education across both for sustained green growth—start Rugezi pilots.
+    ''')
 # #**(NEXT)**
 # 
 
 # 
-# # **Hypothesis for the Chi-Square Test (WTP Forest vs Wetland)**
-# 
-# **Idea:**
-# We are checking whether people’s willingness to pay (WTP) depends on the ecosystem type (Forest vs Wetland).
-# 
-# ---
-# 
-# ## **Null Hypothesis (H₀)**
-# 
-# There is **no relationship** between ecosystem type and willingness to pay.
-# WTP for forests **equals** WTP for wetlands.
-# 
-# ## **Alternative Hypothesis (H₁)**
-# 
-# There **is a relationship** between ecosystem type and willingness to pay.
-# WTP for forests is **different** from WTP for wetlands.
+    
 # 
 # 
 
 # In[338]:
 
 
-from scipy.stats import chi2_contingency
+with tab3:
+    st.subheader("Chi-Square Test: WTP Forest vs Wetland")
+    st.markdown('''
+    # **Hypothesis for the Chi-Square Test (WTP Forest vs Wetland)**
+    
+    **Idea:**
+    We are checking whether people’s willingness to pay (WTP) depends on the ecosystem type (Forest vs Wetland).
+    
+    ---
+    
+    ## **Null Hypothesis (H₀)**
+    
+    There is **no relationship** between ecosystem type and willingness to pay.
+    WTP for forests **equals** WTP for wetlands.
+    
+    ## **Alternative Hypothesis (H₁)**
+    
+    There **is a relationship** between ecosystem type and willingness to pay.
+    WTP for forests is **different** from WTP for wetlands.
+    ''')
 
-# --------------------------------------------------------
-# 4. Chi-square test of independence
-# --------------------------------------------------------
 
 # Create a contingency table
-contingency_table = pd.crosstab(merged_df['wtp_forest'], merged_df['wtp_wetland'])
+    contingency_table = pd.crosstab(merged_df['wtp_forest'], merged_df['wtp_wetland'])
+    
+    # Run Chi-square test
+    chi2_stat, p_val, dof, expected = chi2_contingency(contingency_table)
+    
+    # Display results
+    st.write("Chi-square statistic:", chi2_stat)
+    st.write("P-value:", p_val)
+    st.write("Degrees of freedom:", dof)
+    st.write("Expected frequencies:\n", expected)
 
-# Run Chi-square test
-chi2_stat, p_val, dof, expected = chi2_contingency(contingency_table)
-
-# Display results
-print(f"Chi-square statistic: {chi2_stat:.3f}")
-print(f"P-value: {p_val:.3f}")
-print(f"Degrees of freedom: {dof}")
-print("Expected frequencies:\n", expected)
-
-# Interpretation
-if p_val < 0.05:
-    print("There is a significant difference between WTP for Forest and Wetland.")
-else:
-    print("There is no significant difference between WTP for Forest and Wetland.")
+    st.markdown("**Interpretation:**" + 
+                (" Significant difference in WTP between Forest and Wetland." if p_val<0.05 
+                 else " No significant difference."))
 
 
-# 
+    
 # # **Interpretation with Your Output**
-# 
-# **Chi-square statistic:** 9.693
-# **p-value:** 0.002
-# **df:** 1
-# 
-# p-value (0.002) < 0.05
-# 
-# → You **reject the null hypothesis**.
-# → There **is a significant difference** in WTP between Forest and Wetland ecosystems.
-# 
-# ---
-# 
-# # **Clear Meaning**
-# 
-# * People are **more willing to pay for forests** than wetlands.
-# * The difference is **not due to chance**.
-# * The result supports the idea that **ecosystem type influences willingness to pay**.
-# 
+    st.markdown('''
+    **Chi-square statistic:** 9.693
+    **p-value:** 0.002
+    **df:** 1
+    
+    p-value (0.002) < 0.05
+    
+    → You **reject the null hypothesis**.
+    → There **is a significant difference** in WTP between Forest and Wetland ecosystems.
+    
+    ---
+    
+    # **Clear Meaning**
+    
+    * People are **more willing to pay for forests** than wetlands.
+    * The difference is **not due to chance**.
+    * The result supports the idea that **ecosystem type influences willingness to pay**.
+    ''')
 # 
 
 # In[339]:
@@ -3137,429 +3079,344 @@ else:
 
 # Example: merged_df already exists with 0/1 values
 # Map 0 → "No", 1 → "Yes"
-merged_df['wtp_forest_label'] = merged_df['wtp_forest'].map({1: "Yes", 0: "No"})
-merged_df['wtp_wetland_label'] = merged_df['wtp_wetland'].map({1: "Yes", 0: "No"})
-
-# -------------------------------
-# Contingency table
-# -------------------------------
-contingency_table = pd.crosstab(
-    merged_df['wtp_forest_label'],
-    merged_df['wtp_wetland_label']
-)
-
-# -------------------------------
-# 1. Heatmap visualization
-# -------------------------------
-plt.figure(figsize=(8,6))
-sns.heatmap(contingency_table, annot=True, fmt='d', cmap='YlGnBu')
-plt.title('WTP Forest vs Wetland (Counts)')
-plt.xlabel('Wetland WTP')
-plt.ylabel('Forest WTP')
-plt.show()
-
-# -------------------------------
-# 2. Grouped bar plot (percentage)
-# -------------------------------
-contingency_table_norm = contingency_table.div(contingency_table.sum(axis=1), axis=0) * 100
-
-contingency_table_norm.plot(kind='bar', figsize=(8,6))
-plt.title('WTP Forest vs Wetland (% by Forest WTP)')
-plt.xlabel('Forest WTP')
-plt.ylabel('Percentage (%)')
-plt.xticks(rotation=0)
-plt.legend(title='Wetland WTP')
-plt.show()
+    merged_df['wtp_forest_label'] = merged_df['wtp_forest'].map({1: "Yes", 0: "No"})
+    merged_df['wtp_wetland_label'] = merged_df['wtp_wetland'].map({1: "Yes", 0: "No"})
+    
+    # -------------------------------
+    # Contingency table
+    # -------------------------------
+    contingency_table = pd.crosstab(
+        merged_df['wtp_forest_label'],
+        merged_df['wtp_wetland_label']
+    )
+    
+    # -------------------------------
+    # 1. Heatmap visualization
+    # -------------------------------
+    plt.figure(figsize=(8,6))
+    sns.heatmap(contingency_table, annot=True, fmt='d', cmap='YlGnBu')
+    plt.title('WTP Forest vs Wetland (Counts)')
+    plt.xlabel('Wetland WTP')
+    plt.ylabel('Forest WTP')
+    st.pyplot(plot.gcf())
+    
+    # -------------------------------
+    # 2. Grouped bar plot (percentage)
+    # -------------------------------
+    contingency_table_norm = contingency_table.div(contingency_table.sum(axis=1), axis=0) * 100
+    
+    contingency_table_norm.plot(kind='bar', figsize=(8,6))
+    plt.title('WTP Forest vs Wetland (% by Forest WTP)')
+    plt.xlabel('Forest WTP')
+    plt.ylabel('Percentage (%)')
+    plt.xticks(rotation=0)
+    plt.legend(title='Wetland WTP')
+    st.pyplot(plot.gcf())
 
 
 # 
 # 
 # ## **Years living near ecosystem vs Willingness to Pay (WTP)**
 # 
-# **For both Forest and Wetland:**
-# 
-# * **Null Hypothesis (H₀):**
-#   There is **no difference** in the average number of years people have lived near the ecosystem between those willing to pay (WTP = 1) and those not willing to pay (WTP = 0).
-# 
-# * **Alternative Hypothesis (H₁):**
-#   There **is a difference** in the average number of years people have lived near the ecosystem between the two groups.
-# 
-# 
+with tab4:
+    st.header("Years Living Near Ecosystem vs Willingness to Pay (WTP)")
 
-# In[340]:
+    st.markdown("""
+    **Hypotheses:**
+    - Null (H₀): No difference in years lived near ecosystem between WTP=1 and WTP=0.
+    - Alternative (H₁): There is a difference.
+    """)
 
+    # --- T-tests ---
+    forest_t, forest_p = ttest_ind(
+        merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
+        merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
+        nan_policy='omit'
+    )
+    wetland_t, wetland_p = ttest_ind(
+        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
+        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
+        nan_policy='omit'
+    )
 
-from scipy.stats import ttest_ind
+    st.subheader("T-Test Results")
+    st.write(f"**Forest:** T-statistic = {forest_t:.2f}, P-value = {forest_p:.3f}")
+    st.write(f"**Wetland:** T-statistic = {wetland_t:.2f}, P-value = {wetland_p:.3f}")
 
-# Forest
-tstat, p = ttest_ind(
-    merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
-    merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
-    nan_policy='omit'
-)
-print("Forest Years vs WTP T-stat:", tstat, "P-value:", p)
+    st.markdown("""
+    ## **Interpretation of Output**
+    
+    **Forest:**
+    
+    * T-statistic = 1.35
+    * P-value = 0.177
+    
+    **Wetland:**
+    
+    * T-statistic = 0.67
+    * P-value = 0.50
+    
+    **Explanation:**
+    
+    * Both p-values are **greater than 0.05**, meaning we **fail to reject the null hypothesis**.
+    * This indicates that the **number of years living near the forest or wetland is not significantly associated** with willingness to pay.
+    * In other words, longer residence near the ecosystem does **not predict higher willingness to pay** in our sample.
 
-# Wetland
-tstat, p = ttest_ind(
-    merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
-    merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
-    nan_policy='omit'
-)
-print("Wetland Years vs WTP T-stat:", tstat, "P-value:", p)
-
-
+    """)
 # 
 # 
-# ## **Interpretation of Output**
-# 
-# **Forest:**
-# 
-# * T-statistic = 1.35
-# * P-value = 0.177
-# 
-# **Wetland:**
-# 
-# * T-statistic = 0.67
-# * P-value = 0.50
-# 
-# **Explanation:**
-# 
-# * Both p-values are **greater than 0.05**, meaning we **fail to reject the null hypothesis**.
-# * This indicates that the **number of years living near the forest or wetland is not significantly associated** with willingness to pay.
-# * In other words, longer residence near the ecosystem does **not predict higher willingness to pay** in our sample.
-# 
+    
 # 
 # 
 
 # In[341]:
 
 
-plt.figure(figsize=(16,6))
+fig, axes = plt.subplots(1,2, figsize=(16,6))
 
-# Forest
-plt.subplot(1,2,1)
-sns.stripplot(x='wtp_forest', y='resp_years_area_forest', data=merged_df, palette="viridis", jitter=True, alpha=0.6)
-plt.title("Forest: Years Lived vs WTP")
-plt.xlabel("Willingness to Pay (0=No, 1=Yes)")
-plt.ylabel("Years Lived Near Forest")
+    sns.stripplot(x='wtp_forest', y='resp_years_area_forest', data=merged_df, palette="viridis", jitter=True, alpha=0.6, ax=axes[0])
+    axes[0].set_title("Forest: Years Lived vs WTP")
+    axes[0].set_xlabel("Willingness to Pay (0=No, 1=Yes)")
+    axes[0].set_ylabel("Years Lived Near Forest")
 
-# Wetland
-plt.subplot(1,2,2)
-sns.stripplot(x='wtp_wetland', y='resp_years_area_wetland', data=merged_df, palette="viridis", jitter=True, alpha=0.6)
-plt.title("Wetland: Years Lived vs WTP")
-plt.xlabel("Willingness to Pay (0=No, 1=Yes)")
-plt.ylabel("Years Lived Near Wetland")
+    sns.stripplot(x='wtp_wetland', y='resp_years_area_wetland', data=merged_df, palette="viridis", jitter=True, alpha=0.6, ax=axes[1])
+    axes[1].set_title("Wetland: Years Lived vs WTP")
+    axes[1].set_xlabel("Willingness to Pay (0=No, 1=Yes)")
+    axes[1].set_ylabel("Years Lived Near Wetland")
 
-plt.tight_layout()
-plt.show()
+    plt.tight_layout()
+    st.pyplot(fig)
 
+    # --- KDE plots ---
+    fig2, ax2 = plt.subplots(1,2, figsize=(16,6))
 
-# In[342]:
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True, ax=ax2[0])
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True, ax=ax2[0])
+    ax2[0].set_title("Forest: Years Lived Distribution by WTP")
+    ax2[0].set_xlabel("Years Lived Near Forest")
+    ax2[0].set_ylabel("Density")
+    ax2[0].legend()
 
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True, ax=ax2[1])
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True, ax=ax2[1])
+    ax2[1].set_title("Wetland: Years Lived Distribution by WTP")
+    ax2[1].set_xlabel("Years Lived Near Wetland")
+    ax2[1].set_ylabel("Density")
+    ax2[1].legend()
 
-plt.figure(figsize=(16,6))
-
-# Forest
-sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True)
-sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True)
-plt.title("Forest: Years Lived Distribution by WTP")
-plt.xlabel("Years Lived Near Forest")
-plt.ylabel("Density")
-plt.legend()
-plt.show()
-
-# Wetland
-sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True)
-sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True)
-plt.title("Wetland: Years Lived Distribution by WTP")
-plt.xlabel("Years Lived Near Wetland")
-plt.ylabel("Density")
-plt.legend()
-plt.show()
-
+    st.pyplot(fig2)
 
 # #**(NEXT)**
 # 
 
-# #H2:
-# 
-# ##Higher ecosystem income ↔ Higher willingness to pay (WTP) for conservation
-# 
-# We’ll use correlation + OLS regression.
 
-# In[343]:
+with tab5:
+    st.header("Predicted Willingness to Pay vs Crop Profit")
 
+    # Prepare dataset
+    df_H2 = merged_df[['wtp_forest_management_check',
+                       'wtp_wetland_management_check',
+                       'resp_age',
+                       'crop_annual_profit',
+                       'eco_type']].copy()
 
-import pandas as pd
-import statsmodels.api as sm
+    df_H2['wtp_forest_num'] = df_H2['wtp_forest_management_check'].apply(lambda x: 1 if x==1 else 0 if x==0 else None)
+    df_H2['wtp_wetland_num'] = df_H2['wtp_wetland_management_check'].apply(lambda x: 1 if x==1 else 0 if x==0 else None)
+    df_H2['wtp_mean'] = df_H2[['wtp_forest_num', 'wtp_wetland_num']].mean(axis=1)
+    df_H2['eco_dummy'] = df_H2['eco_type'].apply(lambda x: 1 if str(x).lower()=='forest' else 0)
 
-# --- 1. Prepare dataset for regression ---
-df_H2 = merged_df[['wtp_forest_management_check',
-                   'wtp_wetland_management_check',
-                   'resp_age',
-                   'crop_annual_profit',
-                   'eco_type']].copy()
+    X = df_H2[['resp_age', 'crop_annual_profit', 'eco_dummy']].fillna(0)
+    X = sm.add_constant(X)
+    y = df_H2['wtp_mean'].fillna(0)
 
-# --- 2. Convert WTP to numeric 0/1 ---
-df_H2['wtp_forest_num'] = df_H2['wtp_forest_management_check'].apply(lambda x: 1 if x==1 else 0 if x==0 else None)
-df_H2['wtp_wetland_num'] = df_H2['wtp_wetland_management_check'].apply(lambda x: 1 if x==1 else 0 if x==0 else None)
+    model = sm.OLS(y, X).fit()
+    st.subheader("Regression Summary")
+    st.text(model.summary())
 
-# --- 3. Compute mean WTP across ecosystems ---
-df_H2['wtp_mean'] = df_H2[['wtp_forest_num', 'wtp_wetland_num']].mean(axis=1)
+    # Add predicted WTP
+    df_H2['wtp_pred'] = model.predict(X)
+    df_H2['eco_type_label'] = df_H2['eco_type'].apply(lambda x: 'Forest' if str(x).lower()=='forest' else 'Wetland')
 
-# --- 4. Create ecosystem dummy (forest=1, wetland=0) ---
-df_H2['eco_dummy'] = df_H2['eco_type'].apply(lambda x: 1 if str(x).lower() == 'forest' else 0)
+    # Plot
+    fig3, ax3 = plt.subplots(figsize=(12,7))
+    sns.scatterplot(data=df_H2, x='crop_annual_profit', y='wtp_mean', hue='eco_type_label',
+                    palette=['#1f77b4','#ff7f0e'], s=70, alpha=0.6, edgecolor='black', ax=ax3)
+    sns.lineplot(data=df_H2.sort_values('crop_annual_profit'), x='crop_annual_profit', y='wtp_pred',
+                 hue='eco_type_label', palette=['#1f77b4','#ff7f0e'], lw=3, legend=False, ax=ax3)
+    ax3.set_title('Predicted Willingness to Pay vs Crop Profit by Ecosystem', fontsize=16, fontweight='bold')
+    ax3.set_xlabel('Annual Crop Profit (RWF)', fontsize=14)
+    ax3.set_ylabel('Mean Willingness to Pay (0–1)', fontsize=14)
+    ax3.legend(title='Ecosystem', fontsize=12, title_fontsize=13)
+    plt.tight_layout()
+    st.pyplot(fig3)
 
-# --- 5. Independent variables ---
-X = df_H2[['resp_age', 'crop_annual_profit', 'eco_dummy']].fillna(0)
-X = sm.add_constant(X)
+    st.markdown('''
+    ## **H2: Relationship Between WTP and Income, Age, and Crop Profit**
+    
+    We tested if willingness to pay (WTP) for wetland/forest conservation rises with age, overall income, or crop earnings (n=3,976 households).
+    
+    ### **Model Fit**
+    * **R² = 0.000** → The model explains **almost nothing** (0%) of WTP variation—basic factors like these don't predict it well.
+    
+    ### **Key Predictors**
+    | Variable          | Coefficient | p-value | Plain Takeaway                          |
+    |-------------------|-------------|---------|-----------------------------------------|
+    | **Age**           | -0.0002    | 0.540  | No real link—age doesn't sway WTP much. |
+    | **Crop Profit**   | ~0         | 0.837  | No effect—farm earnings ignore WTP.     |
+    | **Ecosystem Type**| +0.0101    | 0.321  | No difference—forests/wetlands similar. |
+    
+    ### **Interpretation**
+    The plot shows a flat line: As crop profits grow (x-axis), predicted WTP barely budges (y-axis, blue=wetlands, orange=forests). Dots cluster low, confirming no strong ties—WTP stays steady regardless of earnings or age.
+    
+    ---
+    
+    ## **Plain-Language Summary**
+    > Crop profits and age **don't drive how much households want to chip in for nature protection**. Everyone's WTP hovers low and steady, no matter their wallet or years lived. This means **education and direct benefits** (like cleaner water) matter more than money—focus campaigns on showing real gains to spark interest. Good news: No big divides between forests and wetlands, so one-size-fits-most eco-funds could work.
 
-# --- 6. Dependent variable ---
-y = df_H2['wtp_mean'].fillna(0)
-
-# --- 7. Run regression ---
-model = sm.OLS(y, X).fit()
-
-# --- 8. Print summary ---
-print(model.summary())
-
-
-# ##Predicted Willingness to Pay vs Crop Profit by Ecosystem
-
-# In[344]:
-
-
-# --- 1. Add predicted WTP to dataframe ---
-df_H2['wtp_pred'] = model.predict(X)
-
-# --- 2. Map ecosystem type for coloring ---
-df_H2['eco_type_label'] = df_H2['eco_type'].apply(lambda x: 'Forest' if str(x).lower()=='forest' else 'Wetland')
-
-# --- 3. Create figure ---
-plt.figure(figsize=(12,7))
-sns.set_style("whitegrid")
-
-# Scatter plot of actual WTP
-sns.scatterplot(
-    data=df_H2,
-    x='crop_annual_profit',
-    y='wtp_mean',
-    hue='eco_type_label',
-    palette=['#1f77b4','#ff7f0e'],
-    s=70,
-    alpha=0.6,
-    edgecolor='black'
-)
-
-# Line plot of predicted WTP
-sns.lineplot(
-    data=df_H2.sort_values('crop_annual_profit'),
-    x='crop_annual_profit',
-    y='wtp_pred',
-    hue='eco_type_label',
-    palette=['#1f77b4','#ff7f0e'],
-    lw=3,
-    legend=False
-)
-
-# Titles and labels
-plt.title('Predicted Willingness to Pay vs Crop Profit by Ecosystem', fontsize=16, fontweight='bold')
-plt.xlabel('Annual Crop Profit (RWF)', fontsize=14)
-plt.ylabel('Mean Willingness to Pay (0–1)', fontsize=14)
-
-# Improve legend
-plt.legend(title='Ecosystem', fontsize=12, title_fontsize=13)
-plt.tight_layout()
-plt.show()
-
-
-# ## **H2: Relationship Between WTP and Income, Age, and Crop Profit**
-# 
-# We tested if willingness to pay (WTP) for wetland/forest conservation rises with age, overall income, or crop earnings (n=3,976 households).
-# 
-# ### **Model Fit**
-# * **R² = 0.000** → The model explains **almost nothing** (0%) of WTP variation—basic factors like these don't predict it well.
-# 
-# ### **Key Predictors**
-# | Variable          | Coefficient | p-value | Plain Takeaway                          |
-# |-------------------|-------------|---------|-----------------------------------------|
-# | **Age**           | -0.0002    | 0.540  | No real link—age doesn't sway WTP much. |
-# | **Crop Profit**   | ~0         | 0.837  | No effect—farm earnings ignore WTP.     |
-# | **Ecosystem Type**| +0.0101    | 0.321  | No difference—forests/wetlands similar. |
-# 
-# ### **Interpretation**
-# The plot shows a flat line: As crop profits grow (x-axis), predicted WTP barely budges (y-axis, blue=wetlands, orange=forests). Dots cluster low, confirming no strong ties—WTP stays steady regardless of earnings or age.
-# 
-# ---
-# 
-# ## **Plain-Language Summary**
-# > Crop profits and age **don't drive how much households want to chip in for nature protection**. Everyone's WTP hovers low and steady, no matter their wallet or years lived. This means **education and direct benefits** (like cleaner water) matter more than money—focus campaigns on showing real gains to spark interest. Good news: No big divides between forests and wetlands, so one-size-fits-most eco-funds could work.
-
+    ''')
+    
 # #**(NEXT)**
 # 
 
-# #Distribution of Crop Yields Across Case Studies
+with tab6:
+    st.header("Distribution of Crop Yields Across Case Studies")
 
-# In[345]:
+    # Step 1: Case study column
+    if 'case_study' not in merged_df.columns:
+        def create_case_study(row):
+            if row['eco_type'] == 'wetland':
+                if pd.isna(row['eco_wetland_name']) or row['eco_wetland_name'] in ['N/A','']:
+                    return 'Other Wetland'
+                return row['eco_wetland_name'].strip()
+            else:  # forest
+                if pd.isna(row['eco_forest_name']) or row['eco_forest_name'] in ['N/A','']:
+                    return 'Other Forest'
+                return row['eco_forest_name'].strip()
+        merged_df['case_study'] = merged_df.apply(create_case_study, axis=1)
 
+    # Step 2: Ensure numeric
+    merged_df['crop_yield_kg_ha_year'] = pd.to_numeric(merged_df['crop_yield_kg_ha_year'], errors='coerce')
 
-# --- Step 1: Create case_study column if it doesn't exist ---
-if 'case_study' not in merged_df.columns:
-    def create_case_study(row):
-        if row['eco_type'] == 'wetland':
-            if pd.isna(row['eco_wetland_name']) or row['eco_wetland_name'] in ['N/A','']:
-                return 'Other Wetland'
-            return row['eco_wetland_name'].strip()
-        else:  # forest
-            if pd.isna(row['eco_forest_name']) or row['eco_forest_name'] in ['N/A','']:
-                return 'Other Forest'
-            return row['eco_forest_name'].strip()
+    # Step 3: Filter valid yields
+    df_yield = merged_df.dropna(subset=['crop_yield_kg_ha_year'])
 
-    merged_df['case_study'] = merged_df.apply(create_case_study, axis=1)
+    # Step 4: Plot
+    sns.set(style="whitegrid", font_scale=1.2)
+    fig, ax = plt.subplots(figsize=(16, 8))
 
-# --- Step 2: Ensure crop yield numeric ---
-merged_df['crop_yield_kg_ha_year'] = pd.to_numeric(merged_df['crop_yield_kg_ha_year'], errors='coerce')
+    sns.boxplot(
+        data=df_yield,
+        x='case_study',
+        y='crop_yield_kg_ha_year',
+        palette='viridis',
+        showfliers=True,
+        ax=ax
+    )
+    sns.swarmplot(
+        data=df_yield,
+        x='case_study',
+        y='crop_yield_kg_ha_year',
+        color='black',
+        alpha=0.7,
+        size=5,
+        ax=ax
+    )
 
-# --- Step 3: Filter valid yields ---
-df_yield = merged_df.dropna(subset=['crop_yield_kg_ha_year'])
+    ax.set_title("Distribution of Crop Yields Across Case Studies", fontsize=18, fontweight='bold')
+    ax.set_xlabel("Case Study", fontsize=14)
+    ax.set_ylabel("Crop Yield (kg/ha/year)", fontsize=14)
+    plt.xticks(rotation=45, ha='right')
 
-# --- Step 4: Plot ---
-sns.set(style="whitegrid", font_scale=1.2)
-plt.figure(figsize=(16, 8))
+    # Annotate mean per case study
+    case_means = df_yield.groupby('case_study')['crop_yield_kg_ha_year'].mean().reset_index()
+    for i, row in case_means.iterrows():
+        ax.text(i, row['crop_yield_kg_ha_year'] + 5, f"{row['crop_yield_kg_ha_year']:.1f}",
+                ha='center', va='bottom', color='darkred', fontweight='bold')
 
-# Boxplot
-sns.boxplot(
-    data=df_yield,
-    x='case_study',
-    y='crop_yield_kg_ha_year',
-    palette='viridis',
-    showfliers=True
-)
+    plt.tight_layout()
+    st.pyplot(fig)
 
-# Swarmplot overlay
-sns.swarmplot(
-    data=df_yield,
-    x='case_study',
-    y='crop_yield_kg_ha_year',
-    color='black',
-    alpha=0.7,
-    size=5
-)
+    # Add markdown explanation
+    st.markdown("""
+    This boxplot shows **crop yield spread** (kg/ha/year) across Rwanda sites—medians, ranges, and outliers:
 
-plt.title("Distribution of Crop Yields Across Case Studies", fontsize=18, fontweight='bold')
-plt.xlabel("Case Study", fontsize=14)
-plt.ylabel("Crop Yield (kg/ha/year)", fontsize=14)
-plt.xticks(rotation=45, ha='right')
+    - **Bugarama wetland**: Median ~10,300 (top performer; outliers to 35k—high potential).
+    - **Nyabarongo wetland**: Median ~15,000 (strong, box 10–20k).
+    - **Rugezi wetland**: Median ~9,600 (consistent, 5–15k range).
+    - **Muvumba wetland**: Median ~10,000 (5–15k spread).
+    - **Volcanoes NP**: Median ~9,000 (5–12k; modest forest yield).
+    - **Gishwati Forest Reserve**: Median ~5,600 (low, tight range).
+    - **Mount Kigali & Arboretum Forest**: Near 0 (negligible).
 
-# Annotate mean per case study
-case_means = df_yield.groupby('case_study')['crop_yield_kg_ha_year'].mean().reset_index()
-for i, row in case_means.iterrows():
-    plt.text(i, row['crop_yield_kg_ha_year'] + 5, f"{row['crop_yield_kg_ha_year']:.1f}",
-             ha='center', va='bottom', color='darkred', fontweight='bold')
+    **Insight**: Wetlands crush forests (medians 2–3x higher; outliers 4x). Bugarama/Nyabarongo lead with variability signaling upside.
 
-plt.tight_layout()
-plt.show()
+    **Meaning**: Wetlands = ag goldmines — invest irrigation/seeds in Bugarama for 25–35% yield jumps. Forests? Skip crops; chase eco-tourism instead.
+    """)
 
+with tab7:
+    st.header("Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type")
 
-# This boxplot shows **crop yield spread** (kg/ha/year) across Rwanda sites—medians, ranges, and outliers:
-# 
-# - **Bugarama wetland**: Median **~10,300** (top performer; outliers to 35k—high potential).
-# - **Nyabarongo wetland**: Median **~15,000** (strong, box 10–20k).
-# - **Rugezi wetland**: Median **~9,600** (consistent, 5–15k range).
-# - **Muvumba wetland**: Median **~10,000** (5–15k spread).
-# - **Volcanoes NP**: Median **~9,000** (5–12k; modest forest yield).
-# - **Gishwati Forest Reserve**: Median **~5,600** (low, tight range).
-# - **Mount Kigali & Arboretum Forest**: **Near 0** (negligible).
-# 
-# **Insight**: **Wetlands crush forests** (medians 2–3x higher; outliers 4x)—Bugarama/Nyabarongo lead with variability signaling upside.
-# 
-# **Meaning**: **Wetlands = ag goldmines**—invest irrigation/seeds in Bugarama for 25–35% yield jumps. Forests? Skip crops; chase eco-tourism instead.
+    value_col = 'crop_value_total_ha_year_RWF'
+    merged_df[value_col] = pd.to_numeric(merged_df[value_col], errors='coerce').fillna(0)
+    merged_df['has_crop_data'] = merged_df[value_col] > 0
+    income_df = merged_df[(merged_df['has_crop_data'] == True) & (merged_df[value_col] > 0)].copy()
 
-# ##Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type
+    # Summary statistics
+    summary_stats = income_df.groupby('eco_type')[value_col].agg(
+        count='count',
+        mean=np.mean,
+        median=np.median,
+        std=np.std
+    ).reset_index()
+    summary_stats[['mean', 'median', 'std']] = summary_stats[['mean', 'median', 'std']].apply(
+        lambda x: x.map('{:,.0f}'.format)
+    )
+    st.markdown("**Summary of Annual Crop Value (RWF/ha) by Ecosystem Type (Only Active Farmers)**")
+    st.dataframe(summary_stats)
 
-# In[346]:
+    # Visualization
+    fig2, ax2 = plt.subplots(figsize=(10,6))
+    sns.boxplot(
+        x='eco_type',
+        y=value_col,
+        data=income_df,
+        palette=['forestgreen', 'steelblue'],
+        showfliers=True,
+        ax=ax2
+    )
+    sns.swarmplot(
+        x='eco_type',
+        y=value_col,
+        data=income_df,
+        color='black',
+        alpha=0.5,
+        size=4,
+        ax=ax2
+    )
+    plt.yscale('log')
+    ax2.set_title('Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type', fontsize=16, fontweight='bold')
+    ax2.set_xlabel('Ecosystem Type', fontsize=14)
+    ax2.set_ylabel('Annual Crop Value (RWF/ha, log scale)', fontsize=14)
 
+    # Annotate mean value
+    means = income_df.groupby('eco_type')[value_col].mean()
+    for i, eco in enumerate(means.index):
+        ax2.text(i, means[eco]*1.1, f"{means[eco]:,.0f}", ha='center', color='darkred', fontweight='bold')
 
-# --- Prep Data ---
-value_col = 'crop_value_total_ha_year_RWF'  # Adjusted column
+    plt.tight_layout()
+    st.pyplot(fig2)
 
-# Ensure numeric
-merged_df[value_col] = pd.to_numeric(merged_df[value_col], errors='coerce').fillna(0)
+    st.markdown("""
+    This chart shows **how much money farms make per hectare per year** from crops (log scale):
 
-# Create has_crop_data
-merged_df['has_crop_data'] = merged_df[value_col] > 0
+    - **Wetlands**: ~RWF 10–100 million/ha (most earn ~RWF 20–50 million)  
+    - **Forests**: ~RWF 1–10 million/ha (most under RWF 6 million)
 
-# Filter respondents with crop data
-income_df = merged_df[
-    (merged_df['has_crop_data'] == True) &
-    (merged_df[value_col] > 0)
-].copy()
+    **Bottom Line**: Wetland farming is 5–10x more profitable than forest farming. Invest in wetlands for higher returns. Forests? Low earnings, better for conservation, not farming.
+    **Wetland farming is 5–10x more profitable than forest farming.** If we want higher returns, **invest in wetland crops** — especially in top sites like Rugezi and Bugarama. Forests? Low earnings, better for conservation, not farming.
+    **Action**: Put money where the green is — **wetlands = cash crop gold.**
+    """)
 
-# --- Summary Statistics ---
-summary_stats = income_df.groupby('eco_type')[value_col].agg(
-    count='count',
-    mean=np.mean,
-    median=np.median,
-    std=np.std
-).reset_index()
-
-# Format numbers
-summary_stats[['mean', 'median', 'std']] = summary_stats[['mean', 'median', 'std']].apply(
-    lambda x: x.map('{:,.0f}'.format)
-)
-
-print("--- Summary of Annual Crop Value (RWF/ha) by Ecosystem Type (Only Active Farmers) ---")
-print(summary_stats.to_markdown(index=False))
-
-# --- Visualization ---
-sns.set_style("whitegrid")
-plt.figure(figsize=(10, 6))
-
-# Boxplot with swarm overlay
-sns.boxplot(
-    x='eco_type',
-    y=value_col,
-    data=income_df,
-    palette=['forestgreen', 'steelblue'],
-    showfliers=True
-)
-sns.swarmplot(
-    x='eco_type',
-    y=value_col,
-    data=income_df,
-    color='black',
-    alpha=0.5,
-    size=4
-)
-
-# Log scale for better readability if extreme outliers
-plt.yscale('log')
-
-plt.title('Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type', fontsize=16, fontweight='bold')
-plt.xlabel('Ecosystem Type', fontsize=14)
-plt.ylabel('Annual Crop Value (RWF/ha, log scale)', fontsize=14)
-
-# Annotate mean value
-means = income_df.groupby('eco_type')[value_col].mean()
-for i, eco in enumerate(means.index):
-    plt.text(i, means[eco]*1.1, f"{means[eco]:,.0f}", ha='center', color='darkred', fontweight='bold')
-
-plt.tight_layout()
-plt.savefig('crop_value_boxplot_by_ecosystem.png', dpi=300)
-plt.show()
-
-print("\nGenerated visual: crop_value_boxplot_by_ecosystem.png")
-
-
-# This chart shows **how much money farms make per hectare per year** from crops (on a log scale to handle big numbers):
-# 
-# - **Wetlands**: Around **RWF 10–100 million/ha** (most earn ~RWF 20–50 million)  
-# - **Forests**: Only **RWF 1–10 million/ha** (most under RWF 6 million)
-# 
-# **Bottom Line**:  
-# **Wetland farming is 5–10x more profitable than forest farming.** If we want higher returns, **invest in wetland crops** — especially in top sites like Rugezi and Bugarama. Forests? Low earnings, better for conservation, not farming.  
-# 
-# **Action**: Put money where the green is — **wetlands = cash crop gold.**
 
 # #**(NEXT)**
 # 
@@ -7805,6 +7662,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
