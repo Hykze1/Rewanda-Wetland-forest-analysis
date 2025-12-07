@@ -1766,7 +1766,7 @@ with st.expander("🌾 4(a) Crop Analysis Visualization"):
     **Key Insight:** **Maize & rice drive profits/yields** near wetlands/forests, but **high costs** (labor 47%, seeds 11%) squeeze margins. **Target efficiency in staples** for 20–30% profit boost; low sweet potato yield signals irrigation needs.
     ''')
     
-with st.expander("Annual Profit by Crop Type")
+with st.expander("Annual Profit by Crop Type"):
 
 
     # Strip spaces from column names (safety)
@@ -1800,7 +1800,7 @@ with st.expander("Annual Profit by Crop Type")
     **Key Insight:** **Maize & rice** lead profits but volatile; **sweet potatoes** strong steady alternative. **Diversify into these 3** for risk-balanced yields.
     ''')
 
-with st.expander("Crop Yield Quantity by Crop Type")
+with st.expander("Crop Yield Quantity by Crop Type"):
 
     # Remove grand total if present
     crop_df = merged_df[merged_df["crop_type"].str.lower() != "grand total crops"]
@@ -7662,6 +7662,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
