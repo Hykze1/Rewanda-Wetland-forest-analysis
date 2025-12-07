@@ -1881,9 +1881,16 @@ with st.expander("📉 Regression Analysis", expanded=False):
     right = high_corr_pairs.iloc[half:].reset_index(drop=True)
     
     # Concatenate horizontally
-    side_by_side = side_by_side.loc[:, ~side_by_side.columns.duplicated()]
-
+    # 1️⃣ Create side_by_side (example)
+    side_by_side = pd.concat([summary_wetland, summary_forest], axis=1)
+    
+    # 2️⃣ Fix duplicate column names
+    side_by_side = side_by_side.copy()
+    side_by_side.columns = pd.io.parsers.ParserBase({'names': side_by_side.columns})._maybe_dedup_names(side_by_side.columns)
+    
+    # 3️⃣ Display
     st.dataframe(side_by_side, use_container_width=True)
+
     
 with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
 
@@ -7676,6 +7683,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
