@@ -3172,7 +3172,7 @@ with tab4:
 # In[341]:
 
 
-fig, axes = plt.subplots(1,2, figsize=(16,6))
+    fig, axes = plt.subplots(1,2, figsize=(16,6))
 
     sns.stripplot(x='wtp_forest', y='resp_years_area_forest', data=merged_df, palette="viridis", jitter=True, alpha=0.6, ax=axes[0])
     axes[0].set_title("Forest: Years Lived vs WTP")
@@ -7662,6 +7662,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
