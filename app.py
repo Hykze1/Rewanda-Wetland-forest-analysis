@@ -3330,8 +3330,15 @@ with tab6:
     # Annotate mean per case study
     case_means = df_yield.groupby('case_study')['crop_yield_kg_ha_year'].mean().reset_index()
     for i, row in case_means.iterrows():
-        ax.text(i, row['crop_yield_kg_ha_year'] + 5, f"{row['crop_yield_kg_ha_year']:.1f}",
-                ha='center', va='bottom', color='darkred', fontweight='bold')
+    ax.annotate(
+        f"{row['crop_yield_kg_ha_year']:.1f}",
+        xy=(i, row['crop_yield_kg_ha_year']),
+        xytext=(0, 5),  # offset in points
+        textcoords='offset points',
+        ha='center', va='bottom',
+        color='darkred', fontweight='bold',
+        clip_on=True  # important!
+    )
 
     plt.tight_layout()
     st.pyplot(fig)
@@ -3401,8 +3408,14 @@ with tab7:
     # Annotate mean value
     means = income_df.groupby('eco_type')[value_col].mean()
     for i, eco in enumerate(means.index):
-        ax2.text(i, means[eco]*1.1, f"{means[eco]:,.0f}", ha='center', color='darkred', fontweight='bold')
-
+    ax2.annotate(
+        f"{means[eco]:,.0f}",
+        xy=(i, means[eco]),
+        xytext=(0, 5),
+        textcoords='offset points',
+        ha='center', color='darkred', fontweight='bold',
+        clip_on=True
+    )
     plt.tight_layout()
     st.pyplot(fig2)
 
@@ -7662,6 +7675,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
