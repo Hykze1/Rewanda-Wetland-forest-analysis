@@ -1784,7 +1784,7 @@ with st.expander("Annual Profit by Crop Type"):
     plt.title("Annual Profit by Crop Type")
     st.pyplot(plt.gcf())
 
-    st.merdown('''
+    st.markdown('''
     ## 💰 Annual Profit by Crop Type (RWF, 10^6)
     
     Bar chart with variability lines:
@@ -7675,6 +7675,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
