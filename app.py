@@ -1893,11 +1893,13 @@ with st.expander("📉 Regression Analysis", expanded=False):
     left = high_corr_pairs.iloc[:half].reset_index(drop=True)
     right = high_corr_pairs.iloc[half:].reset_index(drop=True)
 
-    # Concatenate horizontally
-    side_by_side = pd.concat([left, right], axis=1)
-
-    # Display EXACTLY as it prints, but inside Streamlit
+    summary_wetland = summary_wetland.add_prefix("Wetland_")
+    summary_forest = summary_forest.add_prefix("Forest_")
+    
+    side_by_side = pd.concat([summary_wetland, summary_forest], axis=1)
+    
     st.dataframe(side_by_side)
+
 
     
 with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
@@ -7691,6 +7693,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
