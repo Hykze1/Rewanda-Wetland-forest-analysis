@@ -3084,10 +3084,10 @@ with tab3:
         plt.close()
 
     st.markdown('''
-    ### Bottom line (from your real data)
+    ### Bottom line
     - Chi-square = 9.693  
     - **p = 0.002** → **Highly significant**  
-    → Rwandans are **clearly more willing to pay to protect forests** than wetlands.
+    → Rwandans(By case study) are **clearly more willing to pay to protect forests** than wetlands.
     ''')
 
 #
@@ -3315,498 +3315,466 @@ with tab6:
 
 # #**(NEXT)**
 # 
-
-# # Additional Analyses: Reliability, Correlations, and Variable Breakdowns
-# Cronbach's α for benefits scale, correlation between years living and benefit perception, and water use %.
-# 
+st.title("📊 Advanced Statistical Analysis Dashboard")# 
 # The code checks data quality and key insights from the Rwanda eco-study.
 # 
-# It tests survey reliability (score 0.78—good), confirms that people who’ve lived longer near wetlands value them more (correlation 0.41), and shows 45% use ecosystem water daily.
-# 
-# Reliable data boosts investor confidence—lower risk and 15–20% ROI potential for green projects.
-# 
-
-# #The code checks how consistent the numeric responses are for Rugezi wetland participants’ perceptions and willingness to pay.
-
-# In[347]:
-
-
-import pandas as pd
-import numpy as np
-
-# Columns with enough data for Cronbach's
-wetland_cols = [
-    'wetland_benefit_fish_check', 'wetland_benefit_snail_check',
-    'wetland_benefit_other_food_check', 'wetland_benefit_habitat_animal_check',
-    'wetland_benefit_habitat_plant_check', 'wetland_benefit_income_check',
-    'wetland_benefit_tourism_check', 'wetland_benefit_aesthetics_check',
-    'wetland_benefit_recreation_check', 'wetland_benefit_air_control_check',
-    'wetland_benefit_water_livestock_check', 'wetland_benefit_water_industrial_check',
-    'wetland_benefit_water_domestic_check', 'wetland_benefit_water_beer_check',
-    'wetland_benefit_agri_prod_check', 'wetland_benefit_mats_check',
-    'wetland_benefit_water_purif_check', 'wetland_benefit_hydro_check',
-    'wetland_benefit_erosion_control_check', 'wetland_benefit_carbon_seq_check',
-    'wetland_benefit_research_check', 'wetland_benefit_cultural_check',
-    'wetland_benefit_medicaments_check', 'wetland_benefit_hunting_check',
-    'wetland_benefit_transport_check', 'wetland_benefit_other_check',
-    'wetland_benefit_confirmation_check'
-]
-rugezi_df= wetlands_df[wetlands_df['eco_case_study_no'] == 9].copy()
-# Keep only numeric columns and convert True/False to 1/0
-data_numeric = rugezi_df[wetland_cols].apply(pd.to_numeric, errors='coerce')
-
-# Remove columns with zero variance
-data_numeric = data_numeric.loc[:, data_numeric.var() > 0]
-
-# Drop rows with too few non-NaN values (e.g., keep rows with at least half of columns)
-min_non_nan = data_numeric.shape[1] // 2
-data_numeric = data_numeric.dropna(thresh=min_non_nan)
-
-# Compute Cronbach's alpha
-def cronbach_alpha(df):
-    k = df.shape[1]
-    if k < 2:
-        return np.nan
-    variances = df.var(ddof=1)
-    total_var = df.sum(axis=1).var(ddof=1)
-    if total_var == 0:
-        return np.nan
-    alpha = k / (k-1) * (1 - variances.sum() / total_var)
-    return alpha
-
-alpha = cronbach_alpha(data_numeric)
-print(f"Cronbach's α (Rugezi wetland perception/WTP) = {alpha:.3f}")
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
+    "✔ Cronbach Alpha (Rugezi Wetland)",
+    "✔ Water Source Analysis",
+    "✔ Gender vs Ecosystem (Chi-Square)",
+    "✔ Domestic Wetland Water Use vs Household Irrigation",
+    "✔ Wetland Household Distribution & Protection Status",
+    "✔ Combined Visualizations: Water Use, Gender & Irrigation"
+   
+])
 
 
-# **Data Quality:**
-# 
-# * **Total records:** 3,976 respondents — solid sample size for reliable insights.
-# * **Missing values:** 0 — clean data with no gaps.
-# * **Data types:** All numeric — easy to analyze for consistency.
-# * **Cronbach's α = 0.704** — good internal consistency.
-# 
-#   * Scores around 0.7 mean the survey questions on Rugezi wetland views and willingness to pay hang together well—trustworthy results with minor room to tweak for even stronger alignment.
-# 
-# **Interpretation:**
-# Your Rugezi wetland survey items (perceptions and WTP) show solid reliability—households' responses are consistent enough to guide real decisions on conservation funding or community projects.
+with tab1:
+    st.subheader("🔎 Cronbach Alpha – Rugezi Wetland Participants")
 
+    with st.expander("📘 View Markdown Explanation"):
+        st.markdown("""
+        ### **Reliability Analysis**
+        Cronbach's α measures internal consistency among several related survey items.
+
+        - α ≥ 0.80 → Excellent  
+        - 0.70–0.79 → Good  
+        - 0.60–0.69 → Acceptable  
+        - α < 0.60 → Poor  
+        """)
+
+    with st.expander("📂 Run Analysis Code"):
+        # ---------------- YOUR ORIGINAL CODE ----------------
+        wetland_cols = [
+            'wetland_benefit_fish_check', 'wetland_benefit_snail_check',
+            'wetland_benefit_other_food_check', 'wetland_benefit_habitat_animal_check',
+            'wetland_benefit_habitat_plant_check', 'wetland_benefit_income_check',
+            'wetland_benefit_tourism_check', 'wetland_benefit_aesthetics_check',
+            'wetland_benefit_recreation_check', 'wetland_benefit_air_control_check',
+            'wetland_benefit_water_livestock_check', 'wetland_benefit_water_industrial_check',
+            'wetland_benefit_water_domestic_check', 'wetland_benefit_water_beer_check',
+            'wetland_benefit_agri_prod_check', 'wetland_benefit_mats_check',
+            'wetland_benefit_water_purif_check', 'wetland_benefit_hydro_check',
+            'wetland_benefit_erosion_control_check', 'wetland_benefit_carbon_seq_check',
+            'wetland_benefit_research_check', 'wetland_benefit_cultural_check',
+            'wetland_benefit_medicaments_check', 'wetland_benefit_hunting_check',
+            'wetland_benefit_transport_check', 'wetland_benefit_other_check',
+            'wetland_benefit_confirmation_check'
+        ]
+        rugezi_df = wetlands_df[wetlands_df['eco_case_study_no'] == 9].copy()
+        data_numeric = rugezi_df[wetland_cols].apply(pd.to_numeric, errors='coerce')
+        data_numeric = data_numeric.loc[:, data_numeric.var() > 0]
+        min_non_nan = data_numeric.shape[1] // 2
+        data_numeric = data_numeric.dropna(thresh=min_non_nan)
+
+        def cronbach_alpha(df):
+            k = df.shape[1]
+            if k < 2:
+                return np.nan
+            variances = df.var(ddof=1)
+            total_var = df.sum(axis=1).var(ddof=1)
+            if total_var == 0:
+                return np.nan
+            alpha = k/(k-1) * (1 - variances.sum() / total_var)
+            return alpha
+
+        alpha_val = cronbach_alpha(data_numeric)
+
+        st.success(f"**Cronbach's α (Rugezi wetland perception/WTP) = {alpha_val:.3f}**")
+
+        st.dataframe(data_numeric.head())
+    st.markdown('''
+    **Data Quality:**
+    
+    * **Total records:** 3,976 respondents — solid sample size for reliable insights.
+    * **Missing values:** 0 — clean data with no gaps.
+    * **Data types:** All numeric — easy to analyze for consistency.
+    * **Cronbach's α = 0.704** — good internal consistency.
+    
+      * Scores around 0.7 mean the survey questions on Rugezi wetland views and willingness to pay hang together well—trustworthy results with minor room to tweak for even stronger alignment.
+    
+    **Interpretation:**
+    Rugezi wetland survey items (perceptions and WTP) show solid reliability—households' responses are consistent enough to guide real decisions on conservation funding or community projects.
+    ''')
 # ##**Visual of Water Sources Used**
+with tab2:
+    st.subheader("🚰 Water Sources Used")
 
-# In[348]:
+    with st.expander("📘 Interpretation"):
+        st.markdown("""
+        This stacked bar chart displays **percentages of households** using various water sources 
+        across wetland case studies.
+        """)
 
+    with st.expander("📊 Show Chart"):
+        # ---------- YOUR EXACT CODE ----------
+        wetland_df1 = merged_df[merged_df['eco_type'] == 'wetland'].copy()
+        water_cols = [
+            'water_domestic_source_springs',
+            'water_domestic_source_well',
+            'water_domestic_source_piped',
+            'water_domestic_source_other',
+            'water_domestic_source_wetland'
+        ]
+        for col in water_cols:
+            wetland_df1[col] = wetland_df1[col].notna() & (wetland_df1[col].astype(str).strip() != '')
+        water_summary = (wetland_df1.groupby('eco_wetland_name')[water_cols].mean() * 100)
 
-import pandas as pd
-import matplotlib.pyplot as plt
+        fig, ax = plt.subplots(figsize=(14,8))
+        bottom = pd.Series([0]*len(water_summary), index=water_summary.index)
+        colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
+        labels = ['Springs', 'Well', 'Piped', 'Other', 'Wetland']
 
-# --- Step 1: Prepare wetland_df ---
-wetland_df1 = merged_df[merged_df['eco_type'] == 'wetland'].copy()
+        for col, color, label in zip(water_cols, colors, labels):
+            plt.bar(water_summary.index, water_summary[col], bottom=bottom,
+                    color=color, edgecolor='black', label=label)
+            bottom += water_summary[col]
 
-water_cols = [
-    'water_domestic_source_springs',
-    'water_domestic_source_well',
-    'water_domestic_source_piped',
-    'water_domestic_source_other',
-    'water_domestic_source_wetland'
-]
+        st.pyplot(fig)
+        st.markdown("""
+        **Water Sources Used (Multi-Source Overlap):**  
+        - **96–99%** rely on **wetlands directly** (main source everywhere).  
+        - **91–96%** use **piped systems** (reliable backup).  
+        - **96%** tap **wells**; **91–96%** from **springs**.  
+        - Minimal "other" (~0–3%).
+        
+        **Bottom Line:**  
+        **Wetlands are the go-to water hub** (nearly universal), with piped/wells/springs as everyday supplements—smart overlap keeps supply steady. No single source dominates; households mix for reliability.
+        
+        **Action:**  
+        **Boost wetland access** with simple pumps/filters to cut contamination risks and free up piped water for growth—could **save 20–30% time/costs** and lift farm output. Pilot in Rugezi for quick wins.
 
-# Convert to 1/0 based on non-empty
-for col in water_cols:
-    wetland_df1[col] = wetland_df1[col].notna() & (wetland_df1[col].astype(str).str.strip() != '')
+        """)
 
-# Aggregate % households per wetland
-water_summary = (wetland_df1.groupby('eco_wetland_name')[water_cols].mean() * 100)
+    
+with tab3:
+    st.subheader("👥 Gender vs Ecosystem Type (Chi-Square Test)")
 
-# --- Step 2: Stacked Bar Plot ---
-plt.figure(figsize=(14,8))
+    with st.expander("📘 Explanation"):
+        st.markdown("""
+        This test checks whether **gender distribution differs** between respondents interviewed 
+        in forests vs wetlands.
+        """)
 
-# Bottom tracker for stacking
-bottom = pd.Series([0]*len(water_summary), index=water_summary.index)
+    with st.expander("📋 See Outputs"):
+        # ---------------- EXACT CODE ----------------
+        col1 = 'resp_gender'
+        col2 = 'eco_type'
+        test_df = merged_df[[col1, col2]].dropna()
+        contingency_table = pd.crosstab(test_df[col1], test_df[col2])
+        st.markdown("### **Contingency Table**")
+        st.dataframe(contingency_table)
 
-colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
-labels = ['Springs', 'Well', 'Piped', 'Other', 'Wetland']
+        chi2, p_value, dof, expected = chi2_contingency(contingency_table)
+        st.write(f"**Chi-square (X²):** {chi2:.3f}")
+        st.write(f"**p-value:** {p_value:.5f}")
+        st.write(f"**Degrees of freedom:** {dof}")
 
-for col, color, label in zip(water_cols, colors, labels):
-    plt.bar(
-        water_summary.index,
-        water_summary[col],
-        bottom=bottom,
-        color=color,
-        edgecolor='black',
-        label=label
-    )
-    bottom += water_summary[col]
-
-# Add percentage labels inside bars
-for idx in range(len(water_summary)):
-    cumulative = 0
-    for col in water_cols:
-        val = water_summary[col].iloc[idx]
-        if val > 0:
-            plt.text(
-                idx, cumulative + val/2,
-                f"{val:.1f}%",
-                ha='center', va='center', color='white', fontsize=10, fontweight='bold'
-            )
-        cumulative += val
-
-plt.xticks(ticks=range(len(water_summary)), labels=water_summary.index, rotation=45, ha='right')
-plt.ylabel('% of Households Using Source', fontsize=14)
-plt.xlabel('Wetland Case Study', fontsize=14)
-plt.title('Household Water Sources per Wetland (Stacked %)', fontsize=18, fontweight='bold')
-plt.legend(title='Water Source', bbox_to_anchor=(1.05, 1), loc='upper left')
-plt.tight_layout()
-plt.show()
-
-
-# **Water Sources Used (Multi-Source Overlap):**  
-# - **96–99%** rely on **wetlands directly** (main source everywhere).  
-# - **91–96%** use **piped systems** (reliable backup).  
-# - **96%** tap **wells**; **91–96%** from **springs**.  
-# - Minimal "other" (~0–3%).
-# 
-# **Bottom Line:**  
-# **Wetlands are the go-to water hub** (nearly universal), with piped/wells/springs as everyday supplements—smart overlap keeps supply steady. No single source dominates; households mix for reliability.
-# 
-# **Action:**  
-# **Boost wetland access** with simple pumps/filters to cut contamination risks and free up piped water for growth—could **save 20–30% time/costs** and lift farm output. Pilot in Rugezi for quick wins.
-
-# #**(NEXT)**
-# 
-
-# ###**Gender vs. Ecosystem Type**
-# $\chi^2$ Test: Is the respondent's gender independent of the ecosystem type they were interviewed about?
-
-# In[349]:
+        expected_df = pd.DataFrame(expected, index=contingency_table.index, columns=contingency_table.columns)
+        st.markdown("### **Expected Frequencies**")
+        st.dataframe(expected_df)
 
 
 
-# --- 1. Select and Clean Columns ---
-col1 = 'resp_gender'
-col2 = 'eco_type'
+with tab4:
+    st.subheader("🚿 Domestic Wetland Water Use vs Household Irrigation")
 
-# Drop rows with NaN values in either column for a clean test
-test_df = merged_df[[col1, col2]].dropna()
+    with st.expander("📊 Stacked Bar Chart"):
+        # ---- YOUR CODE ----
+        data = {
+            'N/A': [2577, 15, 3],
+            'No': [5, 1274, 123],
+            'Yes': [0, 12, 12]
+        }
+        index_vals = ['N/A', 'No', 'Yes']
+        plot_df = pd.DataFrame(data, index=index_vals)
 
-# --- 2. Create Contingency Table ---
-# This table shows the observed frequencies (counts)
-contingency_table = pd.crosstab(test_df[col1], test_df[col2])
+        fig, ax = plt.subplots(figsize=(8,6))
+        plot_df.plot(kind='bar', stacked=True, ax=ax, color=['lightgray','skyblue','lightgreen'])
+        st.pyplot(fig)
+    st.markdown("""
+        **There is a strong, statistically significant link between gender and ecosystem use.** While forests are the dominant ecosystem for both men and women, their engagement patterns differ:
+    
+        *   **Men** are the largest single user group, heavily favoring **forests** (1,428 users).
+        *   **Women** also primarily use forests, but show a **higher relative use of wetlands** (774 users) compared to men.
+        
+        **Implication:** Development and conservation programs should be gender-targeted:
+        *   **Forest initiatives** will have the greatest impact by primarily engaging **men**.
+        *   **Wetland-focused projects** should strategically target **women**, as they are the key user group for this ecosystem.
+    """)
 
-print("--- Contingency Table (Observed Frequencies) ---")
-print(contingency_table.to_markdown(numalign="left", stralign="left"))
-print("\n" + "="*50 + "\n")
+    st.markdown("""
+       **Wetland Water: Home Use vs. Farm Irrigation**
+    
+        This chart breaks down how households get water from wetlands—mostly for home (drinking/cooking) or farms (irrigation).
+        
+        * **2577 households**: No data on wetland home use (N/A).
+        * **1274 households**: **Don't use wetlands for home water** (main group; rely on pipes/wells instead).
+        * **123 households**: **Do use wetlands for home water**—but **only 12 of them** also irrigate farms from it.
+        
+        **Bottom Line:**  
+        Wetlands are rarely a double-duty source—home needs and farm watering are separate worlds (just 10% overlap). Most folks skip wetlands for daily water to avoid risks like contamination.
+        
+        **What It Means for You:**  
+        Treat home water fixes (like clean taps) apart from farm boosts (drip irrigation). No big overlap to exploit—focus efforts on one or the other for quicker wins, like safer pipes in Rugezi to free up wetlands for crops.
+        
+          ---
+        
+        
+        
+        ## 📝  Summary of Ecosystem Benefit Analysis – Wetlands vs. Forests
+        
+        **Purpose**
+        To evaluate how Rwandan households use and benefit from wetlands and forests—covering production, income, water use, ecosystem importance, and willingness to pay (WTP) for conservation—based on cleaned and tested survey data.
+        
+        ---
+        
+        ### **Main Takeaways**
+        
+        ### **1. Wetlands are the Undisputed Economic and Agricultural Core.** 💰
+        
+        * **Income Dominance:** Wetlands generate **5–10x more income per hectare** than forests. **Bugarama and Rugezi Wetlands**( practicing agriculture inside the wetland) and Rugezi   (practicing agriculturearound the wetland, instead of the inside it) Wetlands are the undisputed cash crop goldmines, yielding >1 Billion RWF/household/year (Bugarama highest at 2.67B RWF) in crop income, compared to a forest maximum of 1.5M RWF (Volcanoes NP).
+        * **High Yields:** Wetland median crop yields are **2–3x higher** than forests (e.g., Bugarama median **~10,300 kg/ha/year**).
+        * **Key Crops:** **Rice/Paddy and Maize** generate **95%+** of wetland crop income, primarily in **Bugarama** (highest ROI) and **Muvumba** (broadest participation at **12%** of households).
+        
+        ---
+        
+        ### **2. Forest Value Lies in Non-Financial Ecosystem Services.** 🌲
+        
+        * **Low Economic Output:** Forest sites show **negligible income** from crops, wood, or charcoal.
+        * **Regulatory Awareness:** Forests, especially **Mount Kigali (~92%)** and **Volcanoes NP (~83%)**, have the highest reported awareness of regulatory benefits (e.g., air, climate control).
+        * **Ecosystem Service Leaders:** **Nyungwe NP (~0.32)** and **Arboretum (~0.31)** lead in the perceived Biodiversity & Ecosystem Support Index.
+        * **Strong Mandate:** **70–80%** of respondents fear their **life would be impacted** if forests were absent (**Nyungwe & Akagera highest**), signaling a strong public mandate for protection.
+        
+        ---
+        
+        ### **3. Willingness to Pay (WTP) is Stronger for Forests, but Rugezi Leads.** 💸
+        
+        * **Overall WTP:** Overall WTP is low (~5% said "Yes"), but **Forest communities are ~97% more willing to pay (6.9%)** than wetland communities (3.5%).
+        * **Site-Specific Champions:** The highest WTP rates are:
+            * **Wetland:** **Rugezi** leads all sites at **23.8%** (in the % Yes chart).
+            * **Forest:** **Nyungwe NP** leads forests at **18.9%**.
+        * **No Predictors:** Regression analysis (**R² = 0.000**) shows that **Age and Crop Profit do not drive WTP**. WTP is steady regardless of income or age, suggesting that **education and direct benefits** matter more than monetary capacity.
+        * **WTP Amount (RWF):** The highest average WTP *amount* is in **Bugarama Wetland (6,071 RWF)**.
+        
+        ---
+        
+        ### **4. Demographic & Wellbeing Differences Are Site-Specific.** 🧑‍🤝‍🧑
+        
+        * **Age Variation:** Demographics are **not uniform**. **Rugezi** has the oldest average age (**42.0 years**), while **Muvumba** is the youngest (**28.2 years**).
+        * **Wellbeing Hotspot:** **Rugezi Wetland** is uniquely associated with a **significant Mental Wellbeing benefit (score ~0.32)**, a service that is virtually absent in other sites.
+        * **Uniform Forest Age:** Forest demographics are **nearly identical** across all sites (young adult focus), allowing for **one-size-fits-all outreach**.
+        
+        ---
+        
+        ### **5. Water and Livelihood Sources.** 🚰
+        
+        * **Wetland Water Reliance:** Wetlands are a **significant, non-negligible source** for household water in **Rugezi (~16%)**, **Bugarama (~14%)**, and **Muvumba (~10%)**.
+        * **Irrigation Link:** Confirmed association that households using wetland water are **more likely to irrigate**.
+        * **Fishing/Farming:** Fishing is **virtually absent** across all wetlands. Farming is **rare** (~10% or less of households).
+        * **Rugezi Stress:** Only **Rugezi** shows significant human-induced stress (reported **waterborne diseases** and **defecation**), requiring prioritized health interventions.
+        
+        ---
+        
+        ### **6. Statistical and Data Reliability.** 📊
+        
+        * **Gender:** $\chi^2$ test confirms **Gender is associated with ecosystem type use** ($\chi^2=29.3, p<0.001$).
+        * **WTP vs. Income:** Hypothesis tests confirm there is **no statistical link** between WTP and income/age.
+        * **Data Reliability:** The Rugezi wetland survey items show **Good internal consistency ($\alpha = 0.704$)**.
+        
+        
+        ### **Chi-square Test of Independence – Forest vs Wetland WTP**
+        
+        **Chi-square statistic:** 9.693
+        **p-value:** 0.002
+        **Degrees of freedom:** 1
+        
+        **Interpretation:**
+        
+        * p-value (0.002) < 0.05 → **reject the null hypothesis**.
+        * There **is a significant difference** in WTP between Forest and Wetland ecosystems.
+        
+        **Clear Meaning:**
+        
+        * Households are **more willing to pay for forests** than wetlands.
+        * Difference is **statistically significant**, not due to chance.
+        * Confirms that **ecosystem type influences willingness to pay**.
+        
+        ---
+        
+        ### **T-tests – Years Living Around Ecosystem vs WTP**
+        
+        | Ecosystem | T-stat | P-value | Interpretation                                                         |
+        | --------- | ------ | ------- | ---------------------------------------------------------------------- |
+        | Forest    | 1.35   | 0.177   | No significant difference in WTP based on years living around forest.  |
+        | Wetland   | 0.67   | 0.500   | No significant difference in WTP based on years living around wetland. |
+        
+        **Clear Meaning:**
+        
+        * Household **tenure around the ecosystem does not predict willingness to pay**.
+        * WTP appears **independent of experience or familiarity** with the site.
+        
+        ---
+        
+        ### **T-tests – Income vs Importance (Forest & Wetland)**
+        
+        * **Forest:** T-test not computed due to lack of variation in income vs importance (NaNs and low sample size).
+        * **Wetland:** Only 317 households with “not important” and missing income data → **statistical test not feasible**.
+        
+        **Interpretation:**
+        
+        * Insufficient data to show whether household income affects perception of importance.
+        * Future surveys should ensure **balanced response categories** for robust hypothesis testing.
 
-# --- 3. Perform Chi-Squared Test ---
-# chi2_contingency returns: chi2 statistic, p-value, degrees of freedom, expected frequencies
-chi2, p_value, dof, expected = chi2_contingency(contingency_table)
+    """)
+    
+with tab5:
+    st.subheader("🌍 Wetland Household Distribution & Protection Status")
 
-# --- 4. Print Results ---
-print(f"Chi-Squared Test of Independence: {col1} vs {col2}")
-print(f"Chi-Square Statistic (X²): {chi2:.4f}")
-print(f"P-value: {p_value:.4f}")
-print(f"Degrees of Freedom (dof): {dof}")
+    with st.expander("🏡 Households Per Wetland"):
+        wetland_summary1 = (
+            merged_df.groupby('eco_wetland_name')['_index']
+            .nunique()
+            .reset_index(name='number_of_households')
+        )
+        st.dataframe(wetland_summary1)
 
-# Interpret the result
-alpha = 0.05
-if p_value < alpha:
-    conclusion = "Reject the null hypothesis (H₀): There IS a statistically significant association between gender and ecosystem type."
-else:
-    conclusion = "Fail to reject the null hypothesis (H₀): There is NO statistically significant association between gender and ecosystem type."
+    with st.expander("🥧 Pie Chart — Households Per Wetland"):
+        labels = wetland_summary1['eco_wetland_name']
+        sizes = wetland_summary1['number_of_households']
+        explode = [0.05] * len(sizes)
+        fig = plt.figure(figsize=(12, 8))
+        plt.pie(sizes, labels=labels, autopct='%1.1f%%',
+                startangle=140, explode=explode, shadow=True,
+                pctdistance=0.8, labeldistance=1.1)
+        st.pyplot(fig)
 
-print(f"\nConclusion (at α={alpha}):\n{conclusion}")
+    with st.expander("🛡 Protected vs Unprotected Wetlands"):
+        merged_df['wetland_status_clean'] = merged_df['eco_protected_area_status'].str.lower().map({
+            'protected area': 'Protected',
+            'unprotected ecosystem': 'Unprotected',
+            'yes': 'Protected',
+            'no': 'Unprotected'
+        })
+        wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
+        status_counts = wetland_df2['wetland_status_clean'].value_counts().reset_index()
+        status_counts.columns = ['Wetland Status', 'Count']
 
-print("\n--- Expected Frequencies (Under Null Hypothesis) ---")
-# Convert expected frequencies array back to a DataFrame for clean printing
-expected_df = pd.DataFrame(expected, index=contingency_table.index, columns=contingency_table.columns)
-print(expected_df.round(2).to_markdown(numalign="left", stralign="left"))
-
-
-# In[350]:
-
-
-# Data
-data = {'Forest': [1099, 1428, 4],
-        'Wetland': [774, 711, 5]}
-index = ['Female', 'Male', 'N/A']
-
-data = pd.DataFrame(data, index=index)
-
-# Plot
-ax = data.plot(kind='bar', figsize=(8,5), color=['forestgreen', 'skyblue'])
-plt.title('Ecosystem Use by Gender')
-plt.ylabel('Number of Respondents')
-plt.xlabel('Gender')
-plt.xticks(rotation=0)
-
-# Increase y-axis limit (10% higher than max value)
-y_max = data.values.max()
-plt.ylim(0, y_max * 1.1)
-
-# Add numbers on top of bars
-for p in ax.patches:
-    ax.annotate(str(int(p.get_height())),
-                (p.get_x() + p.get_width()/2., p.get_height()),
-                ha='center', va='bottom')
-
-plt.tight_layout()
-plt.show()
-
-
-# 
-# 
-# **There is a strong, statistically significant link between gender and ecosystem use.** While forests are the dominant ecosystem for both men and women, their engagement patterns differ:
-# 
-# *   **Men** are the largest single user group, heavily favoring **forests** (1,428 users).
-# *   **Women** also primarily use forests, but show a **higher relative use of wetlands** (774 users) compared to men.
-# 
-# **Implication:** Development and conservation programs should be gender-targeted:
-# *   **Forest initiatives** will have the greatest impact by primarily engaging **men**.
-# *   **Wetland-focused projects** should strategically target **women**, as they are the key user group for this ecosystem.
-
-# #**(NEXT)**
-# 
-
-# #**Domestic Wetland Water Use vs Household Irrigation**
-
-# In[351]:
-
-
-# Observed frequencies
-data = {
-    'N/A': [2577, 15, 3],
-    'No':  [5, 1274, 123],
-    'Yes': [0, 12, 12]
-}
-index = ['N/A', 'No', 'Yes']  # Rows of water_domestic_source_wetland
-
-plot_df = pd.DataFrame(data, index=index)
-
-# Stacked bar plot
-ax = plot_df.plot(kind='bar', stacked=True, figsize=(8,6), color=['lightgray','skyblue','lightgreen'])
-plt.title('Domestic Wetland Water Use vs Household Irrigation')
-plt.ylabel('Number of Households')
-plt.xlabel('Water Domestic Source Wetland')
-plt.xticks(rotation=0)
-
-# Add numbers on top of each stacked segment
-for i, row in enumerate(plot_df.values):
-    bottom = 0
-    for j, val in enumerate(row):
-        if val > 0:
-            ax.text(i, bottom + val/2, str(val), ha='center', va='center', fontsize=8)
-        bottom += val
-
-plt.ylim(0, plot_df.values.max()*1.1)  # Add some space above tallest bar
-plt.tight_layout()
-plt.show()
-
-
-# **Wetland Water: Home Use vs. Farm Irrigation**
-# 
-# This chart breaks down how households get water from wetlands—mostly for home (drinking/cooking) or farms (irrigation).
-# 
-# * **2577 households**: No data on wetland home use (N/A).
-# * **1274 households**: **Don't use wetlands for home water** (main group; rely on pipes/wells instead).
-# * **123 households**: **Do use wetlands for home water**—but **only 12 of them** also irrigate farms from it.
-# 
-# **Bottom Line:**  
-# Wetlands are rarely a double-duty source—home needs and farm watering are separate worlds (just 10% overlap). Most folks skip wetlands for daily water to avoid risks like contamination.
-# 
-# **What It Means for You:**  
-# Treat home water fixes (like clean taps) apart from farm boosts (drip irrigation). No big overlap to exploit—focus efforts on one or the other for quicker wins, like safer pipes in Rugezi to free up wetlands for crops.
-
-#   ---
-
-# 
-# 
-# ## 📝  Summary of Ecosystem Benefit Analysis – Wetlands vs. Forests
-# 
-# **Purpose**
-# To evaluate how Rwandan households use and benefit from wetlands and forests—covering production, income, water use, ecosystem importance, and willingness to pay (WTP) for conservation—based on cleaned and tested survey data.
-# 
-# ---
-# 
-# ### **Main Takeaways**
-# 
-# ### **1. Wetlands are the Undisputed Economic and Agricultural Core.** 💰
-# 
-# * **Income Dominance:** Wetlands generate **5–10x more income per hectare** than forests. **Bugarama and Rugezi Wetlands**( practicing agriculture inside the wetland) and Rugezi   (practicing agriculturearound the wetland, instead of the inside it) Wetlands are the undisputed cash crop goldmines, yielding >1 Billion RWF/household/year (Bugarama highest at 2.67B RWF) in crop income, compared to a forest maximum of 1.5M RWF (Volcanoes NP).
-# * **High Yields:** Wetland median crop yields are **2–3x higher** than forests (e.g., Bugarama median **~10,300 kg/ha/year**).
-# * **Key Crops:** **Rice/Paddy and Maize** generate **95%+** of wetland crop income, primarily in **Bugarama** (highest ROI) and **Muvumba** (broadest participation at **12%** of households).
-# 
-# ---
-# 
-# ### **2. Forest Value Lies in Non-Financial Ecosystem Services.** 🌲
-# 
-# * **Low Economic Output:** Forest sites show **negligible income** from crops, wood, or charcoal.
-# * **Regulatory Awareness:** Forests, especially **Mount Kigali (~92%)** and **Volcanoes NP (~83%)**, have the highest reported awareness of regulatory benefits (e.g., air, climate control).
-# * **Ecosystem Service Leaders:** **Nyungwe NP (~0.32)** and **Arboretum (~0.31)** lead in the perceived Biodiversity & Ecosystem Support Index.
-# * **Strong Mandate:** **70–80%** of respondents fear their **life would be impacted** if forests were absent (**Nyungwe & Akagera highest**), signaling a strong public mandate for protection.
-# 
-# ---
-# 
-# ### **3. Willingness to Pay (WTP) is Stronger for Forests, but Rugezi Leads.** 💸
-# 
-# * **Overall WTP:** Overall WTP is low (~5% said "Yes"), but **Forest communities are ~97% more willing to pay (6.9%)** than wetland communities (3.5%).
-# * **Site-Specific Champions:** The highest WTP rates are:
-#     * **Wetland:** **Rugezi** leads all sites at **23.8%** (in the % Yes chart).
-#     * **Forest:** **Nyungwe NP** leads forests at **18.9%**.
-# * **No Predictors:** Regression analysis (**R² = 0.000**) shows that **Age and Crop Profit do not drive WTP**. WTP is steady regardless of income or age, suggesting that **education and direct benefits** matter more than monetary capacity.
-# * **WTP Amount (RWF):** The highest average WTP *amount* is in **Bugarama Wetland (6,071 RWF)**.
-# 
-# ---
-# 
-# ### **4. Demographic & Wellbeing Differences Are Site-Specific.** 🧑‍🤝‍🧑
-# 
-# * **Age Variation:** Demographics are **not uniform**. **Rugezi** has the oldest average age (**42.0 years**), while **Muvumba** is the youngest (**28.2 years**).
-# * **Wellbeing Hotspot:** **Rugezi Wetland** is uniquely associated with a **significant Mental Wellbeing benefit (score ~0.32)**, a service that is virtually absent in other sites.
-# * **Uniform Forest Age:** Forest demographics are **nearly identical** across all sites (young adult focus), allowing for **one-size-fits-all outreach**.
-# 
-# ---
-# 
-# ### **5. Water and Livelihood Sources.** 🚰
-# 
-# * **Wetland Water Reliance:** Wetlands are a **significant, non-negligible source** for household water in **Rugezi (~16%)**, **Bugarama (~14%)**, and **Muvumba (~10%)**.
-# * **Irrigation Link:** Confirmed association that households using wetland water are **more likely to irrigate**.
-# * **Fishing/Farming:** Fishing is **virtually absent** across all wetlands. Farming is **rare** (~10% or less of households).
-# * **Rugezi Stress:** Only **Rugezi** shows significant human-induced stress (reported **waterborne diseases** and **defecation**), requiring prioritized health interventions.
-# 
-# ---
-# 
-# ### **6. Statistical and Data Reliability.** 📊
-# 
-# * **Gender:** $\chi^2$ test confirms **Gender is associated with ecosystem type use** ($\chi^2=29.3, p<0.001$).
-# * **WTP vs. Income:** Hypothesis tests confirm there is **no statistical link** between WTP and income/age.
-# * **Data Reliability:** The Rugezi wetland survey items show **Good internal consistency ($\alpha = 0.704$)**.
-# 
-# 
-# ### **Chi-square Test of Independence – Forest vs Wetland WTP**
-# 
-# **Chi-square statistic:** 9.693
-# **p-value:** 0.002
-# **Degrees of freedom:** 1
-# 
-# **Interpretation:**
-# 
-# * p-value (0.002) < 0.05 → **reject the null hypothesis**.
-# * There **is a significant difference** in WTP between Forest and Wetland ecosystems.
-# 
-# **Clear Meaning:**
-# 
-# * Households are **more willing to pay for forests** than wetlands.
-# * Difference is **statistically significant**, not due to chance.
-# * Confirms that **ecosystem type influences willingness to pay**.
-# 
-# ---
-# 
-# ### **T-tests – Years Living Around Ecosystem vs WTP**
-# 
-# | Ecosystem | T-stat | P-value | Interpretation                                                         |
-# | --------- | ------ | ------- | ---------------------------------------------------------------------- |
-# | Forest    | 1.35   | 0.177   | No significant difference in WTP based on years living around forest.  |
-# | Wetland   | 0.67   | 0.500   | No significant difference in WTP based on years living around wetland. |
-# 
-# **Clear Meaning:**
-# 
-# * Household **tenure around the ecosystem does not predict willingness to pay**.
-# * WTP appears **independent of experience or familiarity** with the site.
-# 
-# ---
-# 
-# ### **T-tests – Income vs Importance (Forest & Wetland)**
-# 
-# * **Forest:** T-test not computed due to lack of variation in income vs importance (NaNs and low sample size).
-# * **Wetland:** Only 317 households with “not important” and missing income data → **statistical test not feasible**.
-# 
-# **Interpretation:**
-# 
-# * Insufficient data to show whether household income affects perception of importance.
-# * Future surveys should ensure **balanced response categories** for robust hypothesis testing.
-# 
-# 
-
-# In[352]:
-
-
-import matplotlib.pyplot as plt
-import pandas as pd
+        fig2, ax = plt.subplots(figsize=(10, 6))
+        sns.barplot(data=status_counts, x='Wetland Status', y='Count',
+                    palette="Set2", edgecolor='black')
+        st.pyplot(fig2)
 
 # --- Data ---
 
-# Water Sources (%)
-sources = ['Wetland Water', 'Spring Water', 'Well/Borehole', 'Piped Water']
-sources_pct = [3.4, 11.1, 6.8, 20.2]
+with tab6:   # ← or any tab you want
+    st.header("Combined Visualizations: Water Use, Gender & Irrigation")
 
-# Water Uses (%)
-uses = ['Livestock', 'Farming', 'Irrigation']
-uses_pct = [0.0, 3.8, 0.6]
+    # OPTIONAL: Give users a clean collapsible area
+    with st.expander("Show Combined 2×2 Visual Dashboard", expanded=True):
 
-# Gender vs Ecosystem (Observed)
-gender_ecosystem = pd.DataFrame({
-    'Forest': [1099, 1428, 4],
-    'Wetland': [774, 711, 5]
-}, index=['Female', 'Male', 'N/A'])
+        st.markdown("""
+        This dashboard visualizes:
+        - **Water sources used by households**
+        - **Types of water use**
+        - **Gender distribution across forest and wetland ecosystems**
+        - **Relationship between wetland domestic-use and irrigation**
+        """)
 
-# Wetland Water Use vs Irrigation (Observed)
-wetland_irrigation = pd.DataFrame({
-    'N/A': [2577, 15, 3],
-    'No': [5, 1274, 123],
-    'Yes': [0, 12, 12]
-}, index=['N/A', 'No', 'Yes'])
+        # ---------------------------------------------
+        # Your EXACT ORIGINAL VARIABLES (unchanged)
+        # ---------------------------------------------
 
-# --- Plotting ---
+        # Water Sources (%)
+        sources = ['Wetland Water', 'Spring Water', 'Well/Borehole', 'Piped Water']
+        sources_pct = [3.4, 11.1, 6.8, 20.2]
 
-fig, axes = plt.subplots(2, 2, figsize=(16, 12))
+        # Water Uses (%)
+        uses = ['Livestock', 'Farming', 'Irrigation']
+        uses_pct = [0.0, 3.8, 0.6]
 
-# 1. Water Sources
-axes[0,0].bar(sources, sources_pct, color='skyblue')
-axes[0,0].set_title('Water Sources Used (%)')
-axes[0,0].set_ylabel('Percentage')
-axes[0,0].set_ylim(0, max(sources_pct)*1.2)
-for i, v in enumerate(sources_pct):
-    axes[0,0].text(i, v+0.5, f"{v}%", ha='center')
+        # Gender vs Ecosystem (Observed)
+        gender_ecosystem = pd.DataFrame({
+            'Forest': [1099, 1428, 4],
+            'Wetland': [774, 711, 5]
+        }, index=['Female', 'Male', 'N/A'])
 
-# 2. Water Uses
-axes[0,1].bar(uses, uses_pct, color='lightgreen')
-axes[0,1].set_title('Water Uses (%)')
-axes[0,1].set_ylabel('Percentage')
-axes[0,1].set_ylim(0, max(uses_pct)*1.5)
-for i, v in enumerate(uses_pct):
-    axes[0,1].text(i, v+0.05, f"{v}%", ha='center')
+        # Wetland Water Use vs Irrigation (Observed)
+        wetland_irrigation = pd.DataFrame({
+            'N/A': [2577, 15, 3],
+            'No': [5, 1274, 123],
+            'Yes': [0, 12, 12]
+        }, index=['N/A', 'No', 'Yes'])
 
-# 3. Gender vs Ecosystem
-gender_ecosystem.plot(kind='bar', stacked=True, ax=axes[1,0], color=['forestgreen','skyblue'])
-axes[1,0].set_title('Ecosystem Use by Gender')
-axes[1,0].set_ylabel('Number of Respondents')
-axes[1,0].set_xlabel('Gender')
-axes[1,0].set_xticks(range(len(gender_ecosystem.index)))
-axes[1,0].set_xticklabels(gender_ecosystem.index, rotation=0)
-for i, row in enumerate(gender_ecosystem.values):
-    bottom = 0
-    for j, val in enumerate(row):
-        axes[1,0].text(i, bottom + val/2, str(val), ha='center', va='center', fontsize=8)
-        bottom += val
+        # ---------------------------------------------
+        # PLOTTING (your original code inside Streamlit)
+        # ---------------------------------------------
 
-# 4. Wetland Water Use vs Irrigation
-wetland_irrigation.plot(kind='bar', stacked=True, ax=axes[1,1], color=['lightgray','skyblue','lightgreen'])
-axes[1,1].set_title('Wetland Water Use vs Household Irrigation')
-axes[1,1].set_ylabel('Number of Households')
-axes[1,1].set_xlabel('Wetland Water Use')
-axes[1,1].set_xticks(range(len(wetland_irrigation.index)))
-axes[1,1].set_xticklabels(wetland_irrigation.index, rotation=0)
-for i, row in enumerate(wetland_irrigation.values):
-    bottom = 0
-    for j, val in enumerate(row):
-        if val > 0:
-            axes[1,1].text(i, bottom + val/2, str(val), ha='center', va='center', fontsize=8)
-        bottom += val
+        fig, axes = plt.subplots(2, 2, figsize=(16, 12))
 
-plt.tight_layout()
-plt.show()
+        # 1. Water Sources
+        axes[0,0].bar(sources, sources_pct, color='skyblue')
+        axes[0,0].set_title('Water Sources Used (%)')
+        axes[0,0].set_ylabel('Percentage')
+        axes[0,0].set_ylim(0, max(sources_pct)*1.2)
+        for i, v in enumerate(sources_pct):
+            axes[0,0].text(i, v+0.5, f"{v}%", ha='center')
+
+        # 2. Water Uses
+        axes[0,1].bar(uses, uses_pct, color='lightgreen')
+        axes[0,1].set_title('Water Uses (%)')
+        axes[0,1].set_ylabel('Percentage')
+        axes[0,1].set_ylim(0, max(uses_pct)*1.5)
+        for i, v in enumerate(uses_pct):
+            axes[0,1].text(i, v+0.05, f"{v}%", ha='center')
+
+        # 3. Gender vs Ecosystem
+        gender_ecosystem.plot(kind='bar', stacked=True, ax=axes[1,0],
+                              color=['forestgreen','skyblue'])
+        axes[1,0].set_title('Ecosystem Use by Gender')
+        axes[1,0].set_ylabel('Number of Respondents')
+        axes[1,0].set_xlabel('Gender')
+        axes[1,0].set_xticks(range(len(gender_ecosystem.index)))
+        axes[1,0].set_xticklabels(gender_ecosystem.index, rotation=0)
+        for i, row in enumerate(gender_ecosystem.values):
+            bottom = 0
+            for j, val in enumerate(row):
+                axes[1,0].text(i, bottom + val/2, str(val), ha='center', va='center', fontsize=8)
+                bottom += val
+
+        # 4. Wetland Water Use vs Irrigation
+        wetland_irrigation.plot(kind='bar', stacked=True, ax=axes[1,1],
+                                color=['lightgray','skyblue','lightgreen'])
+        axes[1,1].set_title('Wetland Water Use vs Household Irrigation')
+        axes[1,1].set_ylabel('Number of Households')
+        axes[1,1].set_xlabel('Wetland Water Use')
+        axes[1,1].set_xticks(range(len(wetland_irrigation.index)))
+        axes[1,1].set_xticklabels(wetland_irrigation.index, rotation=0)
+        for i, row in enumerate(wetland_irrigation.values):
+            bottom = 0
+            for j, val in enumerate(row):
+                if val > 0:
+                    axes[1,1].text(i, bottom + val/2, str(val),
+                                   ha='center', va='center', fontsize=8)
+                bottom += val
+
+        plt.tight_layout()
+
+        # Display inside Streamlit
+        st.pyplot(fig)
+
+        st.markdown("""
+        ---
+        ### Interpretation
+        - Wetland water is the **least used** source.
+        - Piped water is the most dominant.
+        - Males dominate forest engagement; females lead slightly in wetlands.
+        - Irrigation linked to wetland water use remains **very low**.
+        """)
+
 
 
 # #**Name of the wetlands included in the case studies and corresponding households**
-
-# In[353]:
 
 
 wetland_summary1 = (
@@ -3817,11 +3785,6 @@ wetland_summary1 = (
 
 wetland_summary1
 
-
-# In[354]:
-
-
-import matplotlib.pyplot as plt
 
 # ---------------------------------------------
 # Prepare Data
@@ -3873,9 +3836,6 @@ plt.show()
 
 # #**Protected vs Unprotected Wetlands**
 
-# In[355]:
-
-
 merged_df['wetland_status_clean'] = merged_df['eco_protected_area_status'].str.lower().map({
     'protected area': 'Protected',
     'unprotected ecosystem': 'Unprotected',
@@ -3883,8 +3843,6 @@ merged_df['wetland_status_clean'] = merged_df['eco_protected_area_status'].str.l
     'no': 'Unprotected'
 })
 
-
-# In[356]:
 
 
 wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
@@ -3896,8 +3854,6 @@ status_counts.columns = ['Wetland Status', 'Count']
 # ---------------------------------------------
 # 2. Visualization
 # ---------------------------------------------
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 plt.figure(figsize=(10, 6))
 sns.set_style("whitegrid")
@@ -7554,6 +7510,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
