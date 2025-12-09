@@ -2868,7 +2868,10 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "T-Test H1", 
     "Regression H2", 
     "Chi-Square WTP", 
-    "Visualizations"
+    "Visualizations",
+    "Predicted Willingness to Pay vs Crop Profit",
+    "Distribution of Crop Yields Across Case Studies",
+    "Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type"
 ])
 
 # -------------------------------
@@ -7659,6 +7662,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
