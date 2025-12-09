@@ -812,7 +812,7 @@ for i, v in enumerate(feeling_counts['Count']):
 ax2.set_title("Respondent Feelings Near Wetlands")
 
 plt.tight_layout()   # ✔ Prevents text layout errors
-fig2.canvas.draw()   # ✔ Prevents Streamlit rendering crash
+#fig2.canvas.draw()   # ✔ Prevents Streamlit rendering crash
 
 st.pyplot(fig2)
 
@@ -7664,6 +7664,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
