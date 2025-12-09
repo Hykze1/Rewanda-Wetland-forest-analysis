@@ -25,10 +25,7 @@ import streamlit as st
 from scipy import stats
 from IPython.display import Markdown, display
 import statsmodels.api as sm
-import statsmodels.formula.api as smf     # Only if you need formulas
-
-X = sm.add_constant(merged_df[['crop_annual_profit', 'eco_dummy', 'resp_age']].fillna(0))
-
+import statsmodels.formula.api as smf   
 
 # ================================
 
@@ -7667,6 +7664,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
