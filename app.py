@@ -1873,10 +1873,12 @@ with st.expander("📉 Regression Analysis", expanded=False):
   
     
     
+    with st.expander("▶ High Correlation Pairs (Threshold ≥ 0.8)", expanded=False):
+
     # Compute correlation (excluding non-numeric columns)
     excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
     corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
-    
+
     # Filter correlations above threshold
     threshold = 0.8
     high_corr_pairs = (
@@ -1888,23 +1890,17 @@ with st.expander("📉 Regression Analysis", expanded=False):
     high_corr_pairs = high_corr_pairs[
         (high_corr_pairs['Correlation'].abs() >= threshold)
     ].sort_values(by='Correlation', ascending=False)
-    
-    # Display side by side
+
     # Split the dataframe into two halves and display side by side
     half = len(high_corr_pairs) // 2
     left = high_corr_pairs.iloc[:half].reset_index(drop=True)
     right = high_corr_pairs.iloc[half:].reset_index(drop=True)
-    
+
     # Concatenate horizontally
-    # 1️⃣ Create side_by_side (example)
-    side_by_side = pd.concat([summary_wetland, summary_forest], axis=1)
-    
-    # 2️⃣ Fix duplicate column names
-    side_by_side = side_by_side.copy()
-    side_by_side.columns = pd.io.parsers.ParserBase({'names': side_by_side.columns})._maybe_dedup_names(side_by_side.columns)
-    
-    # 3️⃣ Display
-    st.dataframe(side_by_side, use_container_width=True)
+    side_by_side = pd.concat([left, right], axis=1)
+
+    # Display EXACTLY as it prints, but inside Streamlit
+    st.dataframe(side_by_side)
 
     
 with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
@@ -7698,6 +7694,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
