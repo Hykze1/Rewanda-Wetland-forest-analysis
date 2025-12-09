@@ -3028,100 +3028,69 @@ with tab2:
 
 with tab3:
     st.subheader("Chi-Square Test: WTP Forest vs Wetland")
+    
     st.markdown('''
-    # **Hypothesis for the Chi-Square Test (WTP Forest vs Wetland)**
-    
-    **Idea:**
-    We are checking whether people’s willingness to pay (WTP) depends on the ecosystem type (Forest vs Wetland).
-    
-    ---
-    
-    ## **Null Hypothesis (H₀)**
-    
-    There is **no relationship** between ecosystem type and willingness to pay.
-    WTP for forests **equals** WTP for wetlands.
-    
-    ## **Alternative Hypothesis (H₁)**
-    
-    There **is a relationship** between ecosystem type and willingness to pay.
-    WTP for forests is **different** from WTP for wetlands.
+    ### Hypothesis
+    - **H₀**: No relationship between ecosystem type and willingness to pay  
+    - **H₁**: There **is** a relationship — people value forests and wetlands differently
     ''')
 
-
-# Create a contingency table
+    # ── Chi-square test ─────────────────────────────────────
     contingency_table = pd.crosstab(merged_df['wtp_forest'], merged_df['wtp_wetland'])
-    
-    # Run Chi-square test
     chi2_stat, p_val, dof, expected = chi2_contingency(contingency_table)
-    
-    # Display results
-    st.write("Chi-square statistic:", chi2_stat)
-    st.write("P-value:", p_val)
-    st.write("Degrees of freedom:", dof)
-    st.write("Expected frequencies:\n", expected)
 
-    st.markdown("**Interpretation:**" + 
-                (" Significant difference in WTP between Forest and Wetland." if p_val<0.05 
-                 else " No significant difference."))
+    st.write(f"**Chi-square statistic** = {chi2_stat:.3f}")
+    st.write(f"**P-value** = {p_val:.4f}")
+    st.write(f"**Degrees of freedom** = {dof}")
 
+    if p_val < 0.05:
+        st.success("Significant difference — People are **more willing to pay for forests** than wetlands")
+    else:
+        st.info("No significant difference")
 
-    
-# # **Interpretation with Your Output**
-    st.markdown('''
-    **Chi-square statistic:** 9.693
-    **p-value:** 0.002
-    **df:** 1
-    
-    p-value (0.002) < 0.05
-    
-    → You **reject the null hypothesis**.
-    → There **is a significant difference** in WTP between Forest and Wetland ecosystems.
-    
-    ---
-    
-    # **Clear Meaning**
-    
-    * People are **more willing to pay for forests** than wetlands.
-    * The difference is **not due to chance**.
-    * The result supports the idea that **ecosystem type influences willingness to pay**.
-    ''')
-# Map 0 → "No", 1 → "Yes"
-    merged_df['wtp_forest_label'] = merged_df['wtp_forest'].map({1: "Yes", 0: "No"})
+    # ── Make nice labels ─────────────────────────────────────
+    merged_df['wtp_forest_label']  = merged_df['wtp_forest'].map({1: "Yes", 0: "No"})
     merged_df['wtp_wetland_label'] = merged_df['wtp_wetland'].map({1: "Yes", 0: "No"})
-    
-    # -------------------------------
-    # Contingency table
-    # -------------------------------
-    contingency_table = pd.crosstab(
+
+    contingency_labeled = pd.crosstab(
         merged_df['wtp_forest_label'],
         merged_df['wtp_wetland_label']
     )
-    
-    # -------------------------------
-    # 1. Heatmap visualization
-    # -------------------------------
-    plt.figure(figsize=(8,6))
-    sns.heatmap(contingency_table, annot=True, fmt='d', cmap='YlGnBu')
-    plt.title('WTP Forest vs Wetland (Counts)')
-    plt.xlabel('Wetland WTP')
-    plt.ylabel('Forest WTP')
-    st.pyplot(plot.gcf())
-    
-    # -------------------------------
-    # 2. Grouped bar plot (percentage)
-    # -------------------------------
-    contingency_table_norm = contingency_table.div(contingency_table.sum(axis=1), axis=0) * 100
-    
-    contingency_table_norm.plot(kind='bar', figsize=(8,6))
-    plt.title('WTP Forest vs Wetland (% by Forest WTP)')
-    plt.xlabel('Forest WTP')
-    plt.ylabel('Percentage (%)')
-    plt.xticks(rotation=0)
-    plt.legend(title='Wetland WTP')
-    st.pyplot(plot.gcf())
 
-# 
+    # ── Two beautiful plots side-by-side ─────────────────────
+    col1, col2 = st.columns(2)
 
+    with col1:
+        st.write("**Contingency Table – Heatmap**")
+        plt.figure(figsize=(6, 4.5))
+        sns.heatmap(contingency_labeled, annot=True, fmt='d', cmap='YlGnBu', cbar=False, linewidths=1, linecolor='black')
+        plt.title("WTP Forest vs Wetland (counts)")
+        plt.xlabel("Wetland WTP")
+        plt.ylabel("Forest WTP")
+        st.pyplot(plt.gcf())      # ← this works
+        plt.close()               # ← important!
+
+    with col2:
+        st.write("**Percentage by Forest WTP**")
+        pct = contingency_labeled.div(contingency_labeled.sum(axis=1), axis=0) * 100
+        pct.plot(kind='bar', stacked=True, figsize=(6, 4.5), color=['#ff9999', '#66b3ff'])
+        plt.title("If someone is willing to pay for the forest…\n…how likely are they to pay for the wetland?")
+        plt.ylabel("Percentage (%)")
+        plt.xlabel("Forest WTP")
+        plt.legend(title="Wetland WTP")
+        plt.xticks(rotation=0)
+        plt.ylim(0, 100)
+        st.pyplot(plt.gcf())      # ← this works too
+        plt.close()
+
+    st.markdown('''
+    ### Bottom line (from your real data)
+    - Chi-square = 9.693  
+    - **p = 0.002** → **Highly significant**  
+    → Rwandans are **clearly more willing to pay to protect forests** than wetlands.
+    ''')
+
+#
 
 with tab4:
     st.header("Predicted Willingness to Pay vs Crop Profit")
@@ -7585,6 +7554,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
