@@ -2882,43 +2882,49 @@ with tab1:
 
     with col1:
         st.subheader("Forest")
-        yes = merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'].dropna()
-        no  = merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'].dropna()
-        if len(yes) > 1 and len(no) > 1:
-            tstat, p = ttest_ind(yes, no, nan_policy='omit')
-            st.write(f"T-stat: `{tstat:.3f}` | P-value: `{p:.4f}`")
-            st.write("Significant" if p < 0.05 else "Not significant")
+    
+        yes_forest = merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'].dropna()
+        no_forest  = merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'].dropna()
+    
+        if len(yes_forest) > 1 and len(no_forest) > 1:
+            tstat_forest, p_forest = ttest_ind(yes_forest, no_forest, nan_policy='omit')
+            st.write(f"T-stat: `{tstat_forest:.3f}` | P-value: `{p_forest:.4f}`")
+            st.write("Significant" if p_forest < 0.05 else "Not significant")
         else:
             st.warning("Not enough data for Forest t-test")
-
-        plt.figure(figsize=(7,4))
-        sns.kdeplot(no, label="No", fill=True, alpha=0.6)
-        sns.kdeplot(yes, label="Yes", fill=True, alpha=0.6)
+    
+        fig1 = plt.figure(figsize=(7,4))
+        sns.kdeplot(no_forest, label="No", fill=True, alpha=0.6)
+        sns.kdeplot(yes_forest, label="Yes", fill=True, alpha=0.6)
         plt.title("Forest: Years Lived by WTP")
         plt.xlabel("Years Lived Near Forest")
         plt.legend()
-        st.pyplot(plt.gcf())
-        plt.close()
+        st.pyplot(fig1)
+        plt.close(fig1)
+
 
     with col2:
         st.subheader("Wetland")
-        yes = merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'].dropna()
-        no  = merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'].dropna()
-        if len(yes) > 1 and len(no) > 1:
-            tstat, p = ttest_ind(yes, no, nan_policy='omit')
-            st.write(f"T-stat: `{tstat:.3f}` | P-value: `{p:.4f}`")
-            st.write("Significant" if p < 0.05 else "Not significant")
+    
+        yes_wetland = merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'].dropna()
+        no_wetland  = merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'].dropna()
+    
+        if len(yes_wetland) > 1 and len(no_wetland) > 1:
+            tstat_wetland, p_wetland = ttest_ind(yes_wetland, no_wetland, nan_policy='omit')
+            st.write(f"T-stat: `{tstat_wetland:.3f}` | P-value: `{p_wetland:.4f}`")
+            st.write("Significant" if p_wetland < 0.05 else "Not significant")
         else:
             st.warning("Not enough data for Wetland t-test")
-
-        plt.figure(figsize=(7,4))
-        sns.kdeplot(no, label="No", fill=True, alpha=0.6)
-        sns.kdeplot(yes, label="Yes", fill=True, alpha=0.6)
+    
+        fig2 = plt.figure(figsize=(7,4))
+        sns.kdeplot(no_wetland, label="No", fill=True, alpha=0.6)
+        sns.kdeplot(yes_wetland, label="Yes", fill=True, alpha=0.6)
         plt.title("Wetland: Years Lived by WTP")
         plt.xlabel("Years Lived Near Wetland")
         plt.legend()
-        st.pyplot(plt.gcf())
-        plt.close()
+        st.pyplot(fig2)
+        plt.close(fig2)
+    
     st.markdown("""
     **Interpretation:**  
     Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
@@ -7510,6 +7516,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
