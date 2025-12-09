@@ -2859,18 +2859,17 @@ with st.expander("🎓 Respondent Education Levels (%)", expanded=False):
     """)
 # #**(NEXT)**
 # 
-
-    st.header("🧪 Hypothesis Testing & Regression Analysis")
+st.header("🧪 Hypothesis Testing & Regression Analysis")
     
     # ===============================
     # Tabs for organization
     # ===============================
-    tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-        "T-Test H1", 
-        "Regression H2", 
-        "Chi-Square WTP", 
-        "Visualizations"
-    ])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "T-Test H1", 
+    "Regression H2", 
+    "Chi-Square WTP", 
+    "Visualizations"
+])
 
 # -------------------------------
 # Tab 1: T-Test (H1)
