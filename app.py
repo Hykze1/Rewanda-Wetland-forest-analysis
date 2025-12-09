@@ -3405,15 +3405,10 @@ with tab1:
 with tab2:
     st.subheader("🚰 Water Sources Used")
 
-    with st.expander("📘 Interpretation"):
-        st.markdown("""
-        This stacked bar chart displays **percentages of households** using various water sources 
-        across wetland case studies.
-        """)
-
     with st.expander("📊 Show Chart"):
         # ---------- YOUR EXACT CODE ----------
         wetland_df1 = merged_df[merged_df['eco_type'] == 'wetland'].copy()
+    
         water_cols = [
             'water_domestic_source_springs',
             'water_domestic_source_well',
@@ -3421,21 +3416,50 @@ with tab2:
             'water_domestic_source_other',
             'water_domestic_source_wetland'
         ]
+    
+        # FIXED strip() → str.strip()
         for col in water_cols:
             wetland_df1[col] = wetland_df1[col].notna() & (wetland_df1[col].astype(str).str.strip() != '')
+    
         water_summary = (wetland_df1.groupby('eco_wetland_name')[water_cols].mean() * 100)
-
+    
         fig, ax = plt.subplots(figsize=(14,8))
         bottom = pd.Series([0]*len(water_summary), index=water_summary.index)
         colors = ['#1b9e77', '#d95f02', '#7570b3', '#e7298a', '#66a61e']
         labels = ['Springs', 'Well', 'Piped', 'Other', 'Wetland']
-
+    
         for col, color, label in zip(water_cols, colors, labels):
-            plt.bar(water_summary.index, water_summary[col], bottom=bottom,
-                    color=color, edgecolor='black', label=label)
+    
+            # Draw stacked bar
+            ax.bar(
+                water_summary.index,
+                water_summary[col],
+                bottom=bottom,
+                color=color,
+                edgecolor='black',
+                label=label
+            )
+    
+            # ADD LABELS: Show values on the bar
+            for i, v in enumerate(water_summary[col]):
+                if v > 0:
+                    ax.text(
+                        i,                      # x
+                        bottom.iloc[i] + v/2,   # y position inside the stacked section
+                        f"{v:.1f}%",            # label text
+                        ha='center', va='center',
+                        fontsize=9, color="white", fontweight="bold"
+                    )
+    
             bottom += water_summary[col]
+    
+        ax.set_title("Water Sources by Wetland (%)", fontsize=16)
+        ax.set_ylabel("Percentage (%)")
+        ax.set_xlabel("Wetland Name")
+        ax.legend()
 
         st.pyplot(fig)
+
         st.markdown("""
         **Water Sources Used (Multi-Source Overlap):**  
         - **96–99%** rely on **wetlands directly** (main source everywhere).  
@@ -3457,8 +3481,8 @@ with tab3:
 
     with st.expander("📘 Explanation"):
         st.markdown("""
-        This test checks whether **gender distribution differs** between respondents interviewed 
-        in forests vs wetlands.
+        This test checks whether **gender distribution differs** between respondents 
+        interviewed in forests vs wetlands.
         """)
 
     with st.expander("📋 See Outputs"):
@@ -3466,19 +3490,58 @@ with tab3:
         col1 = 'resp_gender'
         col2 = 'eco_type'
         test_df = merged_df[[col1, col2]].dropna()
+    
         contingency_table = pd.crosstab(test_df[col1], test_df[col2])
+    
         st.markdown("### **Contingency Table**")
         st.dataframe(contingency_table)
-
+    
         chi2, p_value, dof, expected = chi2_contingency(contingency_table)
         st.write(f"**Chi-square (X²):** {chi2:.3f}")
         st.write(f"**p-value:** {p_value:.5f}")
         st.write(f"**Degrees of freedom:** {dof}")
-
+    
         expected_df = pd.DataFrame(expected, index=contingency_table.index, columns=contingency_table.columns)
         st.markdown("### **Expected Frequencies**")
         st.dataframe(expected_df)
-
+    
+        # ------------- ADDED VISUALIZATION (Stacked Bar) -------------
+        st.markdown("### 📊 **Gender Distribution Across Ecosystems**")
+    
+        fig, ax = plt.subplots(figsize=(10,6))
+    
+        # Percent distribution for visualization
+        percent_table = contingency_table.div(contingency_table.sum(axis=0), axis=1) * 100
+    
+        bottom = np.zeros(len(percent_table.columns))
+    
+        for gender in percent_table.index:
+            ax.bar(
+                percent_table.columns,
+                percent_table.loc[gender],
+                bottom=bottom,
+                label=gender,
+                edgecolor='black'
+            )
+    
+            # Add % labels
+            for i, v in enumerate(percent_table.loc[gender]):
+                if v > 0:
+                    ax.text(
+                        i,
+                        bottom[i] + v/2,
+                        f"{v:.1f}%",
+                        ha='center', va='center',
+                        fontsize=9, color="white", fontweight="bold"
+                    )
+    
+            bottom += percent_table.loc[gender]
+    
+        ax.set_ylabel("Percentage (%)")
+        ax.set_title("Gender Composition in Forest vs Wetland Respondents")
+        ax.legend(title="Gender")
+    
+        st.pyplot(fig)
 
 
 with tab4:
@@ -3655,20 +3718,60 @@ with tab5:
         st.pyplot(fig)
 
     with st.expander("🛡 Protected vs Unprotected Wetlands"):
-        merged_df['wetland_status_clean'] = merged_df['eco_protected_area_status'].str.lower().map({
-            'protected area': 'Protected',
-            'unprotected ecosystem': 'Unprotected',
-            'yes': 'Protected',
-            'no': 'Unprotected'
-        })
-        wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
-        status_counts = wetland_df2['wetland_status_clean'].value_counts().reset_index()
-        status_counts.columns = ['Wetland Status', 'Count']
 
+        # Clean the status column safely
+        merged_df['wetland_status_clean'] = (
+            merged_df['eco_protected_area_status']
+            .astype(str)
+            .str.lower()
+            .map({
+                'protected area': 'Protected',
+                'unprotected ecosystem': 'Unprotected',
+                'yes': 'Protected',
+                'no': 'Unprotected'
+            })
+        )
+    
+        # Filter only wetlands
+        wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
+    
+        # Count status values
+        status_counts = (
+            wetland_df2['wetland_status_clean']
+            .value_counts(dropna=False)
+            .reset_index()
+        )
+        status_counts.columns = ['Wetland Status', 'Count']
+    
+        # Plot
         fig2, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(data=status_counts, x='Wetland Status', y='Count',
-                    palette="Set2", edgecolor='black')
+        sns.barplot(
+            data=status_counts,
+            x='Wetland Status',
+            y='Count',
+            palette="Set2",
+            edgecolor='black',
+            ax=ax
+        )
+    
+        # Add count values on bars
+        for i, row in status_counts.iterrows():
+            ax.text(
+                i,
+                row['Count'] + (row['Count'] * 0.02),
+                str(row['Count']),
+                ha='center',
+                va='bottom',
+                fontsize=12,
+                fontweight='bold'
+            )
+    
+        ax.set_title("Protected vs Unprotected Wetlands", fontsize=14)
+        ax.set_ylabel("Number of Wetlands")
+        ax.set_xlabel("Wetland Status")
+    
         st.pyplot(fig2)
+
 
 # --- Data ---
 
@@ -7515,6 +7618,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
