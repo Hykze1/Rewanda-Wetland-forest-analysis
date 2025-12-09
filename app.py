@@ -2889,7 +2889,6 @@ with tab1:
     and distributions are visualized using **KDE plots**.
     """)
 
-
     # Wetland t-test
     tstat_wetland, p_wetland = ttest_ind(
         merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
@@ -2900,8 +2899,14 @@ with tab1:
 
     # Forest KDE
     fig, ax = plt.subplots(figsize=(10,5))
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True, ax=ax)
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True, ax=ax)
+    sns.kdeplot(
+        merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], 
+        label="WTP=No", fill=True, ax=ax
+    )
+    sns.kdeplot(
+        merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], 
+        label="WTP=Yes", fill=True, ax=ax
+    )
     ax.set_title("Forest: Years Lived Distribution by WTP")
     ax.set_xlabel("Years Lived Near Forest")
     ax.set_ylabel("Density")
@@ -2910,14 +2915,20 @@ with tab1:
 
     # Wetland KDE
     fig2, ax2 = plt.subplots(figsize=(10,5))
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True, ax=ax2)
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True, ax=ax2)
+    sns.kdeplot(
+        merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], 
+        label="WTP=No", fill=True, ax=ax2
+    )
+    sns.kdeplot(
+        merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], 
+        label="WTP=Yes", fill=True, ax=ax2
+    )
     ax2.set_title("Wetland: Years Lived Distribution by WTP")
     ax2.set_xlabel("Years Lived Near Wetland")
     ax2.set_ylabel("Density")
     ax2.legend()
     st.pyplot(fig2)
-    
+
     st.markdown("""
     **Interpretation:**  
     T-statistic = 1.35  
@@ -7698,6 +7709,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
