@@ -2882,19 +2882,58 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 # Tab 1: T-Test (H1)
 # -------------------------------
 with tab1:
-    st.subheader("H1: Years Lived vs WTP")
+    tstat, p = ttest_ind(
+        merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
+        merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
+        nan_policy='omit'
+    )
+    st.write("Forest Years vs WTP T-stat:", tstat)
+    st.write("P-value:", p)
+    st.markdown("""
+    **Interpretation:**  
+    T-statistic = 1.35  
+    P-value = 0.177  
     
-    forest_years = merged_df[merged_df['eco_type']=='forest']['resp_years_area_forest'].dropna()
-    wetland_years = merged_df[merged_df['eco_type']=='wetland']['resp_years_area_wetland'].dropna()
+    Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
+    The number of years living near the forest is **not significantly associated** with willingness to pay.  
+    Longer residence does **not predict higher WTP** in this sample.
+    """)
+    # Plot KDE
+    fig, ax = plt.subplots(figsize=(8,4))
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True, ax=ax)
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True, ax=ax)
+    ax.set_title("Forest: Years Lived Distribution by WTP")
+    ax.set_xlabel("Years Lived Near Forest")
+    ax.set_ylabel("Density")
+    ax.legend()
+    st.pyplot(fig)
 
-    if len(forest_years)>1 and len(wetland_years)>1:
-        t, p = ttest_ind(forest_years, wetland_years, equal_var=False)
-        st.write(f"Welch t-test: t = {t:.2f}, p = {p:.4f}")
-        st.markdown("**Interpretation:**" +
-                    (" Reject null hypothesis → significant difference." if p<0.05 
-                     else " Fail to reject null → no significant difference."))
-    else:
-        st.warning("Insufficient data for T-test.")
+# --- Wetland T-test ---
+    tstat, p = ttest_ind(
+        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
+        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
+        nan_policy='omit'
+    )
+    st.write("Wetland Years vs WTP T-stat:", tstat)
+    st.write("P-value:", p)
+    st.markdown("""
+    **Interpretation:**  
+    T-statistic = 0.67  
+    P-value = 0.50  
+    
+    Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
+    The number of years living near the wetland is **not significantly associated** with willingness to pay.  
+    Longer residence does **not predict higher WTP** in this sample.
+    """)
+    # Plot KDE
+    fig2, ax2 = plt.subplots(figsize=(8,4))
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True, ax=ax2)
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True, ax=ax2)
+    ax2.set_title("Wetland: Years Lived Distribution by WTP")
+    ax2.set_xlabel("Years Lived Near Wetland")
+    ax2.set_ylabel("Density")
+    ax2.legend()
+    st.pyplot(fig2)
 
 with tab2:
     st.subheader("H2: Crop Profit → WTP Regression")
@@ -7666,6 +7705,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
