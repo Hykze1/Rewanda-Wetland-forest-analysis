@@ -3422,7 +3422,7 @@ with tab2:
             'water_domestic_source_wetland'
         ]
         for col in water_cols:
-            wetland_df1[col] = wetland_df1[col].notna() & (wetland_df1[col].astype(str).strip() != '')
+            wetland_df1[col] = wetland_df1[col].notna() & (wetland_df1[col].astype(str).str.strip() != '')
         water_summary = (wetland_df1.groupby('eco_wetland_name')[water_cols].mean() * 100)
 
         fig, ax = plt.subplots(figsize=(14,8))
@@ -7515,6 +7515,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
