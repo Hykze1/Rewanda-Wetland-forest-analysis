@@ -3881,844 +3881,538 @@ with tab6:   # ← or any tab you want
         """)
 
 
-
-# #**Name of the wetlands included in the case studies and corresponding households**
-
-
-wetland_summary1 = (
-    merged_df.groupby('eco_wetland_name')['_index']
-    .nunique()
-    .reset_index(name='number_of_households')
-)
-
-wetland_summary1
-
-
-# ---------------------------------------------
-# Prepare Data
-# ---------------------------------------------
-wetland_summary1 = (
-    merged_df.groupby('eco_wetland_name')['_index']
-    .nunique()
-    .reset_index(name='number_of_households')
-)
-
-labels = wetland_summary1['eco_wetland_name']
-sizes = wetland_summary1['number_of_households']
-
-# Create explode so pie slices "can be removed"
-explode = [0.05] * len(sizes)   # all slices slightly detached
-
-# ---------------------------------------------
-# Fantastic Pie Chart
-# ---------------------------------------------
-plt.figure(figsize=(12, 8))
-
-plt.pie(
-    sizes,
-    labels=labels,
-    autopct='%1.1f%%',
-    startangle=140,
-    explode=explode,
-    shadow=True,
-    pctdistance=0.8,
-    labeldistance=1.1,
-)
-
-plt.title(
-    "Distribution of Households Across Wetlands",
-    fontsize=16,
-    fontweight='bold'
-)
-
-plt.legend(
-    labels,
-    title="Wetlands",
-    bbox_to_anchor=(1.2, 0.8),
-    frameon=True
-)
-
-plt.tight_layout()
-plt.show()
-
-
-# #**Protected vs Unprotected Wetlands**
-
-merged_df['wetland_status_clean'] = merged_df['eco_protected_area_status'].str.lower().map({
-    'protected area': 'Protected',
-    'unprotected ecosystem': 'Unprotected',
-    'yes': 'Protected',
-    'no': 'Unprotected'
-})
-
-
-
-wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
-
-# Count occurrences of each wetland status
-status_counts = wetland_df2['wetland_status_clean'].value_counts().reset_index()
-status_counts.columns = ['Wetland Status', 'Count']
-
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-
-plt.figure(figsize=(10, 6))
-sns.set_style("whitegrid")
-
-# Custom color palette (each bar gets a different color)
-colors = sns.color_palette("Set2", n_colors=len(status_counts))
-
-ax = sns.barplot(
-    data=status_counts,
-    x='Wetland Status',
-    y='Count',
-    palette=colors,        # Each bar has a different color
-    edgecolor='black',
-    linewidth=1.5,
-)
-
-# Add labels on top of bars
-for i, v in enumerate(status_counts['Count']):
-    plt.text(
-        i,
-        v + (max(status_counts['Count']) * 0.02),
-        str(v),
-        ha='center',
-        fontsize=13,
-        fontweight='bold'
-    )
-
-# Titles & labels
-plt.title("Protected vs Unprotected Wetlands", fontsize=16, weight='bold')
-plt.xlabel("Wetland Status", fontsize=14)
-plt.ylabel("Number of Households", fontsize=14)
-
-plt.tight_layout()
-plt.show()
-
-
-# In[357]:
-
-
-merged_df['resp_gender'].value_counts()
-
-
 # #**Gender of the respondent**
+st.markdown("## 🌿 Wetland Respondent Characteristics Dashboard")
+st.markdown("""
+This section summarizes key demographic and awareness insights 
+for respondents living near **wetlands**.  
+Each category below contains our EXACT analysis and charts.
+""")
 
-# In[358]:
+tab1, tab2, tab3 = st.tabs(["👥 Gender", "📍 Province", "💡 Awareness of Wetland Benefits"])
+
+with tab1:
+
+    with st.expander("🔎 **Gender of the respondent**", expanded=True):
+
+        st.markdown("### 👥 Gender of the Respondent")
+        st.markdown("This analysis shows the gender distribution of respondents living near wetlands.")
+
+        # ==== YOUR EXACT CODE (NOT CHANGED) ====
+        wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
+
+        status_counts = wetland_df2['resp_gender'].value_counts().reset_index()
+        status_counts.columns = ['Wetland Status', 'Count']
+        
+        plt.figure(figsize=(10, 6))
+        sns.set_style("whitegrid")
+
+        colors = sns.color_palette("Set2", n_colors=len(status_counts))
+
+        ax = sns.barplot(
+            data=status_counts,
+            x='Wetland Status',
+            y='Count',
+            palette=colors,
+            edgecolor='black',
+            linewidth=1.5,
+        )
+
+        for i, v in enumerate(status_counts['Count']):
+            plt.text(
+                i,
+                v + (max(status_counts['Count']) * 0.02),
+                str(v),
+                ha='center',
+                fontsize=13,
+                fontweight='bold'
+            )
+
+        plt.title("Gender of the respondent", fontsize=16, weight='bold')
+        plt.xlabel("Wetland Status", fontsize=14)
+        plt.ylabel("Number of Gender", fontsize=14)
+
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
+        plt.close()
+
+with tab2:
+
+    with st.expander("🌍 **Province Where the Respondent Resides**", expanded=True):
+
+        st.markdown("### 📍 Province Distribution")
+        st.markdown("This shows how respondents across wetlands are distributed by province.")
+
+        # ==== YOUR EXACT CODE (NOT CHANGED) ====
+        wetland_df = merged_df[merged_df['eco_type'] == 'wetland']
+
+        province_counts = wetland_df['addr_province'].value_counts().reset_index()
+        province_counts.columns = ['Province', 'Count']
+
+        plt.figure(figsize=(12, 6))
+        sns.set_style("whitegrid")
+
+        colors = sns.color_palette("Set3", n_colors=len(province_counts))
+
+        ax = sns.barplot(
+            data=province_counts,
+            x='Province',
+            y='Count',
+            palette=colors,
+            edgecolor='black',
+            linewidth=1.5
+        )
+
+        for i, v in enumerate(province_counts['Count']):
+            plt.text(
+                i,
+                v + (max(province_counts['Count']) * 0.02),
+                str(v),
+                ha='center',
+                fontsize=12,
+                fontweight='bold'
+            )
+
+        plt.title("Number of Respondents by Province", fontsize=16, weight='bold')
+        plt.xlabel("Province", fontsize=14)
+        plt.ylabel("Number of Respondents", fontsize=14)
+        plt.xticks(rotation=45)
+
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
+        plt.close()
 
 
-wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
+with tab3:
 
-# Count occurrences of each wetland status
-status_counts = wetland_df2['resp_gender'].value_counts().reset_index()
-status_counts.columns = ['Wetland Status', 'Count']
+    with st.expander("💡 **Awareness of Wetland Benefits**", expanded=True):
 
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-import matplotlib.pyplot as plt
-import seaborn as sns
+        st.markdown("### 💡 Awareness of Wetland Benefits")
+        st.markdown("This chart shows how aware respondents are about wetland benefits.")
 
-plt.figure(figsize=(10, 6))
-sns.set_style("whitegrid")
+        # ==== YOUR EXACT CODE (NOT CHANGED) ====
+        wetland_df3 = merged_df[merged_df['eco_type'] == 'wetland']
 
-# Custom color palette (each bar gets a different color)
-colors = sns.color_palette("Set2", n_colors=len(status_counts))
+        awareness_counts = wetland_df3['wetland_important_check'].value_counts().reset_index()
+        awareness_counts.columns = ['Awareness', 'Count']
 
-ax = sns.barplot(
-    data=status_counts,
-    x='Wetland Status',
-    y='Count',
-    palette=colors,        # Each bar has a different color
-    edgecolor='black',
-    linewidth=1.5,
+        awareness_counts['Awareness'] = awareness_counts['Awareness'].str.strip().map({
+            'The wetland is so beneficial': 'Beneficial',
+            'The wetland is just there but not important': 'Not Important'
+        })
+
+        plt.figure(figsize=(8, 5))
+        sns.set_style("whitegrid")
+
+        colors = sns.color_palette("Set2", n_colors=len(awareness_counts))
+
+        ax = sns.barplot(
+            data=awareness_counts,
+            x='Awareness',
+            y='Count',
+            palette=colors,
+            edgecolor='black',
+            linewidth=1.5
+        )
+
+        for i, v in enumerate(awareness_counts['Count']):
+            plt.text(
+                i,
+                v + (max(awareness_counts['Count']) * 0.02),
+                str(v),
+                ha='center',
+                fontsize=12,
+                fontweight='bold'
+            )
+
+        plt.title("Awareness of Wetland Benefits", fontsize=16, weight='bold')
+        plt.xlabel("Awareness", fontsize=14)
+        plt.ylabel("Number of Respondents", fontsize=14)
+
+        plt.tight_layout()
+        st.pyplot(plt.gcf())
+        plt.close()
+
+st.markdown("# 🌿 Wetland Case Studies & Ecosystem Service Valuation")
+st.markdown(
+    "This dashboard shows **wetland case studies**, economic valuation (provisioning, regulating, cultural), "
+    "and household-level benefits using survey and InVEST data."
 )
 
-# Add labels on top of bars
-for i, v in enumerate(status_counts['Count']):
-    plt.text(
-        i,
-        v + (max(status_counts['Count']) * 0.02),
-        str(v),
-        ha='center',
-        fontsize=13,
-        fontweight='bold'
-    )
+tab1, tab2, tab3, tab4 = st.tabs([
+    "📚 Case Studies", 
+    "💰 Income & Water", 
+    "🌊 Water Regulation & Carbon", 
+    "📝 Final TEV Results"
+])
 
-# Titles & labels
-plt.title("Gender of the respondent", fontsize=16, weight='bold')
-plt.xlabel("Wetland Status", fontsize=14)
-plt.ylabel("Number of Gender", fontsize=14)
+with tab1:
+    with st.expander("✅ Wetland Case Studies", expanded=True):
+        st.markdown(
+            "Case studies included in the survey:\n\n"
+            "- Rugezi (Case 9)\n"
+            "- Bugarama (Case 6)\n"
+            "- Nyabarongo (Case 7)\n"
+            "- Muvumba (Case 8)\n"
+        )
 
-plt.tight_layout()
-plt.show()
+        df_rugezi    = wetland_df[wetland_df["eco_case_study_no"] == 9].copy()
+        df_Bugarama  = wetland_df[wetland_df["eco_case_study_no"] == 6].copy()
+        df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
+        df_Muvumba   = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
 
+        st.write("✅ DataFrames for each case study loaded successfully.")
 
-# #**Respondent's education level**
+with tab2:
+    with st.expander("💰 Rugezi Income & Domestic Water", expanded=True):
+        st.subheader("2.1 Income Generation (Crafts, Guiding)")
 
-# In[359]:
+        def rugezi_income_value(df8):
+            df8 = merged_df.copy()
+            df8["craft_income_annual"] = df8["mats_income_3_months_RWF"].fillna(0) * 4
+            df8["guiding_income"] = df8["value_fish_income_per_freq_RWF"].fillna(0)
+            total_income = df8["craft_income_annual"].sum() + df8["guiding_income"].sum()
+            return total_income
 
+        rugezi_income_total = rugezi_income_value(df_rugezi)
+        st.write(f"Rugezi – Income Generation (Annual): **{rugezi_income_total:,.0f} RWF**")
 
-# Normalize text and map education levels
-merged_df['wetland_education_clean'] = merged_df['resp_education'].str.lower().str.strip().map({
-    'primary school': 'Primary',
-    'secondary school': 'Secondary',
-    'university': 'University',
-    'no formal education': 'Uneducated'
-})
+        st.subheader("2.2 Domestic Water (Replacement Cost Method)")
 
-# Fill unmapped values
-merged_df['wetland_education_clean'] = merged_df['wetland_education_clean'].fillna('Other')
+        def rugezi_domestic_water_value(df9, cost_per_liter=20):
+            df9 = merged_df.copy()
+            df9["water_L_per_event"] = df9["water_domestic_quantity"] * df9["water_domestic_unit_to_L"]
+            df9["annual_water_L"] = df9["water_L_per_event"] * df9["water_domestic_freq_year_equiv"]
+            total_annual_water = df9["annual_water_L"].sum()
+            total_value = total_annual_water * cost_per_liter
+            return total_value
 
+        rugezi_water_total = rugezi_domestic_water_value(df_rugezi)
+        st.write(f"Rugezi – Domestic Water Value: **{rugezi_water_total:,.0f} RWF**")
 
-# In[360]:
+# -------------------------------
+# TAB 3: Water Regulation & Carbon
+# -------------------------------
+with tab3:
+    with st.expander("🌊 Water Regulation & Carbon Storage", expanded=True):
+        st.subheader("InVEST Annual Water Yield – Rugezi")
 
+        raster_path = "data/rasters/wyield_Rugezi.tif"
+        with rasterio.open(raster_path) as src:
+            wy_mm = src.read(1)
+            pixel_area_m2 = src.res[0] * src.res[1]
+            nodata = src.nodata
 
-wetland_df2 = merged_df[merged_df['eco_type'] == 'wetland']
+        valid_pixels = wy_mm[wy_mm != nodata]
+        volume_m3 = np.sum(valid_pixels) * pixel_area_m2 / 1000
+        cost_per_m3 = 550
+        value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
 
-# Count occurrences of each wetland status
-status_counts = wetland_df2['wetland_education_clean'].value_counts().reset_index()
-status_counts.columns = ['Wetland Status', 'Count']
+        st.write(f"**WATER REGULATION VALUE:** {value_billion:.2f} billion RWF/year")
+        st.write(f"**Total Annual Water Yield:** {volume_m3:,.0f} m³/year")
 
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-import matplotlib.pyplot as plt
-import seaborn as sns
+        st.subheader("Carbon Storage – Rugezi")
+        raster_path = "data/rasters/c_storage_bas_Rugezi.tif"
+        with rasterio.open(raster_path) as src:
+            carbon_tonnes = src.read(1)
+            nodata = src.nodata
+            pixel_area_m2 = src.res[0] * src.res[1]
+            total_carbon_tonnes = np.sum(carbon_tonnes[carbon_tonnes != nodata])
 
-plt.figure(figsize=(10, 6))
-sns.set_style("whitegrid")
+        price_per_tonne = 38_000
+        value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
+        st.write(f"**Carbon Storage Value:** {value_billion:.2f} billion RWF")
+        st.write(f"**Total Carbon Stock:** {total_carbon_tonnes:,.0f} tonnes")
 
-# Custom color palette (each bar gets a different color)
-colors = sns.color_palette("Set2", n_colors=len(status_counts))
+        st.subheader("Soil Erosion (Sediment Export) – Rugezi")
+        raster_path = "data/rasters/sed_export_Rugezi.tif"
+        with rasterio.open(raster_path) as src:
+            sed_export = src.read(1)
+            nodata = src.nodata
+            total_sediment_tonnes = np.sum(sed_export[sed_export != nodata])
 
-ax = sns.barplot(
-    data=status_counts,
-    x='Wetland Status',
-    y='Count',
-    palette=colors,        # Each bar has a different color
-    edgecolor='black',
-    linewidth=1.5,
+        cost_per_tonne = 12_000
+        value_billion = total_sediment_tonnes * cost_per_tonne / 1_000_000_000
+        st.write(f"**Soil Erosion Control Value:** {value_billion:.2f} billion RWF/year")
+        st.write(f"**Total Soil Erosion:** {total_sediment_tonnes:,.0f} tonnes/year")
+
+# -------------------------------
+# TAB 4: Final TEV Results
+# -------------------------------
+with tab4:
+    with st.expander("📝 Final Ecosystem Service Valuation – Rugezi", expanded=True):
+        st.subheader("Final Economic Value per Household")
+
+        df_Rugezi = wetland_df[wetland_df["eco_case_study_no"] == 9].copy()
+
+        total_water_regulation_RWF      = 29_360_000_000
+        total_carbon_stock_RWF          = 17_480_580_000_000
+        total_soil_erosion_control_RWF  = 15_990_000_000
+        income_generation_RWF           = 3_268_128
+        domestic_water_RWF              = 36_330_800
+        annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
+
+        n_hh = len(df_Rugezi)
+
+        df_Rugezi['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
+        df_Rugezi['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
+        df_Rugezi['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
+
+        df_Rugezi['regulating_total_hh_RWF'] = (
+            df_Rugezi['water_regulation_hh_RWF'] +
+            df_Rugezi['carbon_hh_RWF'] +
+            df_Rugezi['soil_erosion_hh_RWF']
+        )
+
+        provisioning_cols = [
+            'income_generation_annual_RWF',
+            'water_domestic_value_year_RWF',
+            'value_fish_per_year',
+            'value_mushroom_annual_RWF',
+            'value_charcoal_annual_RWF',
+            'value_honey_cost_RWF',
+            'value_mats_annual_RWF',
+            'wtp_wetland_amount_RWF'
+        ]
+
+        df_Rugezi['income_generation_annual_RWF'] = income_generation_RWF
+        df_Rugezi['water_domestic_value_year_RWF'] = domestic_water_RWF
+
+        existing_cols = [col for col in provisioning_cols if col in df_Rugezi.columns]
+        df_Rugezi['provisioning_cultural_RWF'] = (
+            df_Rugezi[existing_cols].fillna(0).sum(axis=1)
+        )
+
+        df_Rugezi['TEV_per_hh_RWF'] = (
+            df_Rugezi['provisioning_cultural_RWF'] +
+            df_Rugezi['regulating_total_hh_RWF']
+        )
+
+        st.write("### ✅ RUGEZI WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
+        st.write("-"*90)
+        st.write(f"Households surveyed: {len(df_Rugezi):,}")
+        st.write(f"Water regulation: {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Carbon storage: {total_carbon_stock_RWF/1e9:,.0f} billion RWF")
+        st.write(f"Annual carbon benefit (2% of stock): {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Soil erosion control: {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Total annual regulating benefit: {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
+        st.write(f"Average provisioning + cultural (survey): {df_Rugezi['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average regulating benefit: {df_Rugezi['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average TEV per household: {df_Rugezi['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Median TEV per household: {df_Rugezi['TEV_per_hh_RWF'].median():,.0f} RWF/year")
+        st.write(f"Total TEV for all sampled households: {df_Rugezi['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
+        st.write("-"*90)
+
+    st.markdown('''
+    # Rugezi Wetland – Final Ecosystem Service Valuation (Table)
+
+    | Indicator                             | Value                   |
+    | ------------------------------------- | ----------------------- |
+    | Households surveyed                   | 421                     |
+    | Water regulation (InVEST)             | 29.36 billion RWF/year  |
+    | Carbon storage (stock)                | 17,480.58 billion RWF   |
+    | Annual carbon benefit (2%)            | 349.61 billion RWF/year |
+    | Soil erosion control (InVEST)         | 15.99 billion RWF/year  |
+    | Total annual regulating benefit       | 394.96 billion RWF/year |
+    | Avg. provisioning + cultural (survey) | 39,599,222 RWF/hh/year  |
+    | Avg. regulating benefit (InVEST)      | 938,151,069 RWF/hh/year |
+    | Average TEV per household             | 977,750,291 RWF/year    |
+    | Median TEV per household              | 977,749,997 RWF/year    |
+    | Total TEV for sampled households      | 411.63 billion RWF/year |
+    
+    # Very Brief Explanation
+    
+    Rugezi Wetland generates very high regulating value because of large carbon storage and strong water regulation. Households receive significant annual benefits when both InVEST regulating services and survey-based provisioning services are combined. The total economic value shows the wetland is a major natural asset supporting both ecosystem functions and community wellbeing.
+
+    ''')
+
+st.markdown("# 🌾 Bugarama Wetland Valuation")
+st.markdown(
+    "This section presents the **Bugarama wetland case study**, including provisioning, regulating, and total economic valuation (TEV)."
 )
 
-# Add labels on top of bars
-for i, v in enumerate(status_counts['Count']):
-    plt.text(
-        i,
-        v + (max(status_counts['Count']) * 0.02),
-        str(v),
-        ha='center',
-        fontsize=13,
-        fontweight='bold'
-    )
-
-# Titles & labels
-plt.title("Respondent's education level", fontsize=16, weight='bold')
-plt.xlabel("Wetland Status", fontsize=14)
-plt.ylabel("Number of Respondent", fontsize=14)
-
-plt.tight_layout()
-plt.show()
-
-
-# #**Province where the respondent is residing**
-
-# In[361]:
-
-
-wetland_df = merged_df[merged_df['eco_type'] == 'wetland']
-
-# Count respondents per province
-province_counts = wetland_df['addr_province'].value_counts().reset_index()
-province_counts.columns = ['Province', 'Count']
-
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-plt.figure(figsize=(12, 6))
-sns.set_style("whitegrid")
-
-# Use a different color for each bar
-colors = sns.color_palette("Set3", n_colors=len(province_counts))
-
-ax = sns.barplot(
-    data=province_counts,
-    x='Province',
-    y='Count',
-    palette=colors,
-    edgecolor='black',
-    linewidth=1.5
-)
-
-# Add labels on top of bars
-for i, v in enumerate(province_counts['Count']):
-    plt.text(i, v + (max(province_counts['Count']) * 0.02), str(v),
-             ha='center', fontsize=12, fontweight='bold')
-
-# Titles & labels
-plt.title("Number of Respondents by Province", fontsize=16, weight='bold')
-plt.xlabel("Province", fontsize=14)
-plt.ylabel("Number of Respondents", fontsize=14)
-
-plt.xticks(rotation=45)  # Rotate province names if they overlap
-plt.tight_layout()
-plt.show()
-
-
-# #**Awareness of the benefits of wetlands**
-
-# In[362]:
-
-
-wetland_df3 = merged_df[merged_df['eco_type'] == 'wetland']
-
-# Count awareness of wetland benefits
-awareness_counts = wetland_df3['wetland_important_check'].value_counts().reset_index()
-awareness_counts.columns = ['Awareness', 'Count']
-
-# Clean the Awareness labels (remove extra spaces/tabs)
-awareness_counts['Awareness'] = awareness_counts['Awareness'].str.strip().map({
-    'The wetland is so beneficial': 'Beneficial',
-    'The wetland is just there but not important': 'Not Important'
-})
-
-# ---------------------------------------------
-# 2. Visualization
-# ---------------------------------------------
-plt.figure(figsize=(8, 5))
-sns.set_style("whitegrid")
-
-colors = sns.color_palette("Set2", n_colors=len(awareness_counts))
-
-ax = sns.barplot(
-    data=awareness_counts,
-    x='Awareness',
-    y='Count',
-    palette=colors,
-    edgecolor='black',
-    linewidth=1.5
-)
-
-# Add labels on top
-for i, v in enumerate(awareness_counts['Count']):
-    plt.text(i, v + (max(awareness_counts['Count']) * 0.02), str(v),
-             ha='center', fontsize=12, fontweight='bold')
-
-plt.title("Awareness of Wetland Benefits", fontsize=16, weight='bold')
-plt.xlabel("Awareness", fontsize=14)
-plt.ylabel("Number of Respondents", fontsize=14)
-
-plt.tight_layout()
-plt.show()
-
-
-# #✅ 1. WETLAND CASE STUDIES
-
-# In[363]:
-
-
-df_rugezi    = wetland_df[wetland_df["eco_case_study_no"] == 9].copy()
-df_Bugarama  = wetland_df[wetland_df["eco_case_study_no"] == 6].copy()
-df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
-df_Muvumba   = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
-
-
-# #✅ 2. RUHGEZI VALUATION MODELS (Using Survey Data)
-# (Income generation, water benefits, tourism, carbon)
-
-# ##2.1 Income Generation (Crafts, Guiding)
-
-# In[364]:
-
-
-# --- Income Generation (Crafts, Guiding)
-def rugezi_income_value(df8):
-    df8 = merged_df.copy()
-
-    # annualize crafts income (3 months → full year)
-    df8["craft_income_annual"] = df8["mats_income_3_months_RWF"].fillna(0) * 4
-
-    # guiding / tourism income if available
-    df8["guiding_income"] = df8["value_fish_income_per_freq_RWF"].fillna(0)
-
-    total_income = df8["craft_income_annual"].sum() + df8["guiding_income"].sum()
-
-    return total_income
-
-rugezi_income_total = rugezi_income_value(df_rugezi)
-print("Rugezi – Income Generation (Annual): ", rugezi_income_total)
-
-
-# ## 2.2 Domestic Water (Replacement Cost Method)
-
-# In[365]:
-
-
-# --- Domestic Water Value (Replacement Cost Method)
-def rugezi_domestic_water_value(df9, cost_per_liter=20):
-    df9 = merged_df.copy()
-    df9["water_L_per_event"] = df9["water_domestic_quantity"] * df9["water_domestic_unit_to_L"]
-    df9["annual_water_L"] = df9["water_L_per_event"] * df9["water_domestic_freq_year_equiv"]
-
-    total_annual_water = df9["annual_water_L"].sum()
-    total_value = total_annual_water * cost_per_liter
-
-    return total_value
-
-rugezi_water_total = rugezi_domestic_water_value(df_rugezi)
-print("Rugezi – Domestic Water Value: ", rugezi_water_total)
-
-
-# In[366]:
-
-
-# # InVEST Annual Water Yield of Rugezi
-
-# In[367]:
-
-
-import numpy as np
-
-raster_path = "data/rasters/wyield_Rugezi.tif"
-
-
-with rasterio.open(raster_path) as src:
-    wy_mm = src.read(1)
-    pixel_area_m2 = src.res[0] * src.res[1]
-    nodata = src.nodata
-
-valid_pixels = wy_mm[wy_mm != nodata]
-
-volume_m3 = np.sum(valid_pixels) * pixel_area_m2 / 1000
-cost_per_m3 = 550
-value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
-
-print(f"WATER REGULATION VALUE = {value_billion:.2f} billion RWF/year")
-print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
-
-
-# ## RUGEZI CARBON STORAGE VALUE
-
-# In[368]:
-
-
-raster_path = "data/rasters/c_storage_bas_Rugezi.tif"
-# Load raster
-with rasterio.open(raster_path) as src:
-    carbon_tonnes = src.read(1)     # carbon storage (tonnes per pixel)
-    nodata = src.nodata
-    pixel_area_m2 = src.res[0] * src.res[1]
-
-    # Sum the valid carbon values (tonnes)
-    total_carbon_tonnes = np.sum(carbon_tonnes[carbon_tonnes != nodata])
-
-# Monetization
-price_per_tonne = 38_000  # RWF per tonne (example; adjust if needed)
-value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
-
-print(f"RUGEZI CARBON STORAGE VALUE = {value_billion:.2f} billion RWF")
-print(f"RUGEZI CARBON STORAGE = {total_carbon_tonnes:,.0f} tonnes")
-
-
-# ## Soil Erosion (Sediment Export) for Rugezi
-
-# In[369]:
-
-
-raster_path = "data/rasters/sed_export_Rugezi.tif"
-
-
-# Load raster
-with rasterio.open(raster_path) as src:
-    sed_export = src.read(1)   # Sediment exported (tonnes/year per pixel)
-    nodata = src.nodata
-
-    # Sum all valid sediment export values
-    total_sediment_tonnes = np.sum(sed_export[sed_export != nodata])
-
-# Monetization
-# Cost of sediment damage, removal, or avoided treatment
-# Adjust based on your valuation method
-cost_per_tonne = 12000  # Example: RWF per tonne of sediment
-value_billion = total_sediment_tonnes * cost_per_tonne / 1_000_000_000
-
-print(f"RUGEZI EROSION CONTROL VALUE = {value_billion:.2f} billion RWF/year")
-print(f"Total Soil Erosion = {total_sediment_tonnes:,.0f} tonnes/year")
-
-
-# ##✅ FINAL ECOSYSTEM SERVICE EVALUATION — RUGEZI WETLAND
-
-# In[370]:
-
-
-df_Rugezi = wetland_df[wetland_df["eco_case_study_no"] == 9].copy()
-
-# ===========================================================================
-# REAL InVEST RESULTS – RUGEZI WETLAND (Your outputs)
-# ===========================================================================
-total_water_regulation_RWF      = 29_360_000_000        # Annual Water Yield (billion → RWF)
-total_carbon_stock_RWF          = 17_480_580_000_000    # Carbon stock (billion → RWF)
-total_soil_erosion_control_RWF  = 15_990_000_000        # SDR (billion → RWF)
-
-# Your measured provisioning values
-income_generation_RWF           = 3_268_128             # Annual
-domestic_water_RWF              = 36_330_800            # Annual
-
-# ===========================================================================
-# Annual carbon benefit (conservative 2% of stock)
-# ===========================================================================
-annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
-
-# Number of households in Rugezi dataset
-n_hh = len(df_Rugezi)
-
-# ===========================================================================
-# REGULATING SERVICES PER HOUSEHOLD
-# ===========================================================================
-df_Rugezi['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
-df_Rugezi['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
-df_Rugezi['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
-
-df_Rugezi['regulating_total_hh_RWF'] = (
-    df_Rugezi['water_regulation_hh_RWF'] +
-    df_Rugezi['carbon_hh_RWF'] +
-    df_Rugezi['soil_erosion_hh_RWF']
-)
-
-# ===========================================================================
-# PROVISIONING + CULTURAL SERVICES – real columns from your wetland data
-# ===========================================================================
-provisioning_cols = [
-    'income_generation_annual_RWF',           # if exists
-    'water_domestic_value_year_RWF',
-    'value_fish_per_year',
-    'value_mushroom_annual_RWF',
-    'value_charcoal_annual_RWF',
-    'value_honey_cost_RWF',
-    'value_mats_annual_RWF',
-    'wtp_wetland_amount_RWF'
-]
-
-# Add your two externally calculated values
-df_Rugezi['income_generation_annual_RWF'] = income_generation_RWF
-df_Rugezi['water_domestic_value_year_RWF'] = domestic_water_RWF
-
-# Keep only existing columns
-existing_cols = [col for col in provisioning_cols if col in df_Rugezi.columns]
-
-df_Rugezi['provisioning_cultural_RWF'] = (
-    df_Rugezi[existing_cols].fillna(0).sum(axis=1)
-)
-
-# ===========================================================================
-# FINAL TOTAL ECONOMIC VALUE PER HOUSEHOLD
-# ===========================================================================
-df_Rugezi['TEV_per_hh_RWF'] = (
-    df_Rugezi['provisioning_cultural_RWF'] +
-    df_Rugezi['regulating_total_hh_RWF']
-)
-
-# ===========================================================================
-# FINAL RESULTS – RUGEZI WETLAND
-# ===========================================================================
-print("RUGEZI WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
-print("="*90)
-print(f"Households surveyed (case study 9)         : {len(df_Rugezi):,}")
-print(f"Water regulation (InVEST)                  : {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
-print(f"Carbon storage (InVEST stock)              : {total_carbon_stock_RWF/1e9:,.0f} billion RWF")
-print(f"Annual carbon benefit (2% of stock)        : {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
-print(f"Soil erosion control (InVEST)              : {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
-print(f"Total annual regulating benefit            : {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
-print("-"*90)
-print(f"Average provisioning + cultural (survey)   : {df_Rugezi['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
-print(f"Average regulating benefit (InVEST)        : {df_Rugezi['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
-print(f"AVERAGE TOTAL ECONOMIC VALUE PER HOUSEHOLD : {df_Rugezi['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
-print(f"Median TEV per household                   : {df_Rugezi['TEV_per_hh_RWF'].median():,.0f} RWF/year")
-print(f"Total TEV for all sampled households       : {df_Rugezi['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
-print("="*90)
-
-
-# 
-# 
-# # Rugezi Wetland – Final Ecosystem Service Valuation (Table)
-# 
-# | Indicator                             | Value                   |
-# | ------------------------------------- | ----------------------- |
-# | Households surveyed                   | 421                     |
-# | Water regulation (InVEST)             | 29.36 billion RWF/year  |
-# | Carbon storage (stock)                | 17,480.58 billion RWF   |
-# | Annual carbon benefit (2%)            | 349.61 billion RWF/year |
-# | Soil erosion control (InVEST)         | 15.99 billion RWF/year  |
-# | Total annual regulating benefit       | 394.96 billion RWF/year |
-# | Avg. provisioning + cultural (survey) | 39,599,222 RWF/hh/year  |
-# | Avg. regulating benefit (InVEST)      | 938,151,069 RWF/hh/year |
-# | Average TEV per household             | 977,750,291 RWF/year    |
-# | Median TEV per household              | 977,749,997 RWF/year    |
-# | Total TEV for sampled households      | 411.63 billion RWF/year |
-# 
-# ---
-# 
-# # Very Brief Explanation
-# 
-# Rugezi Wetland generates very high regulating value because of large carbon storage and strong water regulation. Households receive significant annual benefits when both InVEST regulating services and survey-based provisioning services are combined. The total economic value shows the wetland is a major natural asset supporting both ecosystem functions and community wellbeing.
-# 
-# 
-# 
-
-# #✅ 3. BUGARMA WETLAND VALUATION
-
-# ##3.1 Rice Production Value
-
-# In[371]:
-
-
-def bugarama_rice_value(df2):
-    df2 = merged_df.copy()
-    # total rice value directly from survey
-    return df2["crop_value_total_year_RWF"].sum()
-
-bugarama_rice_total = bugarama_rice_value(df_Bugarama)
-print("Bugarama – Rice Value:", bugarama_rice_total)
-
-
-# ##3.2 Income from Agriculture
-
-# In[372]:
-
-
-bugarama_income_total = df_Bugarama["crop_income_stated_calc_deviation_RWF"].sum()
-print("Bugarama – Annual Agriculture Income:", abs(bugarama_income_total))
-
-
-# ##3.3 Irrigation Value
-
-# In[373]:
-
-
-def bugarama_irrigation_value(df2, cost_per_m3=50):
-    df2 = merged_df.copy()
-    # irrigation water used
-    df2["irrigation_L"] = df2["v_irrigation_water_quantity"] * df2["v_irrigation_water_unit_to_L"]
-    df2["annual_irrigation_L"] = df2["irrigation_L"] * df2["v_irrigation_freq_year_equiv"]
-
-    total_L = df2["annual_irrigation_L"].sum()
-    total_value = (total_L / 1000) * cost_per_m3
-
-    return total_value
-
-bugarama_irrigation_total = bugarama_irrigation_value(df_Bugarama)
-print("Bugarama – Irrigation Value:", bugarama_irrigation_total)
-
-
-# ##3.4 Domestic Wate
-
-# In[374]:
-
-
-bugarama_water_total = rugezi_domestic_water_value(df_Bugarama)
-print("Bugarama – Domestic Water Value:", bugarama_water_total)
-
-
-# #Water Yield – Bugarama
-
-# In[375]:
-
-
-raster_path = "data/rasters/wyield_Bugarama.tif"
-with rasterio.open(raster_path) as src:
-    wy_mm = src.read(1)
-    pixel_area_m2 = src.res[0] * src.res[1]
-    nodata = src.nodata
-
-    volume_m3 = np.sum(wy_mm[wy_mm != nodata]) * pixel_area_m2 / 1000
-
-# Rwanda water price assumption (same used earlier)
-cost_per_m3 = 550
-
-value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
-
-print(f"BUGARAMA WETLAND – WATER REGULATION = {value_billion:.2f} billion RWF/year")
-print(f"Total Annual Water Yield = {volume_m3:,.0f} m³/year")
-
-
-# #InVEST carbon raster and compute value for Bugrama
-
-# In[376]:
-
-
-raster_path = "data/rasters/c_storage_bas_Bugrama.tif"
-
-
-with rasterio.open(raster_path) as src:
-    carbon_arr = src.read(1)        # carbon value per pixel (units: tonnes)
-    nodata = src.nodata
-    # If InVEST output is tonnes per pixel already, sum directly.
-    total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
-
-# Monetization
-price_per_tonne = 38000  # RWF per tonne (example; change to your SCC/market price)
-value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
-
-print(f"BUGARAMA CARBON STORAGE = {total_carbon_tonnes:,.0f} tonnes")
-print(f"BUGARAMA CARBON VALUE = {value_billion:.2f} billion RWF")
-
-
-# ##InVEST Erosion and compute value for Bugrama
-
-# In[377]:
-
-
-raster_path = "data/rasters/sed_export_Bugrama.tif"
-
-# Step 2: Load raster
-with rasterio.open(raster_path) as src:
-    sed_export = src.read(1)    # sediment export (tons/pixel/year)
-    nodata = src.nodata
-    pixel_area = src.res[0] * src.res[1]  # m² per pixel
-
-# Step 3: Convert sediment export → erosion control value
-# Economic value per ton of sediment avoided
-# Adjust this price depending on your study assumption
-price_per_ton = 10000  # RWF per ton (example)
-
-# Only valid pixels
-valid = sed_export != nodata
-
-# Total annual sediment avoided (tons/year)
-total_sed_tons = np.sum(sed_export[valid])
-
-# Total economic value
-total_value_RWF = total_sed_tons * price_per_ton
-value_billion = total_value_RWF / 1_000_000_000
-
-print(f"BUGARAMA EROSION CONTROL VALUE = {value_billion:.2f} billion RWF/year")
-print(f"Total Soil Erosion = {total_sed_tons:,.0f} tonnes/year")
-
-
-# #BUGARAMA WETLAND – FINAL ECOSYSTEM SERVICE VALUATION
-
-# In[378]:
-
-
-df_Bugarama = wetland_df[wetland_df["eco_case_study_no"] == 6].copy()
-
-# ===========================================================================
-# REAL InVEST RESULTS – BUGARAMA WETLAND
-# ===========================================================================
-total_water_regulation_RWF      = 60_640_000_000      # Annual Water Yield
-total_carbon_stock_RWF          = 15_991_790_000_000  # Carbon stock
-total_soil_erosion_control_RWF  = 8_570_000_000       # SDR
-
-# Provisioning values (survey + calculations)
-rice_value_RWF           = 130_531_563
-annual_agriculture_RWF   = 8_166_594
-irrigation_value_RWF     = 73_245_482.25
-
-# ===========================================================================
-# Annual carbon benefit (2% of stock)
-# ===========================================================================
-annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
-
-# Number of households in Bugarama dataset
-n_hh = len(df_Bugarama)
-
-# ===========================================================================
-# REGULATING SERVICES PER HOUSEHOLD
-# ===========================================================================
-df_Bugarama['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
-df_Bugarama['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
-df_Bugarama['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
-
-df_Bugarama['regulating_total_hh_RWF'] = (
-    df_Bugarama['water_regulation_hh_RWF'] +
-    df_Bugarama['carbon_hh_RWF'] +
-    df_Bugarama['soil_erosion_hh_RWF']
-)
-
-# ===========================================================================
-# PROVISIONING + CULTURAL SERVICES – real columns from your wetland data
-# ===========================================================================
-provisioning_cols = [
-    'rice_value_RWF',
-    'annual_agriculture_RWF',
-    'irrigation_value_RWF',
-    'value_fish_per_year',
-    'value_mushroom_annual_RWF',
-    'value_charcoal_annual_RWF',
-    'value_honey_cost_RWF',
-    'value_mats_annual_RWF',
-    'wtp_wetland_amount_RWF'
-]
-
-# Add your calculated provisioning values
-df_Bugarama['rice_value_RWF'] = rice_value_RWF
-df_Bugarama['annual_agriculture_RWF'] = annual_agriculture_RWF
-df_Bugarama['irrigation_value_RWF'] = irrigation_value_RWF
-
-# Keep only existing columns
-existing_cols = [col for col in provisioning_cols if col in df_Bugarama.columns]
-
-df_Bugarama['provisioning_cultural_RWF'] = (
-    df_Bugarama[existing_cols].fillna(0).sum(axis=1)
-)
-
-# ===========================================================================
-# FINAL TOTAL ECONOMIC VALUE PER HOUSEHOLD
-# ===========================================================================
-df_Bugarama['TEV_per_hh_RWF'] = (
-    df_Bugarama['provisioning_cultural_RWF'] +
-    df_Bugarama['regulating_total_hh_RWF']
-)
-
-# ===========================================================================
-# FINAL RESULTS – BUGARAMA WETLAND
-# ===========================================================================
-print("BUGARAMA WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
-print("="*90)
-print(f"Households surveyed (case study 6)         : {len(df_Bugarama):,}")
-print(f"Water regulation (InVEST)                  : {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
-print(f"Carbon storage (InVEST stock)              : {total_carbon_stock_RWF/1e9:,.2f} billion RWF")
-print(f"Annual carbon benefit (2% of stock)        : {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
-print(f"Soil erosion control (InVEST)              : {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
-print(f"Total annual regulating benefit            : {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
-print("-"*90)
-print(f"Average provisioning + cultural (survey)   : {df_Bugarama['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
-print(f"Average regulating benefit (InVEST)        : {df_Bugarama['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
-print(f"AVERAGE TOTAL ECONOMIC VALUE PER HOUSEHOLD : {df_Bugarama['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
-print(f"Median TEV per household                   : {df_Bugarama['TEV_per_hh_RWF'].median():,.0f} RWF/year")
-print(f"Total TEV for all sampled households       : {df_Bugarama['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
-print("="*90)
-
-
-# 
-# | **Indicator**                            | **Value**               |
-# | ---------------------------------------- | ----------------------- |
-# | Households surveyed (case study 6)       | 416                     |
-# | Water regulation (InVEST)                | 60.64 billion RWF/year  |
-# | Carbon storage (InVEST stock)            | 15,991.79 billion RWF   |
-# | Annual carbon benefit (2% of stock)      | 319.84 billion RWF/year |
-# | Soil erosion control (InVEST)            | 8.57 billion RWF/year   |
-# | **Total annual regulating benefit**      | 389.05 billion RWF/year |
-# | Average provisioning + cultural (survey) | 211,943,946 RWF/hh/year |
-# | Average regulating benefit (InVEST)      | 935,206,250 RWF/hh/year |
-# | **Average TEV per household**            | 1,147,150,196 RWF/year  |
-# | Median TEV per household                 | 1,147,149,889 RWF/year  |
-# | Total TEV for all sampled households     | 477.21 billion RWF/year |
-# 
-# 
-# 
-# * **Households surveyed:** 416.
-# * **Regulating services:** Water yield contributes 60.64 billion RWF/year, carbon storage provides an annual benefit of 319.84 billion RWF/year (2% of stock), and soil erosion control adds 8.57 billion RWF/year. The **total regulating benefit** sums to 389.05 billion RWF/year.
-# * **Provisioning & cultural services:** Surveyed benefits from rice, agriculture, and irrigation average 211.94 million RWF per household annually.
-# * **Economic value per household:** Combining regulating and provisioning services, the **average TEV per household** is 1.15 billion RWF/year, with a median nearly identical, showing a fairly even distribution among households.
-# * **Total TEV for the wetland:** 477.21 billion RWF/year across all surveyed households.
-# 
-# **Summary:** Bugarama wetland provides substantial regulating and provisioning services, with carbon benefits being the largest contributor to total ecosystem value. Water regulation and soil erosion control also play key roles in maintaining the wetland’s economic importance.
-# 
-# 
-# 
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🌱 Agriculture & Income", 
+    "💧 Water & Irrigation", 
+    "🌍 Carbon & Soil Erosion", 
+    "📝 Final TEV Results"
+])
+
+# -------------------------------
+# TAB 1: Agriculture & Income
+# -------------------------------
+with tab1:
+    with st.expander("3.1 Rice & Agriculture Income", expanded=True):
+        def bugarama_rice_value(df2):
+            df2 = merged_df.copy()
+            return df2["crop_value_total_year_RWF"].sum()
+
+        bugarama_rice_total = bugarama_rice_value(df_Bugarama)
+        st.write(f"**Bugarama – Rice Value:** {bugarama_rice_total:,.0f} RWF")
+
+        bugarama_income_total = df_Bugarama["crop_income_stated_calc_deviation_RWF"].sum()
+        st.write(f"**Bugarama – Annual Agriculture Income:** {abs(bugarama_income_total):,.0f} RWF")
+
+# -------------------------------
+# TAB 2: Water & Irrigation
+# -------------------------------
+with tab2:
+    with st.expander("3.3 Irrigation & Domestic Water", expanded=True):
+        def bugarama_irrigation_value(df2, cost_per_m3=50):
+            df2 = merged_df.copy()
+            df2["irrigation_L"] = df2["v_irrigation_water_quantity"] * df2["v_irrigation_water_unit_to_L"]
+            df2["annual_irrigation_L"] = df2["irrigation_L"] * df2["v_irrigation_freq_year_equiv"]
+            total_L = df2["annual_irrigation_L"].sum()
+            total_value = (total_L / 1000) * cost_per_m3
+            return total_value
+
+        bugarama_irrigation_total = bugarama_irrigation_value(df_Bugarama)
+        st.write(f"**Bugarama – Irrigation Value:** {bugarama_irrigation_total:,.0f} RWF")
+
+        bugarama_water_total = rugezi_domestic_water_value(df_Bugarama)
+        st.write(f"**Bugarama – Domestic Water Value:** {bugarama_water_total:,.0f} RWF")
+
+        # Water Yield – Bugarama
+        raster_path = "data/rasters/wyield_Bugarama.tif"
+        with rasterio.open(raster_path) as src:
+            wy_mm = src.read(1)
+            pixel_area_m2 = src.res[0] * src.res[1]
+            nodata = src.nodata
+            volume_m3 = np.sum(wy_mm[wy_mm != nodata]) * pixel_area_m2 / 1000
+
+        cost_per_m3 = 550
+        value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
+
+        st.write(f"**Water Regulation Value:** {value_billion:.2f} billion RWF/year")
+        st.write(f"**Total Annual Water Yield:** {volume_m3:,.0f} m³/year")
+
+# -------------------------------
+# TAB 3: Carbon & Soil Erosion
+# -------------------------------
+with tab3:
+    with st.expander("3.4 Carbon Storage & Soil Erosion", expanded=True):
+        # Carbon
+        raster_path = "data/rasters/c_storage_bas_Bugrama.tif"
+        with rasterio.open(raster_path) as src:
+            carbon_arr = src.read(1)
+            nodata = src.nodata
+            total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
+
+        price_per_tonne = 38000
+        value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
+
+        st.write(f"**Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
+        st.write(f"**Carbon Value:** {value_billion:.2f} billion RWF")
+
+        # Soil erosion
+        raster_path = "data/rasters/sed_export_Bugrama.tif"
+        with rasterio.open(raster_path) as src:
+            sed_export = src.read(1)
+            nodata = src.nodata
+            valid = sed_export != nodata
+            total_sed_tons = np.sum(sed_export[valid])
+
+        price_per_ton = 10_000
+        total_value_RWF = total_sed_tons * price_per_ton
+        value_billion = total_value_RWF / 1_000_000_000
+
+        st.write(f"**Soil Erosion Control Value:** {value_billion:.2f} billion RWF/year")
+        st.write(f"**Total Soil Erosion:** {total_sed_tons:,.0f} tonnes/year")
+
+# -------------------------------
+# TAB 4: Final TEV Results
+# -------------------------------
+with tab4:
+    with st.expander("Bugarama Wetland – Final Ecosystem Service Valuation", expanded=True):
+        df_Bugarama = wetland_df[wetland_df["eco_case_study_no"] == 6].copy()
+
+        total_water_regulation_RWF      = 60_640_000_000
+        total_carbon_stock_RWF          = 15_991_790_000_000
+        total_soil_erosion_control_RWF  = 8_570_000_000
+
+        rice_value_RWF           = 130_531_563
+        annual_agriculture_RWF   = 8_166_594
+        irrigation_value_RWF     = 73_245_482.25
+
+        annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
+        n_hh = len(df_Bugarama)
+
+        df_Bugarama['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
+        df_Bugarama['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
+        df_Bugarama['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
+
+        df_Bugarama['regulating_total_hh_RWF'] = (
+            df_Bugarama['water_regulation_hh_RWF'] +
+            df_Bugarama['carbon_hh_RWF'] +
+            df_Bugarama['soil_erosion_hh_RWF']
+        )
+
+        provisioning_cols = [
+            'rice_value_RWF',
+            'annual_agriculture_RWF',
+            'irrigation_value_RWF',
+            'value_fish_per_year',
+            'value_mushroom_annual_RWF',
+            'value_charcoal_annual_RWF',
+            'value_honey_cost_RWF',
+            'value_mats_annual_RWF',
+            'wtp_wetland_amount_RWF'
+        ]
+
+        df_Bugarama['rice_value_RWF'] = rice_value_RWF
+        df_Bugarama['annual_agriculture_RWF'] = annual_agriculture_RWF
+        df_Bugarama['irrigation_value_RWF'] = irrigation_value_RWF
+
+        existing_cols = [col for col in provisioning_cols if col in df_Bugarama.columns]
+
+        df_Bugarama['provisioning_cultural_RWF'] = (
+            df_Bugarama[existing_cols].fillna(0).sum(axis=1)
+        )
+
+        df_Bugarama['TEV_per_hh_RWF'] = (
+            df_Bugarama['provisioning_cultural_RWF'] +
+            df_Bugarama['regulating_total_hh_RWF']
+        )
+
+        st.write("### ✅ BUGARMA WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
+        st.write("-"*90)
+        st.write(f"Households surveyed: {len(df_Bugarama):,}")
+        st.write(f"Water regulation (InVEST): {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Carbon storage: {total_carbon_stock_RWF/1e9:.2f} billion RWF")
+        st.write(f"Annual carbon benefit (2% of stock): {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Soil erosion control: {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Total annual regulating benefit: {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
+        st.write(f"Average provisioning + cultural (survey): {df_Bugarama['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average regulating benefit: {df_Bugarama['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average TEV per household: {df_Bugarama['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Median TEV per household: {df_Bugarama['TEV_per_hh_RWF'].median():,.0f} RWF/year")
+        st.write(f"Total TEV for all sampled households: {df_Bugarama['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
+        st.write("-"*90)
+
+
+    st.markdown('''
+    | **Indicator**                            | **Value**               |
+    | ---------------------------------------- | ----------------------- |
+    | Households surveyed (case study 6)       | 416                     |
+    | Water regulation (InVEST)                | 60.64 billion RWF/year  |
+    | Carbon storage (InVEST stock)            | 15,991.79 billion RWF   |
+    | Annual carbon benefit (2% of stock)      | 319.84 billion RWF/year |
+    | Soil erosion control (InVEST)            | 8.57 billion RWF/year   |
+    | **Total annual regulating benefit**      | 389.05 billion RWF/year |
+    | Average provisioning + cultural (survey) | 211,943,946 RWF/hh/year |
+    | Average regulating benefit (InVEST)      | 935,206,250 RWF/hh/year |
+    | **Average TEV per household**            | 1,147,150,196 RWF/year  |
+    | Median TEV per household                 | 1,147,149,889 RWF/year  |
+    | Total TEV for all sampled households     | 477.21 billion RWF/year |
+    
+    * **Households surveyed:** 416.
+    * **Regulating services:** Water yield contributes 60.64 billion RWF/year, carbon storage provides an annual benefit of 319.84 billion RWF/year (2% of stock), and soil erosion control adds 8.57 billion RWF/year. The **total regulating benefit** sums to 389.05 billion RWF/year.
+    * **Provisioning & cultural services:** Surveyed benefits from rice, agriculture, and irrigation average 211.94 million RWF per household annually.
+    * **Economic value per household:** Combining regulating and provisioning services, the **average TEV per household** is 1.15 billion RWF/year, with a median nearly identical, showing a fairly even distribution among households.
+    * **Total TEV for the wetland:** 477.21 billion RWF/year across all surveyed households.
+    
+    **Summary:** Bugarama wetland provides substantial regulating and provisioning services, with carbon benefits being the largest contributor to total ecosystem value. Water regulation and soil erosion control also play key roles in maintaining the wetland’s economic importance.
+    ''')
 
 # #✅ 4. NYABARONGO VALUATION
 
@@ -4726,8 +4420,6 @@ print("="*90)
 
 # In[379]:
 
-
-import pandas as pd
 
 # Filter for your wetland (example: Nyabarongo)
 df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
@@ -4755,11 +4447,6 @@ print(f"Total Domestic Water Value for Nyabarongo Wetland: {total_domestic_water
 
 
 # #Agricultural Production for NYABARONGO
-
-# In[380]:
-
-
-import pandas as pd
 
 # Filter your wetland case study
 df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
@@ -4810,8 +4497,6 @@ print("="*70)
 
 
 # ##Annual Water Yield from InVEST outputs for NYABARONGO WETLAND
-
-# In[381]:
 
 
 raster_path = "data/rasters/wyield_NYABARONGO.tif"
@@ -4879,405 +4564,355 @@ print(f"Soil Erosion Control Value = {total_value_billion:.2f} billion RWF/year"
 
 # ###**Nyabarongo Wetland ecosystem service valuation**
 
-# In[384]:
-
-
-import pandas as pd
-
-# Filter dataset for Nyabarongo wetland (example: case study 7)
-df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
-
-# =======================================================================
-# REAL InVEST RESULTS – NYABARONGO WETLAND
-# =======================================================================
-total_water_regulation_RWF      = 16_540_000_000     # Annual Water Yield
-total_carbon_stock_RWF          = 17_480_580_000_000 # Carbon stock
-total_soil_erosion_control_RWF  = 20_230_000_000     # SDR / Soil erosion control
-
-# Provisioning values (survey + calculations)
-annual_crop_value_RWF          = 43_629_593
-annual_irrigation_value_RWF    = 0
-annual_domestic_water_value_RWF = 438_000
-
-# =======================================================================
-# Annual carbon benefit (2% of stock)
-# =======================================================================
-annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
-
-# Number of households in Nyabarongo dataset
-n_hh = len(df_Nyabarongo)
-
-# =======================================================================
-# REGULATING SERVICES PER HOUSEHOLD
-# =======================================================================
-df_Nyabarongo['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
-df_Nyabarongo['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
-df_Nyabarongo['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
-
-df_Nyabarongo['regulating_total_hh_RWF'] = (
-    df_Nyabarongo['water_regulation_hh_RWF'] +
-    df_Nyabarongo['carbon_hh_RWF'] +
-    df_Nyabarongo['soil_erosion_hh_RWF']
+st.markdown("# 🌿 Nyabarongo Wetland Valuation")
+st.markdown(
+    "This section presents the **Nyabarongo wetland case study**, including provisioning, regulating, and total economic valuation (TEV)."
 )
 
-# =======================================================================
-# PROVISIONING + CULTURAL SERVICES – survey columns
-# =======================================================================
-provisioning_cols = [
-    'annual_crop_value_RWF',
-    'annual_irrigation_value_RWF',
-    'annual_domestic_water_value_RWF',
-    'value_fish_per_year',
-    'value_mushroom_annual_RWF',
-    'value_charcoal_annual_RWF',
-    'value_honey_cost_RWF',
-    'value_mats_annual_RWF',
-    'wtp_wetland_amount_RWF'
-]
+# Tabs for organized display
+tab1, tab2, tab3, tab4 = st.tabs([
+    "💧 Domestic Water", 
+    "🌾 Agriculture", 
+    "🌍 Water Yield & Carbon", 
+    "📝 Final TEV Results"
+])
 
-# Add your calculated provisioning values
-df_Nyabarongo['annual_crop_value_RWF'] = annual_crop_value_RWF
-df_Nyabarongo['annual_irrigation_value_RWF'] = annual_irrigation_value_RWF
-df_Nyabarongo['annual_domestic_water_value_RWF'] = annual_domestic_water_value_RWF
+# -------------------------------
+# TAB 1: Domestic Water
+# -------------------------------
+with tab1:
+    with st.expander("4.1 Domestic Water Value", expanded=True):
+        df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
+        df_Nyabarongo['water_domestic_quantity'] = pd.to_numeric(df_Nyabarongo['water_domestic_quantity'], errors='coerce')
+        df_Nyabarongo['water_domestic_unit_to_L'] = pd.to_numeric(df_Nyabarongo['water_domestic_unit_to_L'], errors='coerce')
+        df_Nyabarongo['water_domestic_alt_cost_jerrycan_RWF'] = pd.to_numeric(df_Nyabarongo['water_domestic_alt_cost_jerrycan_RWF'], errors='coerce')
+        df_Nyabarongo['water_domestic_freq_year_equiv'] = pd.to_numeric(df_Nyabarongo['water_domestic_freq_year_equiv'], errors='coerce')
 
-# Keep only existing columns
-existing_cols = [col for col in provisioning_cols if col in df_Nyabarongo.columns]
+        df_Nyabarongo['water_domestic_value_year_RWF_calc'] = (
+            df_Nyabarongo['water_domestic_quantity'] *
+            df_Nyabarongo['water_domestic_unit_to_L'] *
+            df_Nyabarongo['water_domestic_alt_cost_jerrycan_RWF'] *
+            df_Nyabarongo['water_domestic_freq_year_equiv']
+        )
 
-df_Nyabarongo['provisioning_cultural_RWF'] = (
-    df_Nyabarongo[existing_cols].fillna(0).sum(axis=1)
+        total_domestic_water_value_RWF = df_Nyabarongo['water_domestic_value_year_RWF_calc'].sum()
+        st.write(f"**Total Domestic Water Value:** {total_domestic_water_value_RWF:,.0f} RWF/year")
+        st.write("**Summary per Household:**")
+        st.write(df_Nyabarongo['water_domestic_value_year_RWF_calc'].describe())
+
+# -------------------------------
+# TAB 2: Agriculture
+# -------------------------------
+with tab2:
+    with st.expander("Agricultural Production Value", expanded=True):
+        df_Nyabarongo['crop_yield_kg_ha_year'] = pd.to_numeric(df_Nyabarongo['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
+        df_Nyabarongo['crop_market_price'] = pd.to_numeric(df_Nyabarongo['crop_market_price'], errors='coerce').fillna(0)
+        df_Nyabarongo['crop_value_per_ha'] = df_Nyabarongo['crop_yield_kg_ha_year'] * df_Nyabarongo['crop_market_price']
+        df_Nyabarongo['crop_value_total_RWF'] = df_Nyabarongo['crop_value_per_ha'] * df_Nyabarongo['crop_area_hectare_equiv']
+        df_Nyabarongo['v_irrigation_value_year_RWF_calc'] = pd.to_numeric(df_Nyabarongo['v_irrigation_value_year_RWF_calc_note'], errors='coerce').fillna(0)
+        df_Nyabarongo['agri_total_value_RWF'] = df_Nyabarongo['crop_value_total_RWF'] + df_Nyabarongo['v_irrigation_value_year_RWF_calc']
+
+        st.write("### NYABARONGO – AGRICULTURAL PRODUCTION")
+        st.write(f"Households surveyed: {len(df_Nyabarongo):,}")
+        st.write(f"Average crop value per household: {df_Nyabarongo['crop_value_total_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Average irrigation value per household: {df_Nyabarongo['v_irrigation_value_year_RWF_calc'].mean():,.0f} RWF/year")
+        st.write(f"Average total agricultural value per household: {df_Nyabarongo['agri_total_value_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Total agricultural value all households: {df_Nyabarongo['agri_total_value_RWF'].sum()/1e9:.2f} billion RWF/year")
+
+# -------------------------------
+# TAB 3: Water Yield & Carbon
+# -------------------------------
+with tab3:
+    with st.expander("InVEST Water Yield & Carbon Storage", expanded=True):
+        # Water Yield
+        raster_path = "data/rasters/wyield_NYABARONGO.tif"
+        with rasterio.open(raster_path) as src:
+            water_yield_arr = src.read(1)
+            nodata = src.nodata
+            pixel_area_m2 = src.res[0] * src.res[1]
+            water_m3_arr = (water_yield_arr / 1000) * pixel_area_m2
+            total_water_m3 = np.sum(water_m3_arr[water_yield_arr != nodata])
+
+        value_per_m3 = 150
+        total_water_value_billion = total_water_m3 * value_per_m3 / 1_000_000_000
+
+        st.write(f"**Total Annual Water Yield:** {total_water_m3:,.0f} m³/year")
+        st.write(f"**Water Regulation Value:** {total_water_value_billion:.2f} billion RWF/year")
+
+        # Carbon Storage
+        raster_path = "data/rasters/c_storage_bas_NYABARONGO.tif"
+        with rasterio.open(raster_path) as src:
+            carbon_arr = src.read(1)
+            total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
+
+        price_per_tonne = 38_000
+        total_carbon_value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
+
+        st.write(f"**Total Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
+        st.write(f"**Carbon Value:** {total_carbon_value_billion:.2f} billion RWF")
+
+        # Soil Erosion
+        raster_path = "data/rasters/sed_export_NYABARONGO.tif"
+        with rasterio.open(raster_path) as src:
+            erosion_arr = src.read(1)
+            total_erosion_tonnes = np.sum(erosion_arr[erosion_arr != nodata])
+
+        cost_per_tonne_soil = 15_000
+        total_erosion_value_billion = total_erosion_tonnes * cost_per_tonne_soil / 1_000_000_000
+
+        st.write(f"**Total Soil Erosion:** {total_erosion_tonnes:,.0f} tonnes/year")
+        st.write(f"**Soil Erosion Control Value:** {total_erosion_value_billion:.2f} billion RWF/year")
+
+# -------------------------------
+# TAB 4: Final TEV Results
+# -------------------------------
+with tab4:
+    with st.expander("Nyabarongo Wetland – Final Ecosystem Service Valuation", expanded=True):
+        total_water_regulation_RWF      = 16_540_000_000
+        total_carbon_stock_RWF          = 17_480_580_000_000
+        total_soil_erosion_control_RWF  = 20_230_000_000
+
+        annual_crop_value_RWF          = 43_629_593
+        annual_irrigation_value_RWF    = 0
+        annual_domestic_water_value_RWF = 438_000
+
+        annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
+        n_hh = len(df_Nyabarongo)
+
+        df_Nyabarongo['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
+        df_Nyabarongo['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
+        df_Nyabarongo['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
+        df_Nyabarongo['regulating_total_hh_RWF'] = (
+            df_Nyabarongo['water_regulation_hh_RWF'] +
+            df_Nyabarongo['carbon_hh_RWF'] +
+            df_Nyabarongo['soil_erosion_hh_RWF']
+        )
+
+        provisioning_cols = [
+            'annual_crop_value_RWF',
+            'annual_irrigation_value_RWF',
+            'annual_domestic_water_value_RWF',
+            'value_fish_per_year',
+            'value_mushroom_annual_RWF',
+            'value_charcoal_annual_RWF',
+            'value_honey_cost_RWF',
+            'value_mats_annual_RWF',
+            'wtp_wetland_amount_RWF'
+        ]
+
+        df_Nyabarongo['annual_crop_value_RWF'] = annual_crop_value_RWF
+        df_Nyabarongo['annual_irrigation_value_RWF'] = annual_irrigation_value_RWF
+        df_Nyabarongo['annual_domestic_water_value_RWF'] = annual_domestic_water_value_RWF
+
+        existing_cols = [col for col in provisioning_cols if col in df_Nyabarongo.columns]
+
+        df_Nyabarongo['provisioning_cultural_RWF'] = df_Nyabarongo[existing_cols].fillna(0).sum(axis=1)
+        df_Nyabarongo['TEV_per_hh_RWF'] = df_Nyabarongo['provisioning_cultural_RWF'] + df_Nyabarongo['regulating_total_hh_RWF']
+
+        st.write("### ✅ NYABARONGO WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
+        st.write(f"Households surveyed: {len(df_Nyabarongo):,}")
+        st.write(f"Water regulation (InVEST): {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Carbon storage (InVEST stock): {total_carbon_stock_RWF/1e9:.2f} billion RWF")
+        st.write(f"Annual carbon benefit (2% of stock): {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Soil erosion control (InVEST): {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Total annual regulating benefit: {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
+        st.write(f"Average provisioning + cultural (survey): {df_Nyabarongo['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average regulating benefit: {df_Nyabarongo['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average TEV per household: {df_Nyabarongo['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Median TEV per household: {df_Nyabarongo['TEV_per_hh_RWF'].median():,.0f} RWF/year")
+        st.write(f"Total TEV for all sampled households: {df_Nyabarongo['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
+    st.markdown('''
+
+    | **Indicator**                            | **Value**                 |
+    | ---------------------------------------- | ------------------------- |
+    | Households surveyed (case study 7)       | 344                       |
+    | Water regulation (InVEST)                | 16.54 billion RWF/year    |
+    | Carbon storage (InVEST stock)            | 17,480.58 billion RWF     |
+    | Annual carbon benefit (2% of stock)      | 349.61 billion RWF/year   |
+    | Soil erosion control (InVEST)            | 20.23 billion RWF/year    |
+    | Total annual regulating benefit          | 386.38 billion RWF/year   |
+    | Average provisioning + cultural (survey) | 44,067,593 RWF/hh/year    |
+    | Average regulating benefit (InVEST)      | 1,123,202,326 RWF/hh/year |
+    | Average TEV per household                | 1,167,269,919 RWF/year    |
+    | Median TEV per household                 | 1,167,269,919 RWF/year    |
+    | Total TEV for all sampled households     | 401.54 billion RWF/year   |
+    
+
+    **Explanation:**
+    
+    * The wetland supports **344 surveyed households**, providing both regulating and provisioning services.
+    * **Regulating services** include water regulation, carbon storage, and soil erosion control, with carbon being the largest contributor to annual benefits.
+    * **Provisioning and cultural services**, based on survey data, contribute 44 million RWF per household annually, including crops, domestic water, and wetland products.
+    * **Total Economic Value (TEV)** combines both regulating and provisioning/cultural services, averaging over 1.16 billion RWF per household and totaling 401.54 billion RWF for all sampled households.
+    * This highlights the wetland’s critical role in **water security, climate regulation, soil conservation, and livelihood support**.
+    ''')
+
+st.markdown("# 🌿 Muvumba Wetland Valuation")
+st.markdown(
+    "This section presents the **Muvumba wetland case study**, including provisioning, regulating, and total economic valuation (TEV)."
 )
 
-# =======================================================================
-# FINAL TOTAL ECONOMIC VALUE PER HOUSEHOLD
-# =======================================================================
-df_Nyabarongo['TEV_per_hh_RWF'] = (
-    df_Nyabarongo['provisioning_cultural_RWF'] +
-    df_Nyabarongo['regulating_total_hh_RWF']
-)
-
-# =======================================================================
-# FINAL RESULTS – NYABARONGO WETLAND
-# =======================================================================
-print("NYABARONGO WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
-print("="*90)
-print(f"Households surveyed (case study 7)         : {len(df_Nyabarongo):,}")
-print(f"Water regulation (InVEST)                  : {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
-print(f"Carbon storage (InVEST stock)              : {total_carbon_stock_RWF/1e9:,.2f} billion RWF")
-print(f"Annual carbon benefit (2% of stock)        : {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
-print(f"Soil erosion control (InVEST)              : {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
-print(f"Total annual regulating benefit            : {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
-print("-"*90)
-print(f"Average provisioning + cultural (survey)   : {df_Nyabarongo['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
-print(f"Average regulating benefit (InVEST)        : {df_Nyabarongo['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
-print(f"AVERAGE TOTAL ECONOMIC VALUE PER HOUSEHOLD : {df_Nyabarongo['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
-print(f"Median TEV per household                   : {df_Nyabarongo['TEV_per_hh_RWF'].median():,.0f} RWF/year")
-print(f"Total TEV for all sampled households       : {df_Nyabarongo['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
-print("="*90)
+# -------------------------------
+# Tabs for organization
+# -------------------------------
+tab1, tab2, tab3, tab4 = st.tabs([
+    "🌾 Agriculture", 
+    "💧 Irrigation & Livestock Water", 
+    "🌍 Water Yield, Carbon & Erosion", 
+    "📝 Final TEV Results"
+])
+
+# -------------------------------
+# TAB 1: Agriculture
+# -------------------------------
+with tab1:
+    with st.expander("5.1 Agriculture (Rice + Maize)", expanded=True):
+        muvumba_agri_value = df_Muvumba["crop_value_total_year_RWF"].sum()
+        st.write(f"**Muvumba – Agriculture Value:** {muvumba_agri_value:,.0f} RWF")
+
+# -------------------------------
+# TAB 2: Irrigation & Livestock Water
+# -------------------------------
+with tab2:
+    with st.expander("5.2 Irrigation Value (Production Function Method)", expanded=True):
+        df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
+        muvumba_irrig_total, muvumba_irrig_mean, irrig_detail = irrigation_value_production_function(df_muvumba)
+        st.write(f"**Total Irrigation Value:** {muvumba_irrig_total:,.0f} RWF/year")
+        st.write(f"**Mean Irrigation Value per Household:** {muvumba_irrig_mean:,.0f} RWF")
+        st.dataframe(irrig_detail)
+
+    with st.expander("5.3 Livestock Water Value", expanded=True):
+        muvumba_livestock_value = livestock_water_value(df_Muvumba)
+        st.write(f"**Muvumba – Livestock Water Value:** {muvumba_livestock_value:,.0f} RWF/year")
+
+# -------------------------------
+# TAB 3: Water Yield, Carbon & Soil Erosion
+# -------------------------------
+with tab3:
+    with st.expander("Annual Water Yield & Water Regulation Value", expanded=True):
+        raster_path = "data/rasters/wyield_Muvumba.tif"
+        with rasterio.open(raster_path) as src:
+            water_yield_arr = src.read(1)
+            nodata = src.nodata
+            total_water_yield_m3 = np.sum(water_yield_arr[water_yield_arr != nodata])
+
+        value_per_m3_RWF = 150
+        water_regulation_value_RWF = total_water_yield_m3 * value_per_m3_RWF
+
+        st.write(f"**Total Annual Water Yield:** {total_water_yield_m3:,.0f} m³/year")
+        st.write(f"**Water Regulation Value:** {water_regulation_value_RWF/1e9:.2f} billion RWF/year")
+
+    with st.expander("Carbon Storage & Annual Carbon Benefit", expanded=True):
+        raster_path = "data/rasters/c_storage_bas_Muvumba.tif"
+        with rasterio.open(raster_path) as src:
+            carbon_arr = src.read(1)
+            total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
+
+        price_per_tonne_RWF = 38000
+        total_carbon_value_RWF = total_carbon_tonnes * price_per_tonne_RWF
+        annual_carbon_benefit_RWF = total_carbon_value_RWF * 0.02
+
+        st.write(f"**Total Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
+        st.write(f"**Carbon Storage Value:** {total_carbon_value_RWF/1e9:.2f} billion RWF")
+        st.write(f"**Annual Carbon Benefit (2% of stock):** {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+
+    with st.expander("Soil Erosion Control (SDR)", expanded=True):
+        raster_path = "data/rasters/sed_export_Muvumba.tif"
+        with rasterio.open(raster_path) as src:
+            sdr_arr = src.read(1)
+            total_sediment_tonnes = np.sum(sdr_arr[sdr_arr != nodata])
+
+        value_per_kg_RWF = 1
+        total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF
+
+        st.write(f"**Total Soil Erosion:** {total_sediment_tonnes:,.0f} tonnes/year")
+        st.write(f"**Soil Erosion Control Value:** {total_sediment_value_RWF/1e9:.2f} billion RWF/year")
+
+# -------------------------------
+# TAB 4: Final TEV Results
+# -------------------------------
+with tab4:
+    with st.expander("Muvumba Wetland – Final Ecosystem Service Valuation", expanded=True):
+        total_water_regulation_RWF      = 69_400_000_000
+        total_carbon_stock_RWF          = 17_580_960_000_000
+        total_soil_erosion_control_RWF  = 1_010_000_000
+        annual_crop_value_RWF           = 130_893_000
+        annual_irrigation_value_RWF     = 615_822_484_242.18
+        annual_livestock_water_value_RWF = 298_920_800
+
+        annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
+        n_hh = len(df_Muvumba)
+
+        df_Muvumba['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
+        df_Muvumba['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
+        df_Muvumba['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
+        df_Muvumba['regulating_total_hh_RWF'] = (
+            df_Muvumba['water_regulation_hh_RWF'] +
+            df_Muvumba['carbon_hh_RWF'] +
+            df_Muvumba['soil_erosion_hh_RWF']
+        )
+
+        provisioning_cols = [
+            'annual_crop_value_RWF',
+            'annual_irrigation_value_RWF',
+            'annual_livestock_water_value_RWF',
+            'value_fish_per_year',
+            'value_mushroom_annual_RWF',
+            'value_charcoal_annual_RWF',
+            'value_honey_cost_RWF',
+            'value_mats_annual_RWF',
+            'wtp_wetland_amount_RWF'
+        ]
+
+        df_Muvumba['annual_crop_value_RWF'] = annual_crop_value_RWF
+        df_Muvumba['annual_irrigation_value_RWF'] = annual_irrigation_value_RWF
+        df_Muvumba['annual_livestock_water_value_RWF'] = annual_livestock_water_value_RWF
+
+        existing_cols = [col for col in provisioning_cols if col in df_Muvumba.columns]
+
+        df_Muvumba['provisioning_cultural_RWF'] = df_Muvumba[existing_cols].fillna(0).sum(axis=1)
+        df_Muvumba['TEV_per_hh_RWF'] = df_Muvumba['provisioning_cultural_RWF'] + df_Muvumba['regulating_total_hh_RWF']
+
+        st.write("### ✅ MUVUMBA WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
+        st.write(f"Households surveyed: {len(df_Muvumba):,}")
+        st.write(f"Water regulation (InVEST): {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Carbon storage (InVEST stock): {total_carbon_stock_RWF/1e9:.2f} billion RWF")
+        st.write(f"Annual carbon benefit (2% of stock): {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Soil erosion control (InVEST): {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
+        st.write(f"Total annual regulating benefit: {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
+        st.write(f"Average provisioning + cultural (survey): {df_Muvumba['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average regulating benefit: {df_Muvumba['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
+        st.write(f"Average TEV per household: {df_Muvumba['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
+        st.write(f"Median TEV per household: {df_Muvumba['TEV_per_hh_RWF'].median():,.0f} RWF/year")
+        st.write(f"Total TEV for all sampled households: {df_Muvumba['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
+
+    st.markdown('''
+    | Ecosystem Service / Value                    | Total (RWF/year)   | Per Household (RWF/year) |
+    | -------------------------------------------- | ------------------ | ------------------------ |
+    | Water Regulation (InVEST)                    | 69,400,000,000     | 1,736,627,907            |
+    | Carbon Storage (InVEST stock)                | 17,580,960,000,000 | 439,524,000,000*         |
+    | Annual Carbon Benefit (2% of stock)          | 351,619,200,000    | 8,801,595,349            |
+    | Soil Erosion Control (InVEST)                | 1,010,000,000      | 25,303,662               |
+    | **Total Annual Regulating Services**         | 421,029,200,000    | 10,563,526,918           |
+    | Annual Crop Value                            | 130,893,000        | 3,277,325                |
+    | Annual Irrigation Value                      | 615,822,484,242    | 15,395,562,105           |
+    | Livestock Water Value                        | 298,920,800        | 7,473,020                |
+    | **Total Provisioning + Cultural Services**   | 616,252,298,042    | 15,406,312,145           |
+    | **Total Economic Value (TEV) per Household** | —                  | 25,969,839,063           |
+    | **Total TEV for All Households**             | 1,037,281,498,042  | —                        |
+    
+    *Carbon stock per household is shown for context, but the **annual carbon benefit** is used in TEV calculations.
+    
+    **Brief Explanation of the Outcome:**
+    
+    * **Water regulation** contributes a substantial annual benefit, supporting sustainable water availability for households and agriculture.
+    * **Carbon stock and annual benefit** reflect the wetland’s role in climate mitigation; even 2% annual benefit is extremely high.
+    * **Soil erosion control** adds additional value by protecting soil and reducing sedimentation downstream.
+    * **Provisioning services** (crops, irrigation, livestock water) dominate the TEV per household in monetary terms.
+    * **Total Economic Value (TEV)** per household combines regulating and provisioning services, giving a comprehensive picture of the wetland’s socio-economic importance.
+    ''')
+    
 
-
-# 
-# | **Indicator**                            | **Value**                 |
-# | ---------------------------------------- | ------------------------- |
-# | Households surveyed (case study 7)       | 344                       |
-# | Water regulation (InVEST)                | 16.54 billion RWF/year    |
-# | Carbon storage (InVEST stock)            | 17,480.58 billion RWF     |
-# | Annual carbon benefit (2% of stock)      | 349.61 billion RWF/year   |
-# | Soil erosion control (InVEST)            | 20.23 billion RWF/year    |
-# | Total annual regulating benefit          | 386.38 billion RWF/year   |
-# | Average provisioning + cultural (survey) | 44,067,593 RWF/hh/year    |
-# | Average regulating benefit (InVEST)      | 1,123,202,326 RWF/hh/year |
-# | Average TEV per household                | 1,167,269,919 RWF/year    |
-# | Median TEV per household                 | 1,167,269,919 RWF/year    |
-# | Total TEV for all sampled households     | 401.54 billion RWF/year   |
-# 
-# **Explanation:**
-# 
-# * The wetland supports **344 surveyed households**, providing both regulating and provisioning services.
-# * **Regulating services** include water regulation, carbon storage, and soil erosion control, with carbon being the largest contributor to annual benefits.
-# * **Provisioning and cultural services**, based on survey data, contribute 44 million RWF per household annually, including crops, domestic water, and wetland products.
-# * **Total Economic Value (TEV)** combines both regulating and provisioning/cultural services, averaging over 1.16 billion RWF per household and totaling 401.54 billion RWF for all sampled households.
-# * This highlights the wetland’s critical role in **water security, climate regulation, soil conservation, and livelihood support**.
-# 
-# 
-# 
-
-# #✅ 5. MUVUMBA WETLAND VALUATION
-
-# ##5.1 Agriculture (Rice + Maize)
-
-# In[385]:
-
-
-muvumba_agri_value = df_Muvumba["crop_value_total_year_RWF"].sum()
-print("Muvumba – Agriculture Value:", muvumba_agri_value)
-
-
-# ##5.2 Irrigation Value
-
-# In[386]:
-
-
-# --- IRRIGATION VALUE: Production Function Method ---
-
-def irrigation_value_production_function(df2, no_irrigation_factor=0.65):
-    """
-    Estimate irrigation value using the Production Function Method.
-
-    no_irrigation_factor:
-        Proportion of yield expected without irrigation.
-        0.65 = yield would drop by 35% without irrigation.
-    """
-    df2 = merged_df.copy()
-
-    # Clean numeric fields
-    df2["yield_kg_ha"] = pd.to_numeric(df2["crop_yield_kg_ha_year"], errors='coerce').fillna(0)
-    df2["area_ha"] = pd.to_numeric(df2["crop_area_hectare_equiv"], errors='coerce').fillna(0)
-    df2["price_rwf"] = pd.to_numeric(df2["crop_market_price"], errors='coerce').fillna(0)
-
-    # Compute baseline (no irrigation)
-    df2["yield_no_irrigation"] = df2["yield_kg_ha"] * no_irrigation_factor
-
-    # Marginal productivity from irrigation
-    df2["yield_gain"] = df2["yield_kg_ha"] - df2["yield_no_irrigation"]
-
-    # Irrigation value per household
-    df2["irrigation_value_hh"] = df2["yield_gain"] * df2["price_rwf"] * df2["area_ha"]
-
-    total_value = df2["irrigation_value_hh"].sum()
-    mean_value = df2["irrigation_value_hh"].mean()
-
-    return total_value, mean_value, df2[["yield_kg_ha", "yield_no_irrigation",
-                                       "yield_gain", "price_rwf", "area_ha",
-                                       "irrigation_value_hh"]]
-
-
-# --- Apply to Muvumba (Case Study 8) ---
-df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
-
-muvumba_irrig_total, muvumba_irrig_mean, irrig_detail = irrigation_value_production_function(df_muvumba)
-
-print("Muvumba – Total Irrigation Value (RWF/year):", muvumba_irrig_total)
-print("Muvumba – Mean Irrigation Value per Household:", muvumba_irrig_mean)
-
-
-# ##5.3 Livestock Water
-
-# In[387]:
-
-
-def livestock_water_value(df2, cost_per_L=20):
-    df2 = wetland_df.copy()
-    df2["water_L"] = df2["livestock_water_quantity"] * df2["livestock_water_unit_to_L"]
-    df2["annual_L"] = df2["water_L"] * df2["livestock_water_freq_year_calc"]
-
-    total_L = df2["annual_L"].sum()
-    return total_L * cost_per_L
-
-muvumba_livestock_value = livestock_water_value(df_Muvumba)
-print("Muvumba – Livestock Water Value:", muvumba_livestock_value)
-
-
-# ##Anual water yield for Muvumba Wetland
-
-# In[388]:
-
-
-raster_path = "data/rasters/wyield_Muvumba.tif"
-
-with rasterio.open(raster_path) as src:
-    water_yield_arr = src.read(1)  # water yield per pixel (m³/year)
-    nodata = src.nodata
-    total_water_yield_m3 = np.sum(water_yield_arr[water_yield_arr != nodata])
-
-# ===================================================================
-# STEP 2: Monetize water regulation
-# ===================================================================
-# Example unit value (adjust as needed)
-value_per_m3_RWF = 150  # RWF per cubic meter of water
-
-water_regulation_value_RWF = total_water_yield_m3 * value_per_m3_RWF
-
-print(f"Total Annual Water Yield (Muvumba Wetland) = {total_water_yield_m3:,.0f} m³/year")
-print(f"Water Regulation Value (Muvumba Wetland) = {water_regulation_value_RWF/1e9:.2f} billion RWF/year")
-
-
-# ##Carbon stock and annual carbon benefit for Muvumba
-
-# In[389]:
-
-
-raster_path = "data/rasters/c_storage_bas_Muvumba.tif"
-
-with rasterio.open(raster_path) as src:
-    carbon_arr = src.read(1)       # carbon value per pixel (tonnes)
-    nodata = src.nodata
-    total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
-
-# ===================================================================
-# STEP 2: Monetize carbon stock
-# ===================================================================
-price_per_tonne_RWF = 38000  # example, adjust if needed
-total_carbon_value_RWF = total_carbon_tonnes * price_per_tonne_RWF
-
-# ===================================================================
-# STEP 3: Annual carbon benefit (2% of stock)
-# ===================================================================
-annual_carbon_benefit_RWF = total_carbon_value_RWF * 0.02
-
-print(f"Total Carbon Storage (Muvumba Wetland) = {total_carbon_tonnes:,.0f} tonnes")
-print(f"Carbon Storage Value = {total_carbon_value_RWF/1e9:.2f} billion RWF")
-print(f"Annual Carbon Benefit (2% of stock) = {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
-
-
-# ##soil erosion control (SDR) for Muvumba Wetland
-
-# In[390]:
-
-
-raster_path = "data/rasters/sed_export_Muvumba.tif"
-
-with rasterio.open(raster_path) as src:
-    sdr_arr = src.read(1)          # sediment export per pixel (tonnes/year)
-    nodata = src.nodata
-    total_sediment_tonnes = np.sum(sdr_arr[sdr_arr != nodata])
-
-# ===================================================================
-# STEP 2: Monetize soil erosion control
-# ===================================================================
-# Example: 1 RWF per kg of soil prevented (adjust as needed)
-# Convert tonnes to kg: 1 tonne = 1000 kg
-value_per_kg_RWF = 1
-total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF
-
-print(f"Total Soil Erosion (Muvumba Wetland) = {total_sediment_tonnes:,.0f} tonnes/year")
-print(f"Soil Erosion Control Value = {total_sediment_value_RWF/1e9:.2f} billion RWF/year")
-
-
-# In[391]:
-
-
-import pandas as pd
-
-# Filter dataset for Muvumba wetland (example: case study 8)
-df_Muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
-
-# =======================================================================
-# REAL InVEST RESULTS – MUVUMBA WETLAND
-# =======================================================================
-total_water_regulation_RWF      = 69_400_000_000      # Annual Water Yield
-total_carbon_stock_RWF          = 17_580_960_000_000  # Carbon stock
-total_soil_erosion_control_RWF  = 1_010_000_000       # SDR / Soil erosion control
-
-# Provisioning values (survey + calculations)
-annual_crop_value_RWF           = 130_893_000
-annual_irrigation_value_RWF     = 615_822_484_242.18
-mean_irrigation_per_hh_RWF      = 154_884_930.64
-annual_livestock_water_value_RWF = 298_920_800
-
-# =======================================================================
-# Annual carbon benefit (2% of stock)
-# =======================================================================
-annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
-
-# Number of households in Muvumba dataset
-n_hh = len(df_Muvumba)
-
-# =======================================================================
-# REGULATING SERVICES PER HOUSEHOLD
-# =======================================================================
-df_Muvumba['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
-df_Muvumba['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
-df_Muvumba['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
-
-df_Muvumba['regulating_total_hh_RWF'] = (
-    df_Muvumba['water_regulation_hh_RWF'] +
-    df_Muvumba['carbon_hh_RWF'] +
-    df_Muvumba['soil_erosion_hh_RWF']
-)
-
-# =======================================================================
-# PROVISIONING + CULTURAL SERVICES – survey columns
-# =======================================================================
-provisioning_cols = [
-    'annual_crop_value_RWF',
-    'annual_irrigation_value_RWF',
-    'annual_livestock_water_value_RWF',
-    'value_fish_per_year',
-    'value_mushroom_annual_RWF',
-    'value_charcoal_annual_RWF',
-    'value_honey_cost_RWF',
-    'value_mats_annual_RWF',
-    'wtp_wetland_amount_RWF'
-]
-
-# Add calculated provisioning values
-df_Muvumba['annual_crop_value_RWF'] = annual_crop_value_RWF
-df_Muvumba['annual_irrigation_value_RWF'] = annual_irrigation_value_RWF
-df_Muvumba['annual_livestock_water_value_RWF'] = annual_livestock_water_value_RWF
-
-# Keep only existing columns
-existing_cols = [col for col in provisioning_cols if col in df_Muvumba.columns]
-
-df_Muvumba['provisioning_cultural_RWF'] = (
-    df_Muvumba[existing_cols].fillna(0).sum(axis=1)
-)
-
-# =======================================================================
-# FINAL TOTAL ECONOMIC VALUE PER HOUSEHOLD
-# =======================================================================
-df_Muvumba['TEV_per_hh_RWF'] = (
-    df_Muvumba['provisioning_cultural_RWF'] +
-    df_Muvumba['regulating_total_hh_RWF']
-)
-
-# =======================================================================
-# FINAL RESULTS – MUVUMBA WETLAND
-# =======================================================================
-print("MUVUMBA WETLAND – FINAL ECOSYSTEM SERVICE VALUATION")
-print("="*90)
-print(f"Households surveyed (case study 8)         : {len(df_Muvumba):,}")
-print(f"Water regulation (InVEST)                  : {total_water_regulation_RWF/1e9:.2f} billion RWF/year")
-print(f"Carbon storage (InVEST stock)              : {total_carbon_stock_RWF/1e9:,.2f} billion RWF")
-print(f"Annual carbon benefit (2% of stock)        : {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
-print(f"Soil erosion control (InVEST)              : {total_soil_erosion_control_RWF/1e9:.2f} billion RWF/year")
-print(f"Total annual regulating benefit            : {(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF/year")
-print("-"*90)
-print(f"Average provisioning + cultural (survey)   : {df_Muvumba['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
-print(f"Average regulating benefit (InVEST)        : {df_Muvumba['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
-print(f"AVERAGE TOTAL ECONOMIC VALUE PER HOUSEHOLD : {df_Muvumba['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
-print(f"Median TEV per household                   : {df_Muvumba['TEV_per_hh_RWF'].median():,.0f} RWF/year")
-print(f"Total TEV for all sampled households       : {df_Muvumba['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year")
-print("="*90)
-
-
-# 
-# 
-# | Ecosystem Service / Value                    | Total (RWF/year)   | Per Household (RWF/year) |
-# | -------------------------------------------- | ------------------ | ------------------------ |
-# | Water Regulation (InVEST)                    | 69,400,000,000     | 1,736,627,907            |
-# | Carbon Storage (InVEST stock)                | 17,580,960,000,000 | 439,524,000,000*         |
-# | Annual Carbon Benefit (2% of stock)          | 351,619,200,000    | 8,801,595,349            |
-# | Soil Erosion Control (InVEST)                | 1,010,000,000      | 25,303,662               |
-# | **Total Annual Regulating Services**         | 421,029,200,000    | 10,563,526,918           |
-# | Annual Crop Value                            | 130,893,000        | 3,277,325                |
-# | Annual Irrigation Value                      | 615,822,484,242    | 15,395,562,105           |
-# | Livestock Water Value                        | 298,920,800        | 7,473,020                |
-# | **Total Provisioning + Cultural Services**   | 616,252,298,042    | 15,406,312,145           |
-# | **Total Economic Value (TEV) per Household** | —                  | 25,969,839,063           |
-# | **Total TEV for All Households**             | 1,037,281,498,042  | —                        |
-# 
-# *Carbon stock per household is shown for context, but the **annual carbon benefit** is used in TEV calculations.
-# 
-# **Brief Explanation of the Outcome:**
-# 
-# * **Water regulation** contributes a substantial annual benefit, supporting sustainable water availability for households and agriculture.
-# * **Carbon stock and annual benefit** reflect the wetland’s role in climate mitigation; even 2% annual benefit is extremely high.
-# * **Soil erosion control** adds additional value by protecting soil and reducing sedimentation downstream.
-# * **Provisioning services** (crops, irrigation, livestock water) dominate the TEV per household in monetary terms.
-# * **Total Economic Value (TEV)** per household combines regulating and provisioning services, giving a comprehensive picture of the wetland’s socio-economic importance.
-# 
-# 
-# 
 
 
 # === UPDATED DATA INCLUDING AKAGERA ===
@@ -7618,6 +7253,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
