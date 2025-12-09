@@ -1871,9 +1871,6 @@ with st.expander("📉 Regression Analysis", expanded=False):
     
     ''')
   
-    
-    
-    with st.expander("▶ High Correlation Pairs (Threshold ≥ 0.8)", expanded=False):
 
     # Compute correlation (excluding non-numeric columns)
     excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
@@ -7694,6 +7691,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
