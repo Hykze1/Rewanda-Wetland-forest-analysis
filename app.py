@@ -1893,12 +1893,12 @@ with st.expander("📉 Regression Analysis", expanded=False):
     left = high_corr_pairs.iloc[:half].reset_index(drop=True)
     right = high_corr_pairs.iloc[half:].reset_index(drop=True)
 
-    summary_wetland = summary_wetland.add_prefix("Wetland_")
-    summary_forest = summary_forest.add_prefix("Forest_")
-    
-    side_by_side = pd.concat([summary_wetland, summary_forest], axis=1)
+    side_by_side.columns = [
+    f"{col}_{i}" for i, col in enumerate(side_by_side.columns)
+    ]
     
     st.dataframe(side_by_side)
+
 
 
     
@@ -7693,6 +7693,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
