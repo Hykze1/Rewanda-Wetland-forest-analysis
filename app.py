@@ -2893,50 +2893,35 @@ with tab1:
     st.subheader("T-Test Results")
 
     # Forest
-    tstat_forest, p_forest = ttest_ind(
+     tstat_forest, p_forest = ttest_ind(
         merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
         merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
         nan_policy='omit'
     )
-    st.markdown(f"**Forest Years vs WTP:** T-stat = {tstat_forest:.3f}, P-value = {p_forest:.4f}")
+    st.write(f"Forest: Years vs WTP T-stat = {tstat_forest:.3f}, P-value = {p_forest:.3f}")
 
-    # Wetland
+    # --- Wetland t-test ---
     tstat_wetland, p_wetland = ttest_ind(
         merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
         merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
         nan_policy='omit'
     )
-    st.markdown(f"**Wetland Years vs WTP:** T-stat = {tstat_wetland:.3f}, P-value = {p_wetland:.4f}")
+    st.write(f"Wetland: Years vs WTP T-stat = {tstat_wetland:.3f}, P-value = {p_wetland:.3f}")
 
-    # --- Plots ---
-    st.subheader("Distribution of Years Lived by WTP")
+    # --- Forest KDE Plot ---
+    fig, ax = plt.subplots(figsize=(10,5))
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True, ax=ax)
+    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True, ax=ax)
+    ax.set_title("Forest: Years Lived Distribution by WTP")
+    ax.set_xlabel("Years Lived Near Forest")
+    ax.set_ylabel("Density")
+    ax.legend()
+    st.pyplot(fig)
 
-    # Forest KDE Plot
-    fig1, ax1 = plt.subplots(figsize=(16,6))
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], 
-        label="WTP=No", fill=True, ax=ax1
-    )
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], 
-        label="WTP=Yes", fill=True, ax=ax1
-    )
-    ax1.set_title("Forest: Years Lived Distribution by WTP")
-    ax1.set_xlabel("Years Lived Near Forest")
-    ax1.set_ylabel("Density")
-    ax1.legend()
-    st.pyplot(fig1)
-
-    # Wetland KDE Plot
-    fig2, ax2 = plt.subplots(figsize=(16,6))
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], 
-        label="WTP=No", fill=True, ax=ax2
-    )
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], 
-        label="WTP=Yes", fill=True, ax=ax2
-    )
+    # --- Wetland KDE Plot ---
+    fig2, ax2 = plt.subplots(figsize=(10,5))
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True, ax=ax2)
+    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True, ax=ax2)
     ax2.set_title("Wetland: Years Lived Distribution by WTP")
     ax2.set_xlabel("Years Lived Near Wetland")
     ax2.set_ylabel("Density")
@@ -7723,6 +7708,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
