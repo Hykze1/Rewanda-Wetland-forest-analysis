@@ -2278,11 +2278,7 @@ with st.expander("🌽 Mean Crop Income per Household (RWF/year)", expanded=Fals
 
 with st.expander("🌾 Crop Income and Participation by Case Study", expanded=False):
 
-    # --- Your original code (UNCHANGED) ---
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-
+   
     for df in [forest_df, wetland_df]:
         df['crop_yield_kg_ha_year'] = pd.to_numeric(df['crop_yield_kg_ha_year'], errors='coerce').fillna(0)
         df['crop_market_price'] = pd.to_numeric(df['crop_market_price'], errors='coerce').fillna(0)
@@ -2871,7 +2867,6 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
     "T-Test H1", 
     "Regression H2", 
     "Chi-Square WTP", 
-    "Visualizations",
     "Predicted Willingness to Pay vs Crop Profit",
     "Distribution of Crop Yields Across Case Studies",
     "Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type"
@@ -3028,15 +3023,7 @@ with tab2:
     * **Forests (Nyungwe/Gishwati)**: Leverage NTFP (honey/timber) and carbon/tourism for **15–25% returns**; education pilots could double WTP.
     **Bottom Line**: Wetlands for quick agri-wins; forests for eco-diversification. Boost awareness/education across both for sustained green growth—start Rugezi pilots.
     ''')
-# #**(NEXT)**
-# 
 
-# 
-    
-# 
-# 
-
-# In[338]:
 
 
 with tab3:
@@ -3098,12 +3085,6 @@ with tab3:
     * The difference is **not due to chance**.
     * The result supports the idea that **ecosystem type influences willingness to pay**.
     ''')
-# 
-
-# In[339]:
-
-
-# Example: merged_df already exists with 0/1 values
 # Map 0 → "No", 1 → "Yes"
     merged_df['wtp_forest_label'] = merged_df['wtp_forest'].map({1: "Yes", 0: "No"})
     merged_df['wtp_wetland_label'] = merged_df['wtp_wetland'].map({1: "Yes", 0: "No"})
@@ -3139,104 +3120,10 @@ with tab3:
     plt.legend(title='Wetland WTP')
     st.pyplot(plot.gcf())
 
+# 
 
-# 
-# 
-# ## **Years living near ecosystem vs Willingness to Pay (WTP)**
-# 
+
 with tab4:
-    st.header("Years Living Near Ecosystem vs Willingness to Pay (WTP)")
-
-    st.markdown("""
-    **Hypotheses:**
-    - Null (H₀): No difference in years lived near ecosystem between WTP=1 and WTP=0.
-    - Alternative (H₁): There is a difference.
-    """)
-
-    # --- T-tests ---
-    forest_t, forest_p = ttest_ind(
-        merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
-        merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
-        nan_policy='omit'
-    )
-    wetland_t, wetland_p = ttest_ind(
-        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
-        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
-        nan_policy='omit'
-    )
-
-    st.subheader("T-Test Results")
-    st.write(f"**Forest:** T-statistic = {forest_t:.2f}, P-value = {forest_p:.3f}")
-    st.write(f"**Wetland:** T-statistic = {wetland_t:.2f}, P-value = {wetland_p:.3f}")
-
-    st.markdown("""
-    ## **Interpretation of Output**
-    
-    **Forest:**
-    
-    * T-statistic = 1.35
-    * P-value = 0.177
-    
-    **Wetland:**
-    
-    * T-statistic = 0.67
-    * P-value = 0.50
-    
-    **Explanation:**
-    
-    * Both p-values are **greater than 0.05**, meaning we **fail to reject the null hypothesis**.
-    * This indicates that the **number of years living near the forest or wetland is not significantly associated** with willingness to pay.
-    * In other words, longer residence near the ecosystem does **not predict higher willingness to pay** in our sample.
-
-    """)
-# 
-# 
-    
-# 
-# 
-
-# In[341]:
-
-
-    fig, axes = plt.subplots(1,2, figsize=(16,6))
-
-    sns.stripplot(x='wtp_forest', y='resp_years_area_forest', data=merged_df, palette="viridis", jitter=True, alpha=0.6, ax=axes[0])
-    axes[0].set_title("Forest: Years Lived vs WTP")
-    axes[0].set_xlabel("Willingness to Pay (0=No, 1=Yes)")
-    axes[0].set_ylabel("Years Lived Near Forest")
-
-    sns.stripplot(x='wtp_wetland', y='resp_years_area_wetland', data=merged_df, palette="viridis", jitter=True, alpha=0.6, ax=axes[1])
-    axes[1].set_title("Wetland: Years Lived vs WTP")
-    axes[1].set_xlabel("Willingness to Pay (0=No, 1=Yes)")
-    axes[1].set_ylabel("Years Lived Near Wetland")
-
-    plt.tight_layout()
-    st.pyplot(fig)
-
-    # --- KDE plots ---
-    fig2, ax2 = plt.subplots(1,2, figsize=(16,6))
-
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], label="WTP=No", fill=True, ax=ax2[0])
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], label="WTP=Yes", fill=True, ax=ax2[0])
-    ax2[0].set_title("Forest: Years Lived Distribution by WTP")
-    ax2[0].set_xlabel("Years Lived Near Forest")
-    ax2[0].set_ylabel("Density")
-    ax2[0].legend()
-
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], label="WTP=No", fill=True, ax=ax2[1])
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], label="WTP=Yes", fill=True, ax=ax2[1])
-    ax2[1].set_title("Wetland: Years Lived Distribution by WTP")
-    ax2[1].set_xlabel("Years Lived Near Wetland")
-    ax2[1].set_ylabel("Density")
-    ax2[1].legend()
-
-    st.pyplot(fig2)
-
-# #**(NEXT)**
-# 
-
-
-with tab5:
     st.header("Predicted Willingness to Pay vs Crop Profit")
 
     # Prepare dataset
@@ -3304,7 +3191,7 @@ with tab5:
 # #**(NEXT)**
 # 
 
-with tab6:
+with tab5:
     st.header("Distribution of Crop Yields Across Case Studies")
 
     # Step 1: Case study column
@@ -3386,7 +3273,7 @@ with tab6:
     **Meaning**: Wetlands = ag goldmines — invest irrigation/seeds in Bugarama for 25–35% yield jumps. Forests? Skip crops; chase eco-tourism instead.
     """)
 
-with tab7:
+with tab6:
     st.header("Distribution of Annual Crop Value (RWF/ha) by Ecosystem Type")
 
     value_col = 'crop_value_total_ha_year_RWF'
@@ -7698,6 +7585,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
