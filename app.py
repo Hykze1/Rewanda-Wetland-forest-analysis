@@ -2902,7 +2902,6 @@ with tab1:
         st.pyplot(fig1)
         plt.close(fig1)
 
-
     with col2:
         st.subheader("Wetland")
     
@@ -2924,7 +2923,7 @@ with tab1:
         plt.legend()
         st.pyplot(fig2)
         plt.close(fig2)
-    
+        
     st.markdown("""
     **Interpretation:**  
     Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
@@ -7516,6 +7515,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
