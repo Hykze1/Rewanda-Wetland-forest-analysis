@@ -2882,60 +2882,66 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 # Tab 1: T-Test (H1)
 # -------------------------------
 with tab1:
-    st.header("Years Lived vs Willingness to Pay (WTP)")
-    st.markdown("""
-    This analysis compares the number of years respondents have lived near forests or wetlands with their
-    willingness to pay (WTP) for conservation. The statistical significance is tested using **t-tests**, 
-    and distributions are visualized using **KDE plots**.
-    """)
-
-    # Wetland t-test
-    tstat_wetland, p_wetland = ttest_ind(
-        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
-        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
-        nan_policy='omit'
-    )
-    st.write(f"Wetland: Years vs WTP T-stat = {tstat_wetland:.3f}, P-value = {p_wetland:.3f}")
-
-    # Forest t-test
+    st.header("Years Lived in the Area vs Willingness to Pay")
+    
+    # --- Forest T-test ---
     tstat_forest, p_forest = ttest_ind(
         merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
         merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
         nan_policy='omit'
     )
-    st.write(f"Forest: Years vs WTP T-stat = {tstat_forest:.3f}, P-value = {p_forest:.3f}")
+    st.write("**Forest**")
+    st.write(f"T-stat: `{tstat_forest:.4f}` | P-value: `{p_forest:.4f}`")
+    if p_forest < 0.05:
+        st.success("Significant difference (p < 0.05)")
+    else:
+        st.info("No significant difference (p ≥ 0.05)")
 
-    # Forest KDE
-    fig, ax = plt.subplots(figsize=(10,5))
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'],
-        label="WTP=No", fill=True, ax=ax
+    # --- Wetland T-test ---
+    tstat_wetland, p_wetland = ttest_ind(
+        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
+        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
+        nan_policy='omit'
     )
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'],
-        label="WTP=Yes", fill=True, ax=ax
-    )
-    ax.set_title("Forest: Years Lived Distribution by WTP")
-    ax.set_xlabel("Years Lived Near Forest")
-    ax.set_ylabel("Density")
-    ax.legend()
-    st.pyplot(fig)
+    st.write("**Wetland**")
+    st.write(f"T-stat: `{tstat_wetland:.4f}` | P-value: `{p_wetland:.4f}`")
+    if p_wetland < 0.05:
+        st.success("Significant difference (p < 0.05)")
+    else:
+        st.info("No significant difference (p ≥ 0.05)")
 
-    # Wetland KDE
-    fig2, ax2 = plt.subplots(figsize=(10,5))
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'],
-        label="WTP=No", fill=True, ax=ax2
-    )
-    sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'],
-        label="WTP=Yes", fill=True, ax=ax2
-    )
-    ax2.set_title("Wetland: Years Lived Distribution by WTP")
-    ax2.set_xlabel("Years Lived Near Wetland")
-    ax2.set_ylabel("Density")
-    ax2.legend()
-    st.pyplot(fig2)
+    # --- Plots ---
+    st.subheader("Density Plots")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.write("**Forest: Years Lived Distribution by WTP**")
+        plt.figure(figsize=(8, 5))
+        sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'],
+                    label="WTP=No", fill=True)
+        sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'],
+                    label="WTP=Yes", fill=True)
+        plt.title("Forest: Years Lived Distribution by WTP")
+        plt.xlabel("Years Lived Near Forest")
+        plt.ylabel("Density")
+        plt.legend()
+        st.pyplot(plt.gcf())
+        plt.clf()  # Clear figure to avoid overlap
+
+    with col2:
+        st.write("**Wetland: Years Lived Distribution by WTP**")
+        plt.figure(figsize=(8, 5))
+        sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'],
+                    label="WTP=No", fill=True)
+        sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'],
+                    label="WTP=Yes", fill=True)
+        plt.title("Wetland: Years Lived Distribution by WTP")
+        plt.xlabel("Years Lived Near Wetland")
+        plt.ylabel("Density")
+        plt.legend()
+        st.pyplot(plt.gcf())
+        plt.clf()
 
     st.markdown("""
     **Interpretation:**  
@@ -7714,6 +7720,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
