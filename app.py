@@ -1857,10 +1857,10 @@ with st.expander("Crop Yield Quantity by Crop Type"):
     ''')
 
 # #**(NEXT)**
-# 
-with st.expander("📉 Regression Analysis", expanded=False):
 
-    st.subheader("Regression Model Summary")
+
+    
+with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
     st.markdown('''
 
     Inferential analysis:
@@ -1870,39 +1870,6 @@ with st.expander("📉 Regression Analysis", expanded=False):
     We’ll define high correlation as |r| ≥ 0.8 (strong linear relationship).
     
     ''')
-  
-
-    # Compute correlation (excluding non-numeric columns)
-    excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
-    corr_matrix = merged_df.drop(columns=excluded_cols, errors='ignore').corr(numeric_only=True)
-
-    # Filter correlations above threshold
-    threshold = 0.8
-    high_corr_pairs = (
-        corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
-        .stack()
-        .reset_index()
-    )
-    high_corr_pairs.columns = ['Variable_1', 'Variable_2', 'Correlation']
-    high_corr_pairs = high_corr_pairs[
-        (high_corr_pairs['Correlation'].abs() >= threshold)
-    ].sort_values(by='Correlation', ascending=False)
-
-    # Split the dataframe into two halves and display side by side
-    half = len(high_corr_pairs) // 2
-    left = high_corr_pairs.iloc[:half].reset_index(drop=True)
-    right = high_corr_pairs.iloc[half:].reset_index(drop=True)
-
-    side_by_side.columns = [
-    f"{col}_{i}" for i, col in enumerate(side_by_side.columns)
-    ]
-    
-    st.dataframe(side_by_side)
-
-
-
-    
-with st.expander("🔍 Strongest Correlation Relationships (Heatmap Filtered ≥ 0.8)", expanded=False):
 
     # Compute correlation (excluding non-numeric columns)
     excluded_cols = ['enum_phone_1', 'enum_phone_2', '_submission__id']
@@ -7693,6 +7660,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
