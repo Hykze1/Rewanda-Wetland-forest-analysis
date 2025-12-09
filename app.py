@@ -2863,7 +2863,7 @@ st.header("🧪 Hypothesis Testing & Regression Analysis")
     # ===============================
     # Tabs for organization
     # ===============================
-tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
     "T-Test H1", 
     "Regression H2", 
     "Chi-Square WTP", 
@@ -2925,7 +2925,7 @@ with tab1:
     The number of years living near the forest or wetland is **not significantly associated** with willingness to pay.  
     Longer residence does **not predict higher WTP** in this sample.
     """)
-    
+
 with tab2:
     st.subheader("H2: Crop Profit → WTP Regression")
 
@@ -7585,6 +7585,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
