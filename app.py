@@ -26,8 +26,7 @@ from scipy import stats
 from IPython.display import Markdown, display
 import statsmodels.api as sm
 import statsmodels.formula.api as smf   
-from scipy.stats import chi2_contingency
-
+from scipy.stats import ttest_ind, chi2_contingency
 
 # ================================
 
@@ -2882,52 +2881,49 @@ tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
 # Tab 1: T-Test (H1)
 # -------------------------------
 with tab1:
-    st.markdown("### Years Lived in the Area vs Willingness to Pay (WTP)")
+    st.header("H1: Years Lived Near Ecosystem vs Willingness to Pay")
 
-    # ==================== FOREST ====================
-    st.subheader("Forest Ecosystem")
-    
-    tstat, p = ttest_ind(
-        merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
-        merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
-        nan_policy='omit'
-    )
-    st.write(f"**T-test result** → T-stat = `{tstat:.4f}`, P-value = `{p:.4f}` {'(significant at 5%)' if p < 0.05 else ''}")
+    col1, col2 = st.columns(2)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'],
-                label="WTP = No", fill=True, ax=ax)
-    sns.kdeplot(merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'],
-                label="WTP = Yes", fill=True, ax=ax)
-    ax.set_title("Forest: Years Lived Distribution by WTP")
-    ax.set_xlabel("Years Lived Near Forest")
-    ax.set_ylabel("Density")
-    ax.legend()
-    st.pyplot(fig)
-    plt.close(fig)  # prevent memory leak
+    with col1:
+        st.subheader("Forest")
+        yes = merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'].dropna()
+        no  = merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'].dropna()
+        if len(yes) > 1 and len(no) > 1:
+            tstat, p = ttest_ind(yes, no, nan_policy='omit')
+            st.write(f"T-stat: `{tstat:.3f}` | P-value: `{p:.4f}`")
+            st.write("Significant" if p < 0.05 else "Not significant")
+        else:
+            st.warning("Not enough data for Forest t-test")
 
-    # ==================== WETLAND ====================
-    st.subheader("Wetland Ecosystem")
-    
-    tstat, p = ttest_ind(
-        merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'],
-        merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'],
-        nan_policy='omit'
-    )
-    st.write(f"**T-test result** → T-stat = `{tstat:.4f}`, P-value = `{p:.4f}` {'(significant at 5%)' if p < 0.05 else ''}")
+        plt.figure(figsize=(7,4))
+        sns.kdeplot(no, label="No", fill=True, alpha=0.6)
+        sns.kdeplot(yes, label="Yes", fill=True, alpha=0.6)
+        plt.title("Forest: Years Lived by WTP")
+        plt.xlabel("Years Lived Near Forest")
+        plt.legend()
+        st.pyplot(plt.gcf())
+        plt.close()
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'],
-                label="WTP = No", fill=True, ax=ax)
-    sns.kdeplot(merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'],
-                label="WTP = Yes", fill=True, ax=ax)
-    ax.set_title("Wetland: Years Lived Distribution by WTP")
-    ax.set_xlabel("Years Lived Near Wetland")
-    ax.set_ylabel("Density")
-    ax.legend()
-    st.pyplot(fig)
-    plt.close(fig)
+    with col2:
+        st.subheader("Wetland")
+        yes = merged_df.loc[merged_df['wtp_wetland'] == 1, 'resp_years_area_wetland'].dropna()
+        no  = merged_df.loc[merged_df['wtp_wetland'] == 0, 'resp_years_area_wetland'].dropna()
+        if len(yes) > 1 and len(no) > 1:
+            tstat, p = ttest_ind(yes, no, nan_policy='omit')
+            st.write(f"T-stat: `{tstat:.3f}` | P-value: `{p:.4f}`")
+            st.write("Significant" if p < 0.05 else "Not significant")
+        else:
+            st.warning("Not enough data for Wetland t-test")
 
+        plt.figure(figsize=(7,4))
+        sns.kdeplot(no, label="No", fill=True, alpha=0.6)
+        sns.kdeplot(yes, label="Yes", fill=True, alpha=0.6)
+        plt.title("Wetland: Years Lived by WTP")
+        plt.xlabel("Years Lived Near Wetland")
+        plt.legend()
+        st.pyplot(plt.gcf())
+        plt.close()
     st.markdown("""
     **Interpretation:**  
     Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
@@ -3627,9 +3623,6 @@ plt.show()
 # In[349]:
 
 
-import pandas as pd
-from scipy.stats import chi2_contingency
-import warnings
 
 # --- 1. Select and Clean Columns ---
 col1 = 'resp_gender'
@@ -7705,6 +7698,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
