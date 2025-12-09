@@ -2897,14 +2897,22 @@ with tab1:
     )
     st.write(f"Wetland: Years vs WTP T-stat = {tstat_wetland:.3f}, P-value = {p_wetland:.3f}")
 
+    # Forest t-test
+    tstat_forest, p_forest = ttest_ind(
+        merged_df.loc[merged_df['wtp_forest'] == 1, 'resp_years_area_forest'],
+        merged_df.loc[merged_df['wtp_forest'] == 0, 'resp_years_area_forest'],
+        nan_policy='omit'
+    )
+    st.write(f"Forest: Years vs WTP T-stat = {tstat_forest:.3f}, P-value = {p_forest:.3f}")
+
     # Forest KDE
     fig, ax = plt.subplots(figsize=(10,5))
     sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'], 
+        merged_df.loc[merged_df['wtp_forest']==0, 'resp_years_area_forest'],
         label="WTP=No", fill=True, ax=ax
     )
     sns.kdeplot(
-        merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'], 
+        merged_df.loc[merged_df['wtp_forest']==1, 'resp_years_area_forest'],
         label="WTP=Yes", fill=True, ax=ax
     )
     ax.set_title("Forest: Years Lived Distribution by WTP")
@@ -2916,11 +2924,11 @@ with tab1:
     # Wetland KDE
     fig2, ax2 = plt.subplots(figsize=(10,5))
     sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'], 
+        merged_df.loc[merged_df['wtp_wetland']==0, 'resp_years_area_wetland'],
         label="WTP=No", fill=True, ax=ax2
     )
     sns.kdeplot(
-        merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'], 
+        merged_df.loc[merged_df['wtp_wetland']==1, 'resp_years_area_wetland'],
         label="WTP=Yes", fill=True, ax=ax2
     )
     ax2.set_title("Wetland: Years Lived Distribution by WTP")
@@ -2931,11 +2939,8 @@ with tab1:
 
     st.markdown("""
     **Interpretation:**  
-    T-statistic = 1.35  
-    P-value = 0.177  
-    
     Both p-values are greater than 0.05, meaning we fail to reject the null hypothesis.  
-    The number of years living near the forest is **not significantly associated** with willingness to pay.  
+    The number of years living near the forest or wetland is **not significantly associated** with willingness to pay.  
     Longer residence does **not predict higher WTP** in this sample.
     """)
     
@@ -7709,6 +7714,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
