@@ -4651,14 +4651,20 @@ with tab3:
         st.write(f"**Carbon Value:** {total_carbon_value_billion:.2f} billion RWF")
 
         # Soil Erosion
+        # Soil Erosion
         raster_path = "data/rasters/sed_export_NYABARONGO.tif"
         with rasterio.open(raster_path) as src:
             erosion_arr = src.read(1)
-            total_erosion_tonnes = np.sum(erosion_arr[erosion_arr != nodata])
-
+            nodata_erosion = src.nodata      # <--- THIS IS THE FIX
+        
+        # filter valid pixels
+            valid_erosion = erosion_arr != nodata_erosion
+            
+            total_erosion_tonnes = np.sum(erosion_arr[valid_erosion])
+            
             cost_per_tonne_soil = 15_000
             total_erosion_value_billion = total_erosion_tonnes * cost_per_tonne_soil / 1_000_000_000
-    
+            
             st.write(f"**Total Soil Erosion:** {total_erosion_tonnes:,.0f} tonnes/year")
             st.write(f"**Soil Erosion Control Value:** {total_erosion_value_billion:.2f} billion RWF/year")
 
@@ -4814,23 +4820,29 @@ with tab3:
             carbon_arr = src.read(1)
             total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
 
-        price_per_tonne_RWF = 38000
-        total_carbon_value_RWF = total_carbon_tonnes * price_per_tonne_RWF
-        annual_carbon_benefit_RWF = total_carbon_value_RWF * 0.02
-
-        st.write(f"**Total Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
-        st.write(f"**Carbon Storage Value:** {total_carbon_value_RWF/1e9:.2f} billion RWF")
-        st.write(f"**Annual Carbon Benefit (2% of stock):** {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
+            price_per_tonne_RWF = 38000
+            total_carbon_value_RWF = total_carbon_tonnes * price_per_tonne_RWF
+            annual_carbon_benefit_RWF = total_carbon_value_RWF * 0.02
+    
+            st.write(f"**Total Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
+            st.write(f"**Carbon Storage Value:** {total_carbon_value_RWF/1e9:.2f} billion RWF")
+            st.write(f"**Annual Carbon Benefit (2% of stock):** {annual_carbon_benefit_RWF/1e9:.2f} billion RWF/year")
 
     with st.expander("Soil Erosion Control (SDR)", expanded=True):
+        # Soil Erosion – Muvumba
         raster_path = "data/rasters/sed_export_Muvumba.tif"
         with rasterio.open(raster_path) as src:
             sdr_arr = src.read(1)
+            nodata = src.nodata   # <-- IMPORTANT: you were missing this
+        
+            # Remove nodata values before summing
             total_sediment_tonnes = np.sum(sdr_arr[sdr_arr != nodata])
-
-            value_per_kg_RWF = 1
-            total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF
-    
+        
+            # Value calculation
+            value_per_kg_RWF = 1  # RWF per kg
+            total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF  # convert tonnes → kg
+            
+            # Output
             st.write(f"**Total Soil Erosion:** {total_sediment_tonnes:,.0f} tonnes/year")
             st.write(f"**Soil Erosion Control Value:** {total_sediment_value_RWF/1e9:.2f} billion RWF/year")
 
@@ -7259,6 +7271,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
