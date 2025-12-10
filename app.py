@@ -4656,11 +4656,11 @@ with tab3:
             erosion_arr = src.read(1)
             total_erosion_tonnes = np.sum(erosion_arr[erosion_arr != nodata])
 
-        cost_per_tonne_soil = 15_000
-        total_erosion_value_billion = total_erosion_tonnes * cost_per_tonne_soil / 1_000_000_000
-
-        st.write(f"**Total Soil Erosion:** {total_erosion_tonnes:,.0f} tonnes/year")
-        st.write(f"**Soil Erosion Control Value:** {total_erosion_value_billion:.2f} billion RWF/year")
+            cost_per_tonne_soil = 15_000
+            total_erosion_value_billion = total_erosion_tonnes * cost_per_tonne_soil / 1_000_000_000
+    
+            st.write(f"**Total Soil Erosion:** {total_erosion_tonnes:,.0f} tonnes/year")
+            st.write(f"**Soil Erosion Control Value:** {total_erosion_value_billion:.2f} billion RWF/year")
 
 # -------------------------------
 # TAB 4: Final TEV Results
@@ -4828,11 +4828,11 @@ with tab3:
             sdr_arr = src.read(1)
             total_sediment_tonnes = np.sum(sdr_arr[sdr_arr != nodata])
 
-        value_per_kg_RWF = 1
-        total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF
-
-        st.write(f"**Total Soil Erosion:** {total_sediment_tonnes:,.0f} tonnes/year")
-        st.write(f"**Soil Erosion Control Value:** {total_sediment_value_RWF/1e9:.2f} billion RWF/year")
+            value_per_kg_RWF = 1
+            total_sediment_value_RWF = total_sediment_tonnes * 1000 * value_per_kg_RWF
+    
+            st.write(f"**Total Soil Erosion:** {total_sediment_tonnes:,.0f} tonnes/year")
+            st.write(f"**Soil Erosion Control Value:** {total_sediment_value_RWF/1e9:.2f} billion RWF/year")
 
 # -------------------------------
 # TAB 4: Final TEV Results
@@ -7259,6 +7259,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
