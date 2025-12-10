@@ -5429,7 +5429,7 @@ with tabs[1]:
     # 3. Soil Erosion Control Value
     # -----------------------------
     with st.expander("⛰️ Soil Erosion Control (Avoided Sediment Export)", expanded=True):
-        raster_path = "forest invest\\MountKigali_SDR_Output\\sed_deposition_kigali.tif"
+        raster_path = "data/rasters/sed_deposition_kigali.tif"
 
         with rasterio.open(raster_path) as src:
             data = src.read(1).astype(np.float64)
@@ -6724,6 +6724,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
