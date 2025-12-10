@@ -4805,7 +4805,6 @@ with tab2:
             muvumba_irrig_total, muvumba_irrig_mean, irrig_detail = irrigation_value_production_function(df_muvumba)
             st.write(f"**Total Irrigation Value:** {muvumba_irrig_total:,.0f} RWF/year")
             st.write(f"**Mean Irrigation Value per Household:** {muvumba_irrig_mean:,.0f} RWF")
-            st.dataframe(irrig_detail)
     except Exception as e:
         st.error(f"Irrigation section error: {e}")
 
@@ -4951,25 +4950,33 @@ with tab4:
     ''')
     
 
+# ======================
+# Page layout & title
+# ======================
+st.set_page_config(page_title="Rwanda Wetlands Valuation", layout="wide")
 
+st.markdown("""
+# 🌿 Rwanda's Major Wetlands – Ecosystem Services Valuation
+**Including Rugezi, Bugurama, Nyabarongo, Muvumba & Akagera**
+""")
 
-# === UPDATED DATA INCLUDING AKAGERA ===
+# ======================
+# Wetlands data
+# ======================
 wetlands = ["Rugezi", "Bugurama", "Nyabarongo", "Muvumba", "Akagera"]
 
-# Water Regulation Value (billion RWF/year)
 water_regulation = [29.36, 60.64, 16.54, 69.40, 57.25]
-
-# Total Carbon Storage Value (billion RWF) — using your latest numbers
-carbon_value = [17480.58, 15991.79, 17480.58, 17480.58, 41401.39]  # Akagera is much larger!
-
-# Erosion Control Value (billion RWF/year)
+carbon_value = [17480.58, 15991.79, 17480.58, 17480.58, 41401.39]
 erosion_control = [15.99, 8.57, 20.23, 1.01, 0.20]
 
-# === INTERACTIVE BAR CHART ===
+# ======================
+# Interactive Bar Charts
+# ======================
+st.markdown("## 📊 Comparative Ecosystem Services Values")
 fig = make_subplots(
     rows=3, cols=1,
     subplot_titles=(
-          "💧 Water Regulation Value (billion RWF/year)",
+        "💧 Water Regulation Value (billion RWF/year)",
         "🌍 Total Carbon Storage Value (billion RWF)",
         "⛰️ Erosion Control Value (billion RWF/year)"
     ),
@@ -4977,15 +4984,12 @@ fig = make_subplots(
     shared_xaxes=True
 )
 
-# Colors for each wetland (nice & distinct)
 colors = ["#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd"]
 
-# Add bars
 for i, wetland in enumerate(wetlands):
     fig.add_trace(go.Bar(
         x=[wetland],
         y=[water_regulation[i]],
-        name="Water Regulation",
         marker_color=colors[i],
         text=f"{water_regulation[i]:,} bn",
         textposition="outside",
@@ -4995,7 +4999,6 @@ for i, wetland in enumerate(wetlands):
     fig.add_trace(go.Bar(
         x=[wetland],
         y=[carbon_value[i]],
-        name="Carbon Value",
         marker_color=colors[i],
         text=f"{carbon_value[i]:,} bn",
         textposition="outside",
@@ -5005,14 +5008,12 @@ for i, wetland in enumerate(wetlands):
     fig.add_trace(go.Bar(
         x=[wetland],
         y=[erosion_control[i]],
-        name="Erosion Control",
         marker_color=colors[i],
         text=f"{erosion_control[i]:,.2f} bn",
         textposition="outside",
         showlegend=False
     ), row=3, col=1)
 
-# Update layout
 fig.update_layout(
     height=1000,
     width=1000,
@@ -5021,35 +5022,27 @@ fig.update_layout(
     title_font_size=20,
     font=dict(size=13)
 )
-
-# Y-axis labels
 fig.update_yaxes(title_text="Billion RWF/year", row=1, col=1)
 fig.update_yaxes(title_text="Billion RWF (total stock)", row=2, col=1)
 fig.update_yaxes(title_text="Billion RWF/year", row=3, col=1)
 
-# Improve readability on carbon chart (log scale optional — uncomment if you want)
-# fig.update_yaxes(type="log", row=2, col=1)
+st.plotly_chart(fig, use_container_width=True)
 
-# Show it!
-fig.show()
+# ======================
+# Folium Map of Wetlands
+# ======================
+st.markdown("## 🗺️ Wetlands Map with Ecosystem Data")
 
-# Save as interactive HTML
-fig.write_html("Rwanda_Wetlands_Including_Akagera_Comparison.html")
-print("Chart with Akagera included → saved as 'Rwanda_Wetlands_Including_Akagera_Comparison.html'")
-
-# Rwanda map
 m = folium.Map(location=[-1.9403, 29.8739], zoom_start=8, tiles="OpenStreetMap")
-st_folium(m, width=800, height=600)
-# === UPDATED: All 5 wetlands with accurate coordinates ===
-wetlands = {
-    "Rugezi":     {"coords": [-1.4894, 29.8919],   "name": "Rugezi Marsh"},
-    "Bugurama":   {"coords": [-2.5478, 29.0083],   "name": "Bugurama Wetland"},
-    "Nyabarongo": {"coords": [-1.9925, 30.0931],   "name": "Nyabarongo Wetland"},
-    "Muvumba":    {"coords": [-1.4661, 30.3089],   "name": "Muvumba Wetland"},
-    "Akagera":    {"coords": [-1.8833, 30.6667],   "name": "Akagera Wetlands Complex"}  # Central part of Akagera floodplains
+
+wetlands_info = {
+    "Rugezi":     {"coords": [-1.4894, 29.8919], "name": "Rugezi Marsh"},
+    "Bugurama":   {"coords": [-2.5478, 29.0083], "name": "Bugurama Wetland"},
+    "Nyabarongo": {"coords": [-1.9925, 30.0931], "name": "Nyabarongo Wetland"},
+    "Muvumba":    {"coords": [-1.4661, 30.3089], "name": "Muvumba Wetland"},
+    "Akagera":    {"coords": [-1.8833, 30.6667], "name": "Akagera Wetlands Complex"}
 }
 
-# === FULL DATA INCLUDING AKAGERA ===
 data_text = {
     "Rugezi": """<b>RUGEZI WETLAND</b><br>
         Water Regulation: 29.36 billion RWF/year<br>
@@ -5091,12 +5084,10 @@ data_text = {
         Soil Erosion: 1,012,908 tonnes/year"""
 }
 
-# Distinct colors (Akagera = striking purple)
 colors = ["#d7191c", "#ff7f0e", "#2ca02c", "#1f78b4", "#9467bd"]
 
-for i, (name, info) in enumerate(wetlands.items()):
+for i, (name, info) in enumerate(wetlands_info.items()):
     lat, lon = info["coords"]
-
     earth_url = f"https://earth.google.com/web/@{lat},{lon},300a,5000d,35y,0h,0t,0r"
     maps_url  = f"https://www.google.com/maps/search/?api=1&query={lat},{lon}"
 
@@ -5120,7 +5111,6 @@ for i, (name, info) in enumerate(wetlands.items()):
         </div>
     </div>
     """
-
     iframe = IFrame(html, width=400, height=380)
     popup = folium.Popup(iframe, max_width=450)
 
@@ -5136,7 +5126,7 @@ for i, (name, info) in enumerate(wetlands.items()):
         weight=5
     ).add_to(m)
 
-# === Updated title ===
+# Add title above map
 title_html = '''
 <h3 align="center" style="font-size:24px; font-weight:bold; margin:15px; color:#2c3e50;">
     Rwanda's Major Wetlands – Ecosystem Services Valuation (incl. Akagera)
@@ -5144,13 +5134,10 @@ title_html = '''
 '''
 m.get_root().html.add_child(folium.Element(title_html))
 
-# Save HTML copy
+# Save map
 m.save("Rwanda_Wetlands_Including_Akagera_2025.html")
-print("Map updated with Akagera! → Rwanda_Wetlands_Including_Akagera_2025.html")
-
-# === THIS IS THE CORRECT STREAMLIT DISPLAY ===
-from streamlit_folium import st_folium
 st_folium(m, width=900, height=650)
+
 
 
 
@@ -5190,7 +5177,6 @@ plt.show()
 # In[396]:
 
 
-import matplotlib.pyplot as plt
 
 # Values in trillion RWF
 regulating = 1.59242
@@ -7291,6 +7277,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
