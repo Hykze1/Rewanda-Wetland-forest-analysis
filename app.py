@@ -4281,11 +4281,11 @@ with tab2:
             nodata = src.nodata
             volume_m3 = np.sum(wy_mm[wy_mm != nodata]) * pixel_area_m2 / 1000
 
-        cost_per_m3 = 550
-        value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
-
-        st.write(f"**Water Regulation Value:** {value_billion:.2f} billion RWF/year")
-        st.write(f"**Total Annual Water Yield:** {volume_m3:,.0f} m³/year")
+            cost_per_m3 = 550
+            value_billion = volume_m3 * cost_per_m3 / 1_000_000_000
+    
+            st.write(f"**Water Regulation Value:** {value_billion:.2f} billion RWF/year")
+            st.write(f"**Total Annual Water Yield:** {volume_m3:,.0f} m³/year")
 
 # -------------------------------
 # TAB 3: Carbon & Soil Erosion
@@ -4299,11 +4299,11 @@ with tab3:
             nodata = src.nodata
             total_carbon_tonnes = np.sum(carbon_arr[carbon_arr != nodata])
 
-        price_per_tonne = 38000
-        value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
-
-        st.write(f"**Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
-        st.write(f"**Carbon Value:** {value_billion:.2f} billion RWF")
+            price_per_tonne = 38000
+            value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
+    
+            st.write(f"**Carbon Storage:** {total_carbon_tonnes:,.0f} tonnes")
+            st.write(f"**Carbon Value:** {value_billion:.2f} billion RWF")
 
         # Soil erosion
         raster_path = "data/rasters/sed_export_Bugrama.tif"
@@ -4313,12 +4313,12 @@ with tab3:
             valid = sed_export != nodata
             total_sed_tons = np.sum(sed_export[valid])
 
-        price_per_ton = 10_000
-        total_value_RWF = total_sed_tons * price_per_ton
-        value_billion = total_value_RWF / 1_000_000_000
-
-        st.write(f"**Soil Erosion Control Value:** {value_billion:.2f} billion RWF/year")
-        st.write(f"**Total Soil Erosion:** {total_sed_tons:,.0f} tonnes/year")
+            price_per_ton = 10_000
+            total_value_RWF = total_sed_tons * price_per_ton
+            value_billion = total_value_RWF / 1_000_000_000
+    
+            st.write(f"**Soil Erosion Control Value:** {value_billion:.2f} billion RWF/year")
+            st.write(f"**Total Soil Erosion:** {total_sed_tons:,.0f} tonnes/year")
 
 # -------------------------------
 # TAB 4: Final TEV Results
@@ -7259,6 +7259,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
