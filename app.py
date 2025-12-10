@@ -4043,7 +4043,10 @@ tab1, tab2, tab3, tab4 = st.tabs([
     "🌊 Water Regulation & Carbon", 
     "📝 Final TEV Results"
 ])
-
+df_rugezi    = wetland_df[wetland_df["eco_case_study_no"] == 9].copy()
+df_Bugarama  = wetland_df[wetland_df["eco_case_study_no"] == 6].copy()
+df_Nyabarongo = wetland_df[wetland_df["eco_case_study_no"] == 7].copy()
+df_Muvumba   = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
 with tab1:
     with st.expander("✅ Wetland Case Studies", expanded=True):
         st.markdown(
@@ -4540,8 +4543,6 @@ total_value_billion = total_carbon_tonnes * price_per_tonne / 1_000_000_000
 print(f"Total Carbon Storage = {total_carbon_tonnes:,.0f} tonnes")
 print(f"Carbon Storage Value = {total_value_billion:.2f} billion RWF")
 
-
-# In[383]:
 
 
 raster_path = "data/rasters/sed_export_NYABARONGO.tif"
@@ -7258,6 +7259,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
