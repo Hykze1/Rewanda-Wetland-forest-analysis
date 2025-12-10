@@ -4774,36 +4774,46 @@ with tab1:
     with st.expander("5.1 Agriculture (Rice + Maize)", expanded=True):
         muvumba_agri_value = df_Muvumba["crop_value_total_year_RWF"].sum()
         st.write(f"**Muvumba – Agriculture Value:** {muvumba_agri_value:,.0f} RWF")
+# --- Irrigation Value Function ---
+def irrigation_value_production_function(df2, no_irrigation_factor=0.65):
+    df2 = df2.copy()  # Do not overwrite with merged_df
+    df2["yield_kg_ha"] = pd.to_numeric(df2["crop_yield_kg_ha_year"], errors='coerce').fillna(0)
+    df2["area_ha"] = pd.to_numeric(df2["crop_area_hectare_equiv"], errors='coerce').fillna(0)
+    df2["price_rwf"] = pd.to_numeric(df2["crop_market_price"], errors='coerce').fillna(0)
+    df2["yield_no_irrigation"] = df2["yield_kg_ha"] * no_irrigation_factor
+    df2["yield_gain"] = df2["yield_kg_ha"] - df2["yield_no_irrigation"]
+    df2["irrigation_value_hh"] = df2["yield_gain"] * df2["price_rwf"] * df2["area_ha"]
+    total_value = df2["irrigation_value_hh"].sum()
+    mean_value = df2["irrigation_value_hh"].mean()
+    detail_cols = ["yield_kg_ha", "yield_no_irrigation", "yield_gain", "price_rwf", "area_ha", "irrigation_value_hh"]
+    return total_value, mean_value, df2[detail_cols]
 
+# --- Livestock Water Function ---
+def livestock_water_value(df2, cost_per_L=20):
+    df2 = df2.copy()
+    df2["water_L"] = df2["livestock_water_quantity"] * df2["livestock_water_unit_to_L"]
+    df2["annual_L"] = df2["water_L"] * df2["livestock_water_freq_year_calc"]
+    total_L = df2["annual_L"].sum()
+    return total_L * cost_per_L
 
 with tab2:
     st.markdown("### 💧 Irrigation & Livestock Water Value")
 
-    # --- Irrigation Value ---
     try:
         with st.expander("5.2 Irrigation Value (Production Function Method)", expanded=True):
-
             df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
-
             muvumba_irrig_total, muvumba_irrig_mean, irrig_detail = irrigation_value_production_function(df_muvumba)
-
             st.write(f"**Total Irrigation Value:** {muvumba_irrig_total:,.0f} RWF/year")
             st.write(f"**Mean Irrigation Value per Household:** {muvumba_irrig_mean:,.0f} RWF")
             st.dataframe(irrig_detail)
-
     except Exception as e:
         st.error(f"Irrigation section error: {e}")
 
-    # --- Livestock Water Value ---
     try:
         with st.expander("5.3 Livestock Water Value", expanded=True):
-
             df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
-
             muvumba_livestock_value = livestock_water_value(df_muvumba)
-
             st.write(f"**Muvumba – Livestock Water Value:** {muvumba_livestock_value:,.0f} RWF/year")
-
     except Exception as e:
         st.error(f"Livestock section error: {e}")
 
@@ -7281,6 +7291,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
