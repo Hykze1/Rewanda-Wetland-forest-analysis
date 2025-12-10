@@ -4775,28 +4775,38 @@ with tab1:
         muvumba_agri_value = df_Muvumba["crop_value_total_year_RWF"].sum()
         st.write(f"**Muvumba – Agriculture Value:** {muvumba_agri_value:,.0f} RWF")
 
-# -------------------------------
-# TAB 2: Irrigation & Livestock Water
-# -------------------------------
+
 with tab2:
     st.markdown("### 💧 Irrigation & Livestock Water Value")
 
+    # --- Irrigation Value ---
     try:
         with st.expander("5.2 Irrigation Value (Production Function Method)", expanded=True):
+
             df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
+
             muvumba_irrig_total, muvumba_irrig_mean, irrig_detail = irrigation_value_production_function(df_muvumba)
+
             st.write(f"**Total Irrigation Value:** {muvumba_irrig_total:,.0f} RWF/year")
             st.write(f"**Mean Irrigation Value per Household:** {muvumba_irrig_mean:,.0f} RWF")
             st.dataframe(irrig_detail)
+
     except Exception as e:
         st.error(f"Irrigation section error: {e}")
 
+    # --- Livestock Water Value ---
     try:
         with st.expander("5.3 Livestock Water Value", expanded=True):
-            muvumba_livestock_value = livestock_water_value(df_Muvumba)
+
+            df_muvumba = wetland_df[wetland_df["eco_case_study_no"] == 8].copy()
+
+            muvumba_livestock_value = livestock_water_value(df_muvumba)
+
             st.write(f"**Muvumba – Livestock Water Value:** {muvumba_livestock_value:,.0f} RWF/year")
+
     except Exception as e:
         st.error(f"Livestock section error: {e}")
+
 # -------------------------------
 # TAB 3: Water Yield, Carbon & Soil Erosion
 # -------------------------------
@@ -7271,6 +7281,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
