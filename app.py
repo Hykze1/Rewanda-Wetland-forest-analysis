@@ -5129,9 +5129,7 @@ for i, (name, info) in enumerate(wetlands_info.items()):
 # Add title above map
 title_html = '''
 <h3 align="center" style="font-size:24px; font-weight:bold; margin:15px; color:#2c3e50;">
-    Rwanda's Major Wetlands – Ecosystem Services Valuation (incl. Akagera)
-</h3>
-'''
+    Rwanda's Major Wetlands – Ecosystem Services Valuation (incl. Akagera)</h3> '''
 m.get_root().html.add_child(folium.Element(title_html))
 
 # Save map
@@ -5140,293 +5138,237 @@ st_folium(m, width=900, height=650)
 
 
 
+st.set_page_config(page_title="Wetlands Economic Valuation", layout="wide")
+st.title("🌿 Rwanda Wetlands – Economic Valuation Dashboard")
 
-# ##1.	Total Economic Value Breakdown (RWF):
+# =========================
+# 1. Total Economic Value Breakdown
+# =========================
+st.markdown("## 1️⃣ Total Economic Value Breakdown (RWF)")
 
-# In[395]:
-
-
-# Data (in billion RWF)
 labels = ["Rugezi", "Bugarama", "Nyabarongo", "Muvumba"]
 values_billion = [394.96, 389.05, 386.38, 422.03]
 
-# Plot
-fig, ax = plt.subplots(figsize=(8, 6))
-wedges, texts, autotexts = ax.pie(
+fig1, ax1 = plt.subplots(figsize=(8, 6))
+wedges, texts, autotexts = ax1.pie(
     values_billion,
     labels=labels,
     autopct=lambda pct: f"{pct:.1f}%\n({pct/100*sum(values_billion):.2f} bn)",
     startangle=140,
     wedgeprops=dict(width=0.55)
 )
-
-# Title and legend (show absolute values also)
 total_billion = sum(values_billion)
-ax.set_title("Regulating Services — contribution by wetland\n(total = {:.2f} billion RWF / {:.3f} trillion RWF)".format(
-    total_billion, total_billion / 1000))
-
+ax1.set_title(
+    f"Regulating Services — contribution by wetland\n(total = {total_billion:.2f} billion RWF / {total_billion/1000:.3f} trillion RWF)"
+)
 plt.setp(autotexts, size=10, weight="bold")
-ax.axis('equal')  # equal aspect ensures pie is round
-
-# Save and show
+ax1.axis('equal')
 plt.tight_layout()
-plt.savefig("regulating_by_wetland_pie.png", dpi=300)
-plt.show()
+st.pyplot(fig1)
 
-
-# In[396]:
-
-
-
-# Values in trillion RWF
+# =========================
+# Total Economic Value: Regulating vs Provisioning + Cultural
+# =========================
+st.markdown("### Total Economic Value: Regulating vs Provisioning + Cultural Services")
 regulating = 1.59242
 provisioning_cultural = 0.61655
-
-labels = ["Regulating Services", "Provisioning + Cultural Services"]
+labels2 = ["Regulating Services", "Provisioning + Cultural Services"]
 sizes = [regulating, provisioning_cultural]
 
-plt.figure(figsize=(8, 8))
+fig2, ax2 = plt.subplots(figsize=(8,8))
+ax2.pie(sizes, labels=labels2, autopct='%1.1f%%', startangle=140)
+ax2.set_title("Total Economic Value Breakdown of Wetlands (RWF Trillions)", pad=20)
+ax2.axis('equal')
+st.pyplot(fig2)
 
-plt.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=140)
+# =========================
+# 2. Comparative Avg. Annual Income
+# =========================
+st.markdown("## 2️⃣ Comparative Avg. Annual Income from Wetlands (RWF)")
 
-# Title with padding to create space
-plt.title("Total Economic Value Breakdown of Wetlands (RWF Trillions)", pad=20)
-
-plt.axis('equal')  # Make the pie chart a perfect circle
-plt.show()
-
-
-# ##Comparative Avg. Annual Income from Wetlands (RWF)
-
-# In[397]:
-
-
-# Create DataFrame
 data = {
     "Wetland": ["Bugarama", "Muvumba", "Nyabarongo", "Rugezi", "Grand Total"],
-    "Avg_Annual_Income": [
-        195874.1007,
-        584769.2308,
-        194561.7978,
-        150320,
-        1125525.129
-    ]
+    "Avg_Annual_Income": [195874.1007, 584769.2308, 194561.7978, 150320, 1125525.129]
 }
-
 df9 = pd.DataFrame(data)
 
-# Set Seaborn style
 sns.set_theme(style="whitegrid")
-
-# Create bar plot with nice color palette
-plt.figure(figsize=(10, 6))
+fig3, ax3 = plt.subplots(figsize=(10, 6))
 bar_plot = sns.barplot(
     x="Wetland",
     y="Avg_Annual_Income",
     data=df9,
-    palette="viridis"
+    palette="viridis",
+    ax=ax3
 )
-
-# Add value labels on top of bars
 for p in bar_plot.patches:
     bar_plot.annotate(f'{p.get_height():,.0f}',
                       (p.get_x() + p.get_width() / 2., p.get_height()),
                       ha='center', va='bottom', fontsize=10)
-
-# Title and labels with padding
-plt.title("Comparative Avg. Annual Income from Wetlands (RWF)", pad=20, fontsize=14)
-plt.xlabel("Wetland", fontsize=12)
-plt.ylabel("Avg. Annual Income (RWF)", fontsize=12)
-
+ax3.set_title("Comparative Avg. Annual Income from Wetlands (RWF)", pad=20, fontsize=14)
+ax3.set_xlabel("Wetland", fontsize=12)
+ax3.set_ylabel("Avg. Annual Income (RWF)", fontsize=12)
 plt.tight_layout()
-plt.show()
+st.pyplot(fig3)
 
+# =========================
+# 3. Dependency Index: Confidence vs Expected Loss
+# =========================
+st.markdown("## 3️⃣ Dependency Index: Confidence vs Expected Loss")
 
-# ##Dependency Index: Confidence vs. Expected Loss
-
-# In[398]:
-
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-import pandas as pd
-
-# Create DataFrame
 data = {
     "Wetland": ["Bugarama", "Muvumba", "Nyabarongo", "Rugezi", "Grand Total"],
     "Avg_Confidence": [0.083333, 0.017544, 0.018692, 0, 0.119569],
     "Avg_Income_Reduction": [0.566502, 0.271605, 0.216867, 0.067146, 1.12212]
 }
-
 df10 = pd.DataFrame(data)
 
-# Set Seaborn style
-sns.set_theme(style="whitegrid")
-
-# Scatter plot
-plt.figure(figsize=(10, 6))
+fig4, ax4 = plt.subplots(figsize=(10, 6))
 scatter = sns.scatterplot(
     x="Avg_Confidence",
     y="Avg_Income_Reduction",
     hue="Wetland",
     data=df10,
-    s=150,      # size of points
-    palette="Set2"
+    s=150,
+    palette="Set2",
+    ax=ax4
 )
-
-# Add labels for each point
 for i in range(df10.shape[0]):
-    plt.text(df10.Avg_Confidence[i]+0.002, df10.Avg_Income_Reduction[i]+0.02,
+    ax4.text(df10.Avg_Confidence[i]+0.002, df10.Avg_Income_Reduction[i]+0.02,
              df10.Wetland[i], fontsize=10)
-
-# Titles and labels
-plt.title("Dependency Index: Confidence vs. Expected Loss by Wetland", pad=20, fontsize=14)
-plt.xlabel("Avg. Confidence in Wetland Income Benefits")
-plt.ylabel("Avg. Income Reduction if Wetland Were Completely Lost")
-
+ax4.set_title("Dependency Index: Confidence vs. Expected Loss by Wetland", pad=20, fontsize=14)
+ax4.set_xlabel("Avg. Confidence in Wetland Income Benefits")
+ax4.set_ylabel("Avg. Income Reduction if Wetland Were Completely Lost")
 plt.tight_layout()
-plt.show()
+st.pyplot(fig4)
 
+# =========================
+# 4. Household Willingness to Pay (WTP)
+# =========================
+st.markdown("## 4️⃣ Distribution of Household Willingness to Pay (WTP)")
 
-# ##4.	Distribution of Household Willingness to Pay (WTP):
-
-# In[399]:
-
-
-# Data
 data = {
     "Wetland": ["Bugarama", "Muvumba", "Rugezi", "Grand Total"],
     "WTP_RWF": [6071.43, 3700, 1237.1, 11008.53]
 }
-
 df11 = pd.DataFrame(data)
 
-# Seaborn style
-sns.set_theme(style="whitegrid")
-
-# Create bar plot
-plt.figure(figsize=(10, 6))
+fig5, ax5 = plt.subplots(figsize=(10, 6))
 bar_plot = sns.barplot(
     x="Wetland",
     y="WTP_RWF",
     data=df11,
-    palette="coolwarm"
+    palette="coolwarm",
+    ax=ax5
 )
-
-# Add value labels on top of bars
 for p in bar_plot.patches:
     bar_plot.annotate(f'{p.get_height():,.0f}',
                       (p.get_x() + p.get_width() / 2., p.get_height()),
                       ha='center', va='bottom', fontsize=10)
-
-# Title and labels
-plt.title("Average Household Willingness to Pay (WTP) for Wetland Conservation (RWF)", pad=20, fontsize=14)
-plt.xlabel("Wetland", fontsize=12)
-plt.ylabel("WTP (RWF)", fontsize=12)
-
+ax5.set_title("Average Household Willingness to Pay (WTP) for Wetland Conservation (RWF)", pad=20, fontsize=14)
+ax5.set_xlabel("Wetland", fontsize=12)
+ax5.set_ylabel("WTP (RWF)", fontsize=12)
 plt.tight_layout()
-plt.show()
+st.pyplot(fig5)
 
+# =========================
+# 5. Agricultural Productivity Comparison
+# =========================
+st.markdown("## 5️⃣ Agricultural Productivity Comparison")
 
-# ##5.	Agricultural Productivity Comparison
-
-# In[400]:
-
-
-# Data
 data = {
     "Wetland": ["Bugarama", "Muvumba", "Nyabarongo", "Rugezi"],
     "Avg_Crop_Value_per_Hectare": [-1.22e6, 3.86e6, np.nan, 4.38e6]
 }
+df12 = pd.DataFrame(data)
 
-df11 = pd.DataFrame(data)
-
-# Set Seaborn style
-sns.set_theme(style="whitegrid")
-
-# Create bar plot
-plt.figure(figsize=(10, 6))
+fig6, ax6 = plt.subplots(figsize=(10, 6))
 bar_plot = sns.barplot(
     x="Wetland",
     y="Avg_Crop_Value_per_Hectare",
-    data=df11,
-    palette="coolwarm"
+    data=df12,
+    palette="coolwarm",
+    ax=ax6
 )
-
-# Add value labels on top of bars (skip NaN)
 for p in bar_plot.patches:
     height = p.get_height()
     if not np.isnan(height):
         bar_plot.annotate(f'{height:,.0f}',
                           (p.get_x() + p.get_width() / 2., height),
                           ha='center', va='bottom', fontsize=10)
-
-# Title and labels
-plt.title("Agricultural Productivity Comparison: Avg. Total Crop Value per Hectare per Year (RWF)", pad=20, fontsize=14)
-plt.xlabel("Wetland", fontsize=12)
-plt.ylabel("Avg. Crop Value per Hectare (RWF)", fontsize=12)
-
+ax6.set_title("Agricultural Productivity Comparison: Avg. Total Crop Value per Hectare per Year (RWF)", pad=20, fontsize=14)
+ax6.set_xlabel("Wetland", fontsize=12)
+ax6.set_ylabel("Avg. Crop Value per Hectare (RWF)", fontsize=12)
 plt.tight_layout()
-plt.show()
+st.pyplot(fig6)
 
+# =========================
+# 6. Water Valuation Breakdown per Wetland
+# =========================
+st.markdown("## 6️⃣ Water Valuation Breakdown per Wetland (RWF)")
 
-# ##Water Valuation Breakdown per Wetland (RWF)
-
-# In[401]:
-
-
-# Prepare Data
 data = {
     "Wetland": ["Bugarama", "Muvumba", "Nyabarongo", "Rugezi"],
     "Domestic_Water": [28047.3, np.nan, 0, 99872.55],
     "Irrigation_Water": [126472.5, -56014.29, np.nan, 371387.5],
     "Water_for_Livestock": [2859.17, 35250.70, 356.10, 72498.84]
 }
+df13 = pd.DataFrame(data)
+df_melted = df13.melt(id_vars="Wetland",
+                      var_name="Water_Type",
+                      value_name="Value")
 
-df12 = pd.DataFrame(data)
-
-# Melt for Seaborn
-df_melted = df12.melt(id_vars="Wetland",
-                    var_name="Water_Type",
-                    value_name="Value")
-
-# Seaborn style
-sns.set_theme(style="whitegrid")
-
-# Grouped bar plot
-plt.figure(figsize=(10, 6))
+fig7, ax7 = plt.subplots(figsize=(10, 6))
 bar_plot = sns.barplot(
     x="Wetland",
     y="Value",
     hue="Water_Type",
     data=df_melted,
-    palette="viridis"
+    palette="viridis",
+    ax=ax7
 )
-
-# Add value labels
 for p in bar_plot.patches:
     height = p.get_height()
     if not np.isnan(height):
         bar_plot.annotate(f'{height:,.0f}',
                           (p.get_x() + p.get_width() / 2., height),
                           ha='center', va='bottom', fontsize=9)
-
-# Titles and labels
-plt.title("Water Valuation Breakdown per Wetland (RWF)", pad=20, fontsize=14)
-plt.xlabel("Wetland", fontsize=12)
-plt.ylabel("Avg. Annual Value of Water (RWF)", fontsize=12)
-
-plt.legend(title="Water Type")
+ax7.set_title("Water Valuation Breakdown per Wetland (RWF)", pad=20, fontsize=14)
+ax7.set_xlabel("Wetland", fontsize=12)
+ax7.set_ylabel("Avg. Annual Value of Water (RWF)", fontsize=12)
+ax7.legend(title="Water Type")
 plt.tight_layout()
-plt.show()
+st.pyplot(fig7)
+
+# =========================
+# 7. Fishing & Other Provisioning Service Incomes
+# =========================
+st.markdown("## 7️⃣ Comparison of Fishing vs Other Provisioning Service Incomes")
+
+data = {
+    "Wetland": ["Bugarama", "Muvumba", "Nyabarongo", "Rugezi"],
+    "Fishing_Income": [700, None, None, 350],
+    "Mats_Income": [368650, None, None, 15876.64],
+    "Annual_Wetland_Income": [195874.1, 584769.23, 194561.8, 150320]
+}
+df14 = pd.DataFrame(data).fillna(0)
+df_melted = df14.melt(id_vars="Wetland",
+                      value_vars=["Fishing_Income", "Mats_Income", "Annual_Wetland_Income"],
+                      var_name="Income_Type", value_name="RWF")
+
+fig8, ax8 = plt.subplots(figsize=(10,6))
+sns.barplot(data=df_melted, x="Wetland", y="RWF", hue="Income_Type", palette=["blue","orange","green"], ax=ax8)
+for i, row in df_melted.iterrows():
+    ax8.text(x=i%4, y=row["RWF"] + 5000, s=f"{row['RWF']:,.0f}", ha='center', fontsize=9)
+ax8.set_title("Comparison of Fishing vs. Other Provisioning Service Incomes by Wetland", pad=20, fontsize=14)
+ax8.set_ylabel("Income (RWF)")
+ax8.set_xlabel("Wetland")
+ax8.legend(title="Income Type")
+plt.tight_layout()
+st.pyplot(fig8)
 
 
-# In[402]:
 
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 # Data for provisioning services
 data = {
@@ -7277,6 +7219,7 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Forests_Ecosystem_Services_Map.html")
 print("Interactive map created! Open 'Rwanda_Forests_Ecosystem_Services_Map.html' in your browser.")
 m
+
 
 
 
