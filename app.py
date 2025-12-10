@@ -6542,9 +6542,8 @@ with tabs[6]:    # <-- Change index if needed
 
 
 
-
-tabs[5] = “Forest Ecosystem Valuation Charts”
-tabs[6] = “Forest Ecosystem Services Map”
+tabs[5] = "Forest Ecosystem Valuation Charts"
+tabs[6] = "Forest Ecosystem Services Map"
 
 with tabs[5]:
     st.markdown("## 🌳 Ecosystem Services Valuation – Rwanda's Major Forests (2025)")
@@ -6725,6 +6724,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
