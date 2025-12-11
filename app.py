@@ -6120,7 +6120,7 @@ with tabs[3]:
         "provisioning_cultural_RWF",
         "regulating_total_RWF",
         "TEV_per_hh_RWF"
-    ]].describe().T)  # Transpose for easier reading
+    ]].describe().head())  
 
     st.success(
         f"**Average TEV per household:** {df_gishwati['TEV_per_hh_RWF'].mean():,.0f} RWF/year"
@@ -6493,10 +6493,12 @@ with tabs[2]:    # <-- Change index if needed
 
 
 
-tabs[5] = "Forest Ecosystem Valuation Charts"
-tabs[6] = "Forest Ecosystem Services Map"
+tabs = st.tabs([
+    "7️⃣ Forest Ecosystem Valuation Charts",  # new
+    "8️⃣ Forest Ecosystem Services Map"       # new
+])
 
-with tabs[5]:
+with tabs[0]:
     st.markdown("## 🌳 Ecosystem Services Valuation – Rwanda's Major Forests (2025)")
     st.markdown("""
     This section visualizes **Water Regulation**, **Carbon Stock**, and **Soil Erosion Control**
@@ -6577,7 +6579,7 @@ with tabs[5]:
     st.plotly_chart(fig, use_container_width=True)
 
 
-with tabs[6]:
+with tabs[1]:
     st.markdown("## 🗺️ Rwanda Forest Ecosystem Services Interactive Map")
     st.markdown("""
     This interactive map shows **forest locations**, **ecosystem service values**,  
@@ -6675,6 +6677,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
