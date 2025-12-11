@@ -6333,7 +6333,7 @@ with tabs[2]:    # <-- Change index if needed
     # ========================================================================
     with st.expander("💧 1. Water Regulation (Annual Water Yield)", expanded=True):
         try:
-            raster_path = "forest invest/AnnualWaterYield_Akagera_Output/wyield_Akagera.tif"
+            raster_path = "data/rasters/wyield_Akagera.tif"
 
             with rasterio.open(raster_path) as src:
                 wy = src.read(1)
@@ -6355,7 +6355,7 @@ with tabs[2]:    # <-- Change index if needed
     # ========================================================================
     with st.expander("🌍 2. Carbon Storage Value (InVEST)", expanded=True):
         try:
-            raster_path = "forest invest/Akagera_Carbon_Output/c_storage_bas_Akagera.tif"
+            raster_path = "data/rasters/c_storage_bas_Akagera.tif"
 
             with rasterio.open(raster_path) as src:
                 carbon = src.read(1)
@@ -6376,7 +6376,7 @@ with tabs[2]:    # <-- Change index if needed
     # ========================================================================
     with st.expander("⛰ 3. Soil Erosion Control (SDR Model)", expanded=True):
         try:
-            raster_path = "forest invest/Akagera_SDR_Output/avoided_erosion_Akagera.tif"
+            raster_path = "data/rasters/avoided_erosion_Akagera.tif"
 
             with rasterio.open(raster_path) as src:
                 sed = src.read(1).astype(float)
@@ -6698,6 +6698,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
