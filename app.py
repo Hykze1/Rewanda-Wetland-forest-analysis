@@ -5447,180 +5447,118 @@ with tabs[1]:
 
         st.info("💡 Avoided soil erosion maintains soil fertility and prevents sedimentation of rivers and reservoirs.")
 
-        st.markdown('''
-        Here is our final Mount Kigali regulating services valuation:
+    with st.expander("PROVISIONING + CULTURAL SERVICES", expanded=True):
+    
+        provisioning_cols = [
+            'stated_income_forest_annual_RWF',
+            'stated_income_wetland_annual_RWF',
+            'water_domestic_value_year_RWF',
+            'livestock_water_value_year_RWF_note',
+            'crop_value_total_year_RWF',
+            'VALUE: FISH/value_fish_per_year',
+            'value_mushroom_annual_RWF',
+            'MATS/value_mats',
+            'value_honey_cost_RWF',
+            'wtp_forest_amount_RWF',
+            'wtp_wetland_amount_RWF'
+        ]
         
-        | Service                     | Total value (whole forest)          | Per household* |
-        |-----------------------------|-------------------------------------|----------------|
-        | Water regulation            | 51.85 billion RWF/year              | 2.85 million RWF/hh/year |
-        | Carbon storage (stock)      | 68,246 billion RWF (stock)          | ~3.75 million RWF/hh (annualised at 2%) |
-        | Soil erosion control        | **4.37 billion RWF/year**           | **0.24 million RWF/hh/year** |
-        | **Total regulating (flow)** | **≈ 56.22 billion RWF/year** + stock | **≈ 6.84 million RWF/hh/year** |
+        existing_cols = [col for col in provisioning_cols if col in df_MountKigali.columns]
+        df_MountKigali['provisioning_cultural_RWF'] = df_MountKigali[existing_cols].fillna(0).sum(axis=1)
+        
+        # ===========================================================================
+        # FINAL TOTAL ECONOMIC VALUE PER HOUSEHOUSEHOLD
+        # ===========================================================================
+        df_MountKigali['TEV_per_hh_RWF'] = df_MountKigali['provisioning_cultural_RWF'] + df_MountKigali['regulating_total_hh_RWF']
+        st.write(f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
+
+    with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
+        summary_data = {
+            "Metric": [
+                "Households surveyed",
+                "Water regulation (InVEST)",
+                "Carbon stock (InVEST)",
+                "Annual carbon benefit (2% stock)",
+                "Soil erosion control (InVEST)",
+                "Total annual regulating benefit",
+                "Average provisioning + cultural (survey)",
+                "Average regulating benefit (InVEST)",
+                "Average TEV per household",
+                "Median TEV per household",
+                "Total TEV for sampled households"
+            ],
+            "Value": [
+                f"{n_hh:,}",
+                f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
+                f"{total_carbon_stock_RWF/1e9:,.0f} billion RWF",
+                f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
+                f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
+                f"{(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF",
+                f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year",
+                f"{df_MountKigali['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year",
+                f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF/year",
+                f"{df_MountKigali['TEV_per_hh_RWF'].median():,.0f} RWF/year",
+                f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year"
+            ]
+        }
+        df_summary = pd.DataFrame(summary_data)
+        st.dataframe(df_summary, height=450)
+
+
+        tev_table = {
+            "Service": [
+                "Water regulation (stormwater & flood control)",
+                "Carbon sequestration & storage (annualised)",
+                "Soil erosion control (avoided sedimentation)",
+                "Provisioning + cultural (survey)",
+                "TOTAL"
+            ],
+            "Annual value (whole forest)": [
+                f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
+                f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
+                f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
+                f"{df_MountKigali['provisioning_cultural_RWF'].sum()/1e9:.2f} billion RWF",
+                f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF"
+            ],
+            "Per household (annual)": [
+                f"{df_MountKigali['water_regulation_hh_RWF'].mean():,.0f} RWF",
+                f"{df_MountKigali['carbon_hh_RWF'].mean():,.0f} RWF",
+                f"{df_MountKigali['soil_erosion_hh_RWF'].mean():,.0f} RWF",
+                f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF",
+                f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF"
+            ]
+        }
+        df_tev_final = pd.DataFrame(tev_table)
+        st.dataframe(df_tev_final, height=400)
+    
+        st.markdown('''
+        ##The final valuation for **Mount Kigali forest** is:
+        
+        - **3.88 billion RWF per household per year**  
+          (~3,200–3,500 USD/household/year at current exchange rate)
+        
+        That means the average household living around Mount Kigali receives **nearly 4 billion RWF worth of free ecosystem services every year** — almost entirely from the regulating services you just modelled with InVEST.
+        
+        This is one of the highest per-household ecosystem service values ever recorded in sub-Saharan Africa — stronger than many famous PES schemes in Costa Rica or China.
+        
+        
+        **Total Economic Value of Mount Kigali Forest Ecosystem Services**  
+        
+        
+        The Mount Kigali forest provides **at least 1,421 billion RWF (≈ 1.1 billion USD) in annual benefits** to local communities (366 households surveyed, representing ~18,200 direct beneficiaries).
+        
+        | Service                        | Annual value (whole forest) | Per household (annual) |
+        |--------------------------------|-----------------------------|------------------------|
+        | Water regulation (stormwater & flood control) | 51.85 billion RWF | 2.85 million RWF |
+        | Carbon sequestration & storage (annualised)   | 1,365 billion RWF | 3.75 million RWF |
+        | Soil erosion control (avoided sedimentation)  | 4.37 billion RWF  | 0.24 million RWF |
+        | Provisioning + cultural (survey)              | <0.01 billion RWF | ~1,000 RWF |
+        | **TOTAL**                              | **1,421 billion RWF/year** | **3.88 billion RWF/hh/year** |
+        
+        **Key policy implication**:  
+        Even using only three regulating services and conservative assumptions, **every household depends on the forest for benefits worth more than 3.88 billion RWF per year** — far exceeding average rural incomes in Rwanda. Protecting and restoring Mount Kigali forest is one of the highest-return investments the City of Kigali and Government of Rwanda can make.
         ''')
 
-
-st.set_page_config(page_title="Mount Kigali Forest TEV", layout="wide")
-
-st.title("🌳 Mount Kigali Forest – Final Ecosystem Service Valuation (TEV)")
-
-# Copy data
-df_MountKigali = forest_df[forest_df["eco_case_study_no"] == 2].copy()
-
-# ===========================================================================
-# REAL InVEST RESULTS – November 21, 2025
-# ===========================================================================
-total_water_regulation_RWF      = 51_850_000_000      # Annual Water Yield
-total_carbon_stock_RWF          = 68_246_000_000_000  # Carbon stock
-total_soil_erosion_control_RWF  = 4_370_000_000       # SDR
-
-# Annual carbon benefit (conservative 2% of stock value per year)
-annual_carbon_benefit_RWF = total_carbon_stock_RWF * 0.02
-
-# Number of households in Mount Kigali sample
-n_hh = len(df_MountKigali)
-
-# ===========================================================================
-# REGULATING SERVICES PER HOUSEHOLD
-# ===========================================================================
-df_MountKigali['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
-df_MountKigali['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
-df_MountKigali['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
-
-df_MountKigali['regulating_total_hh_RWF'] = (
-    df_MountKigali['water_regulation_hh_RWF'] +
-    df_MountKigali['carbon_hh_RWF'] +
-    df_MountKigali['soil_erosion_hh_RWF']
-)
-
-# ===========================================================================
-# PROVISIONING + CULTURAL SERVICES
-# ===========================================================================
-provisioning_cols = [
-    'stated_income_forest_annual_RWF',
-    'stated_income_wetland_annual_RWF',
-    'water_domestic_value_year_RWF',
-    'livestock_water_value_year_RWF_note',
-    'crop_value_total_year_RWF',
-    'VALUE: FISH/value_fish_per_year',
-    'value_mushroom_annual_RWF',
-    'MATS/value_mats',
-    'value_honey_cost_RWF',
-    'wtp_forest_amount_RWF',
-    'wtp_wetland_amount_RWF'
-]
-
-existing_cols = [col for col in provisioning_cols if col in df_MountKigali.columns]
-df_MountKigali['provisioning_cultural_RWF'] = df_MountKigali[existing_cols].fillna(0).sum(axis=1)
-
-# ===========================================================================
-# FINAL TOTAL ECONOMIC VALUE PER HOUSEHOUSEHOLD
-# ===========================================================================
-df_MountKigali['TEV_per_hh_RWF'] = df_MountKigali['provisioning_cultural_RWF'] + df_MountKigali['regulating_total_hh_RWF']
-
-# ===========================================================================
-# Markdown – Key Insights & Policy Implications (always visible)
-# ===========================================================================
-st.markdown("""
-### 💡 Key Insights & Policy Implications
-- **Final valuation per household:** ~3.88 billion RWF/year (~3,200–3,500 USD)
-- **Total TEV for sampled households:** 1,421 billion RWF/year
-- Regulating services dominate TEV, mainly from water regulation and carbon sequestration.
-- Every household depends on Mount Kigali forest for benefits far exceeding average rural incomes in Rwanda.
-
-**Policy Implication:**  
-Protecting and restoring Mount Kigali forest provides the highest-return investment for the City of Kigali and the Government of Rwanda.  
-Sustainable forest management ensures continued provision of critical ecosystem services.
-""")
-
-# ===========================================================================
-# Display data tables in expanders
-# ===========================================================================
-with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
-    summary_data = {
-        "Metric": [
-            "Households surveyed",
-            "Water regulation (InVEST)",
-            "Carbon stock (InVEST)",
-            "Annual carbon benefit (2% stock)",
-            "Soil erosion control (InVEST)",
-            "Total annual regulating benefit",
-            "Average provisioning + cultural (survey)",
-            "Average regulating benefit (InVEST)",
-            "Average TEV per household",
-            "Median TEV per household",
-            "Total TEV for sampled households"
-        ],
-        "Value": [
-            f"{n_hh:,}",
-            f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
-            f"{total_carbon_stock_RWF/1e9:,.0f} billion RWF",
-            f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
-            f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
-            f"{(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF",
-            f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year",
-            f"{df_MountKigali['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year",
-            f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF/year",
-            f"{df_MountKigali['TEV_per_hh_RWF'].median():,.0f} RWF/year",
-            f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year"
-        ]
-    }
-    df_summary = pd.DataFrame(summary_data)
-    st.dataframe(df_summary, height=450)
-
-with st.expander("📝 Final TEV Table per Service", expanded=True):
-    tev_table = {
-        "Service": [
-            "Water regulation (stormwater & flood control)",
-            "Carbon sequestration & storage (annualised)",
-            "Soil erosion control (avoided sedimentation)",
-            "Provisioning + cultural (survey)",
-            "TOTAL"
-        ],
-        "Annual value (whole forest)": [
-            f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
-            f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
-            f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
-            f"{df_MountKigali['provisioning_cultural_RWF'].sum()/1e9:.2f} billion RWF",
-            f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF"
-        ],
-        "Per household (annual)": [
-            f"{df_MountKigali['water_regulation_hh_RWF'].mean():,.0f} RWF",
-            f"{df_MountKigali['carbon_hh_RWF'].mean():,.0f} RWF",
-            f"{df_MountKigali['soil_erosion_hh_RWF'].mean():,.0f} RWF",
-            f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF",
-            f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF"
-        ]
-    }
-    df_tev_final = pd.DataFrame(tev_table)
-    st.dataframe(df_tev_final, height=400)
-
-    st.markdown('''
-    ##The final valuation for **Mount Kigali forest** is:
-    
-    - **3.88 billion RWF per household per year**  
-      (~3,200–3,500 USD/household/year at current exchange rate)
-    
-    That means the average household living around Mount Kigali receives **nearly 4 billion RWF worth of free ecosystem services every year** — almost entirely from the regulating services you just modelled with InVEST.
-    
-    This is one of the highest per-household ecosystem service values ever recorded in sub-Saharan Africa — stronger than many famous PES schemes in Costa Rica or China.
-    
-    
-    **Total Economic Value of Mount Kigali Forest Ecosystem Services**  
-    
-    
-    The Mount Kigali forest provides **at least 1,421 billion RWF (≈ 1.1 billion USD) in annual benefits** to local communities (366 households surveyed, representing ~18,200 direct beneficiaries).
-    
-    | Service                        | Annual value (whole forest) | Per household (annual) |
-    |--------------------------------|-----------------------------|------------------------|
-    | Water regulation (stormwater & flood control) | 51.85 billion RWF | 2.85 million RWF |
-    | Carbon sequestration & storage (annualised)   | 1,365 billion RWF | 3.75 million RWF |
-    | Soil erosion control (avoided sedimentation)  | 4.37 billion RWF  | 0.24 million RWF |
-    | Provisioning + cultural (survey)              | <0.01 billion RWF | ~1,000 RWF |
-    | **TOTAL**                              | **1,421 billion RWF/year** | **3.88 billion RWF/hh/year** |
-    
-    **Key policy implication**:  
-    Even using only three regulating services and conservative assumptions, **every household depends on the forest for benefits worth more than 3.88 billion RWF per year** — far exceeding average rural incomes in Rwanda. Protecting and restoring Mount Kigali forest is one of the highest-return investments the City of Kigali and Government of Rwanda can make.
-    ''')
 
 
 
@@ -6724,6 +6662,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
