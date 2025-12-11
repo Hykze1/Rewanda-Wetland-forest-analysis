@@ -5502,9 +5502,9 @@ with tabs[1]:
         st.markdown(f"**Economic Value (2025 Prices):** {total_value_billion:.2f} billion RWF/year")
 
         st.info("💡 Avoided soil erosion maintains soil fertility and prevents sedimentation of rivers and reservoirs.")
-
-    with st.expander("PROVISIONING + CULTURAL SERVICES", expanded=True):
-
+        
+    
+    with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
         provisioning_cols = [
             'stated_income_forest_annual_RWF',
             'stated_income_wetland_annual_RWF',
@@ -5529,9 +5529,6 @@ with tabs[1]:
             df_MountKigali['provisioning_cultural_RWF'] +
             df_MountKigali['regulating_total_hh_RWF']
         )
-    
-    
-    with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
     
         summary_data = {
             "Metric": [
@@ -5595,7 +5592,7 @@ with tabs[1]:
 
     
         st.markdown('''
-        ##The final valuation for **Mount Kigali forest** is:
+        **The final valuation for **Mount Kigali forest** is:
         
         - **3.88 billion RWF per household per year**  
           (~3,200–3,500 USD/household/year at current exchange rate)
@@ -5603,20 +5600,8 @@ with tabs[1]:
         That means the average household living around Mount Kigali receives **nearly 4 billion RWF worth of free ecosystem services every year** — almost entirely from the regulating services you just modelled with InVEST.
         
         This is one of the highest per-household ecosystem service values ever recorded in sub-Saharan Africa — stronger than many famous PES schemes in Costa Rica or China.
-        
-        
         **Total Economic Value of Mount Kigali Forest Ecosystem Services**  
-        
-        
         The Mount Kigali forest provides **at least 1,421 billion RWF (≈ 1.1 billion USD) in annual benefits** to local communities (366 households surveyed, representing ~18,200 direct beneficiaries).
-        
-        | Service                        | Annual value (whole forest) | Per household (annual) |
-        |--------------------------------|-----------------------------|------------------------|
-        | Water regulation (stormwater & flood control) | 51.85 billion RWF | 2.85 million RWF |
-        | Carbon sequestration & storage (annualised)   | 1,365 billion RWF | 3.75 million RWF |
-        | Soil erosion control (avoided sedimentation)  | 4.37 billion RWF  | 0.24 million RWF |
-        | Provisioning + cultural (survey)              | <0.01 billion RWF | ~1,000 RWF |
-        | **TOTAL**                              | **1,421 billion RWF/year** | **3.88 billion RWF/hh/year** |
         
         **Key policy implication**:  
         Even using only three regulating services and conservative assumptions, **every household depends on the forest for benefits worth more than 3.88 billion RWF per year** — far exceeding average rural incomes in Rwanda. Protecting and restoring Mount Kigali forest is one of the highest-return investments the City of Kigali and Government of Rwanda can make.
@@ -6725,6 +6710,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
