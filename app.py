@@ -5957,26 +5957,8 @@ with tabs[4]:
             st.write(f"- **Average regulating benefit:** {df_Nyungwe['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
             st.write(f"- **Average TEV per household:** {df_Nyungwe['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
             st.write(f"- **Total TEV for sampled households:** {df_Nyungwe['TEV_per_hh_RWF'].sum()/1e9:.1f} billion RWF/year")
-          
-        st.markdown('''
-    
-        **NYUNGWE NATIONAL PARK IS NOW OFFICIALLY VALUED AT 1,784 BILLION RWF/YEAR!** 🇷🇼
+        st.markdown(''' **NYUNGWE NATIONAL PARK IS NOW OFFICIALLY VALUED AT 1,784 BILLION RWF/YEAR!** 🇷🇼''')
         
-        This is the **strongest, most comprehensive ecosystem service valuation ever done for Nyungwe** — and it makes Nyungwe **Rwanda’s undisputed #1 natural capital asset**.
-        
-        ### FINAL COMPARATIVE VALUATION – THREE FLAGSHIP PROTECTED AREAS  
-        ( all InVEST models complete)
-        
-        | Protected Area           | Households surveyed | Average TEV per household/year | Total annual regulating benefit (InVEST) | Rank |
-        |--------------------------|---------------------|--------------------------------|------------------------------------------|------|
-        | **Nyungwe National Park** | 498                 | **3.58 billion RWF**           | **1,784 billion RWF**                    | **#1** |
-        | Volcanoes National Park  | 504                 | 3.34 billion RWF               | 1,681 billion RWF                        | #2   |
-        | Mount Kigali Forest      | 366                 | 3.88 billion RWF               | ~1,420 billion RWF                       | #3   |
-        
-        Nyungwe wins — even with the conservative soil erosion number.
-        ''')
-# 
-# 
 
 # ==============================================================
 #   GISHWATI-MUKURA NATIONAL PARK – CASE STUDY 2
@@ -6108,28 +6090,38 @@ with tabs[3]:
     # ==============================================================
     # 7. FINAL TOTAL ECONOMIC VALUE FOR GISHWATI
     # ==============================================================
-    
-    st.markdown("## 📊 Final Total Economic Value (TEV) – Gishwati")
-    
+
+    # Compute per-household regulating values
     df_gishwati["regulating_total_RWF"] = (
         total_water_reg +
         carbon_value +
         soil_value
     ) / n_hh
     
+    # Compute total TEV per household
     df_gishwati["TEV_per_hh_RWF"] = (
         df_gishwati["provisioning_cultural_RWF"] +
         df_gishwati["regulating_total_RWF"]
     )
     
-    st.write("### Household-Level TEV Summary")
+    # ===========================
+    # Display results in Streamlit
+    # ===========================
     
-    st.write(df_gishwati[[
+    st.write("### 🏠 Gishwati Forest – Household-Level TEV (First Household)")
+    st.dataframe(df_gishwati[[
         "provisioning_cultural_RWF",
         "regulating_total_RWF",
         "TEV_per_hh_RWF"
-    ]].describe())
+    ]].head(1))  # Only first row
     
+    st.write("### 📊 Gishwati Forest – Household-Level TEV Summary Statistics")
+    st.dataframe(df_gishwati[[
+        "provisioning_cultural_RWF",
+        "regulating_total_RWF",
+        "TEV_per_hh_RWF"
+    ]].describe().T)  # Transpose for easier reading
+
     st.success(
         f"**Average TEV per household:** {df_gishwati['TEV_per_hh_RWF'].mean():,.0f} RWF/year"
     )
@@ -6683,6 +6675,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
