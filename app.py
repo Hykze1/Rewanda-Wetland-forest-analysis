@@ -5354,6 +5354,12 @@ with tabs[7]:
         st.pyplot(fig)
 
 
+df_Volcanoes      = forest_df[forest_df["eco_case_study_no"] == 1].copy()
+df_MountKigali    = forest_df[forest_df["eco_case_study_no"] == 2].copy()
+df_AkageraNational= forest_df[forest_df["eco_case_study_no"] == 3].copy()
+df_GishwatiForest = forest_df[forest_df["eco_case_study_no"] == 4].copy()
+df_NyungweNational= forest_df[forest_df["eco_case_study_no"] == 5].copy()
+df_ArboretumForest= forest_df[forest_df["eco_case_study_no"] == 10].copy()
 
 
 st.set_page_config(page_title="Rwanda Forest Case Studies", layout="wide")
@@ -6662,6 +6668,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
