@@ -5476,8 +5476,7 @@ with tabs[1]:
         # FINAL TOTAL ECONOMIC VALUE PER HOUSEHOUSEHOLD
         # ===========================================================================
         df_MountKigali['TEV_per_hh_RWF'] = df_MountKigali['provisioning_cultural_RWF'] + df_MountKigali['regulating_total_hh_RWF']
-        st.write(f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year")
-
+        
     with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
         summary_data = {
             "Metric": [
@@ -6668,6 +6667,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
