@@ -5592,6 +5592,7 @@ with tabs[1]:
 
     
         st.markdown('''
+        
         **The final valuation for **Mount Kigali forest is**:
         
         - **3.88 billion RWF per household per year**  
@@ -5727,7 +5728,7 @@ with tabs[0]:
         st.write(f"- **Total TEV for sampled households:** {df_Volcanoes['TEV_per_hh_RWF'].sum()/1e9:.1f} billion RWF/year")
 
     st.markdown('''
-    ##**VOLCANOES NATIONAL PARK – FINAL ECOSYSTEM SERVICE VALUATION**  
+    **VOLCANOES NATIONAL PARK – FINAL ECOSYSTEM SERVICE VALUATION**  
     all InVEST models complete)
     
     | Service                          | Total value (whole park)               | Per household (504 surveyed) |
@@ -6039,19 +6040,6 @@ with tabs[3]:
         f"{df_gishwati['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year"
     )
     
-    # ==============================================================
-    # 3. MEDICINAL VALUE (if present)
-    # ==============================================================
-    
-    st.markdown("### 🌿 Medicinal Value")
-    
-    if "medicinal_value_RWF" in df_gishwati.columns:
-        st.write(
-            f"**Annual medicinal plant value:** "
-            f"{df_gishwati['medicinal_value_RWF'].mean():,.0f} RWF/hh/year"
-        )
-    else:
-        st.info("No medicinal plant value column found for Gishwati.")
     
     # ==============================================================
     # 4. InVEST MODELS – WATER YIELD
@@ -6333,7 +6321,7 @@ with tabs[5]:
         ''')
 
 
-with tabs[6]:    # <-- Change index if needed
+with tabs[2]:    # <-- Change index if needed
 
     st.markdown("## 🐘 Akagera National Park – Ecosystem Service Valuation")
 
@@ -6710,6 +6698,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
