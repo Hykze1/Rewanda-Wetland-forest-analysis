@@ -5592,7 +5592,7 @@ with tabs[1]:
 
     
         st.markdown('''
-        **The final valuation for **Mount Kigali forest** is:
+        **The final valuation for **Mount Kigali forest is**:
         
         - **3.88 billion RWF per household per year**  
           (~3,200–3,500 USD/household/year at current exchange rate)
@@ -5629,7 +5629,7 @@ with tabs[2]:
     # 1️⃣ Water Regulation
     # ============================
     with st.expander("💧 Water Regulation", expanded=True):
-        raster_path = "forest invest\\VolcanoesNP_WaterYield_Output\\wyield_vnp.tif"
+        raster_path = "data/rasters/wyield_vnp.tif"
         with rasterio.open(raster_path) as src:
             wy = src.read(1)
             pixel_area = src.res[0] * src.res[1]
@@ -5644,7 +5644,7 @@ with tabs[2]:
     # 2️⃣ Carbon Storage
     # ============================
     with st.expander("🌍 Carbon Storage & Sequestration", expanded=True):
-        raster_path = "forest invest/VolcanoesNP_Carbon_Output/c_storage_bas_vnp.tif"
+        raster_path = "data/rasters/c_storage_bas_vnp.tif"
         with rasterio.open(raster_path) as src:
             carbon_mg_ha = src.read(1)
             pixel_ha = (src.res[0] * src.res[1]) / 10000
@@ -5662,7 +5662,7 @@ with tabs[2]:
     # 3️⃣ Soil Erosion Control
     # ============================
     with st.expander("⛰️ Soil Erosion Control", expanded=True):
-        raster_path = "forest invest/VolcanoesNP_SDR_Output/sed_export_vnp.tif"
+        raster_path = "data/rasters/sed_export_vnp.tif"
         with rasterio.open(raster_path) as src:
             data = src.read(1).astype(np.float64)
             nodata = src.nodata
@@ -6710,6 +6710,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
