@@ -5454,87 +5454,98 @@ with tabs[1]:
         st.info("💡 Avoided soil erosion maintains soil fertility and prevents sedimentation of rivers and reservoirs.")
 
     with st.expander("PROVISIONING + CULTURAL SERVICES", expanded=True):
-    
-        provisioning_cols = [
-            'stated_income_forest_annual_RWF',
-            'stated_income_wetland_annual_RWF',
-            'water_domestic_value_year_RWF',
-            'livestock_water_value_year_RWF_note',
-            'crop_value_total_year_RWF',
-            'VALUE: FISH/value_fish_per_year',
-            'value_mushroom_annual_RWF',
-            'MATS/value_mats',
-            'value_honey_cost_RWF',
-            'wtp_forest_amount_RWF',
-            'wtp_wetland_amount_RWF'
+
+    provisioning_cols = [
+        'stated_income_forest_annual_RWF',
+        'stated_income_wetland_annual_RWF',
+        'water_domestic_value_year_RWF',
+        'livestock_water_value_year_RWF_note',
+        'crop_value_total_year_RWF',
+        'VALUE: FISH/value_fish_per_year',
+        'value_mushroom_annual_RWF',
+        'MATS/value_mats',
+        'value_honey_cost_RWF',
+        'wtp_forest_amount_RWF',
+        'wtp_wetland_amount_RWF'
+    ]
+
+    existing_cols = [col for col in provisioning_cols if col in df_MountKigali.columns]
+
+    df_MountKigali['provisioning_cultural_RWF'] = (
+        df_MountKigali[existing_cols].fillna(0).sum(axis=1)
+    )
+
+    # ===========================================================================
+    # FINAL TOTAL ECONOMIC VALUE PER HOUSEHOLD
+    # ===========================================================================
+    df_MountKigali['TEV_per_hh_RWF'] = (
+        df_MountKigali['provisioning_cultural_RWF'] +
+        df_MountKigali['regulating_total_hh_RWF']
+    )
+
+
+with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
+
+    summary_data = {
+        "Metric": [
+            "Households surveyed",
+            "Water regulation (InVEST)",
+            "Carbon stock (InVEST)",
+            "Annual carbon benefit (2% stock)",
+            "Soil erosion control (InVEST)",
+            "Total annual regulating benefit",
+            "Average provisioning + cultural (survey)",
+            "Average regulating benefit (InVEST)",
+            "Average TEV per household",
+            "Median TEV per household",
+            "Total TEV for sampled households"
+        ],
+        "Value": [
+            f"{n_hh:,}",
+            f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
+            f"{total_carbon_stock_RWF/1e9:,.0f} billion RWF",
+            f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
+            f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
+            f"{(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF",
+            f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year",
+            f"{df_MountKigali['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year",
+            f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF/year",
+            f"{df_MountKigali['TEV_per_hh_RWF'].median():,.0f} RWF/year",
+            f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year"
         ]
-        
-        existing_cols = [col for col in provisioning_cols if col in df_MountKigali.columns]
-        df_MountKigali['provisioning_cultural_RWF'] = df_MountKigali[existing_cols].fillna(0).sum(axis=1)
-        
-        # ===========================================================================
-        # FINAL TOTAL ECONOMIC VALUE PER HOUSEHOUSEHOLD
-        # ===========================================================================
-        df_MountKigali['TEV_per_hh_RWF'] = df_MountKigali['provisioning_cultural_RWF'] + df_MountKigali['regulating_total_hh_RWF']
-        
-    with st.expander("📊 Mount Kigali – Summary Table", expanded=True):
-        summary_data = {
-            "Metric": [
-                "Households surveyed",
-                "Water regulation (InVEST)",
-                "Carbon stock (InVEST)",
-                "Annual carbon benefit (2% stock)",
-                "Soil erosion control (InVEST)",
-                "Total annual regulating benefit",
-                "Average provisioning + cultural (survey)",
-                "Average regulating benefit (InVEST)",
-                "Average TEV per household",
-                "Median TEV per household",
-                "Total TEV for sampled households"
-            ],
-            "Value": [
-                f"{n_hh:,}",
-                f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
-                f"{total_carbon_stock_RWF/1e9:,.0f} billion RWF",
-                f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
-                f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
-                f"{(total_water_regulation_RWF + annual_carbon_benefit_RWF + total_soil_erosion_control_RWF)/1e9:.2f} billion RWF",
-                f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF/hh/year",
-                f"{df_MountKigali['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year",
-                f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF/year",
-                f"{df_MountKigali['TEV_per_hh_RWF'].median():,.0f} RWF/year",
-                f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF/year"
-            ]
-        }
-        df_summary = pd.DataFrame(summary_data)
-        st.dataframe(df_summary, height=450)
+    }
+
+    df_summary = pd.DataFrame(summary_data)
+    st.dataframe(df_summary, height=450)
 
 
-        tev_table = {
-            "Service": [
-                "Water regulation (stormwater & flood control)",
-                "Carbon sequestration & storage (annualised)",
-                "Soil erosion control (avoided sedimentation)",
-                "Provisioning + cultural (survey)",
-                "TOTAL"
-            ],
-            "Annual value (whole forest)": [
-                f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
-                f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
-                f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
-                f"{df_MountKigali['provisioning_cultural_RWF'].sum()/1e9:.2f} billion RWF",
-                f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF"
-            ],
-            "Per household (annual)": [
-                f"{df_MountKigali['water_regulation_hh_RWF'].mean():,.0f} RWF",
-                f"{df_MountKigali['carbon_hh_RWF'].mean():,.0f} RWF",
-                f"{df_MountKigali['soil_erosion_hh_RWF'].mean():,.0f} RWF",
-                f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF",
-                f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF"
-            ]
-        }
-        df_tev_final = pd.DataFrame(tev_table)
-        st.dataframe(df_tev_final, height=400)
+    tev_table = {
+        "Service": [
+            "Water regulation (stormwater & flood control)",
+            "Carbon sequestration & storage (annualised)",
+            "Soil erosion control (avoided sedimentation)",
+            "Provisioning + cultural (survey)",
+            "TOTAL"
+        ],
+        "Annual value (whole forest)": [
+            f"{total_water_regulation_RWF/1e9:.2f} billion RWF",
+            f"{annual_carbon_benefit_RWF/1e9:.2f} billion RWF",
+            f"{total_soil_erosion_control_RWF/1e9:.2f} billion RWF",
+            f"{df_MountKigali['provisioning_cultural_RWF'].sum()/1e9:.2f} billion RWF",
+            f"{df_MountKigali['TEV_per_hh_RWF'].sum()/1e9:.2f} billion RWF"
+        ],
+        "Per household (annual)": [
+            f"{df_MountKigali['water_regulation_hh_RWF'].mean():,.0f} RWF",
+            f"{df_MountKigali['carbon_hh_RWF'].mean():,.0f} RWF",
+            f"{df_MountKigali['soil_erosion_hh_RWF'].mean():,.0f} RWF",
+            f"{df_MountKigali['provisioning_cultural_RWF'].mean():,.0f} RWF",
+            f"{df_MountKigali['TEV_per_hh_RWF'].mean():,.0f} RWF"
+        ]
+    }
+
+    df_tev_final = pd.DataFrame(tev_table)
+    st.dataframe(df_tev_final, height=400)
+
     
         st.markdown('''
         ##The final valuation for **Mount Kigali forest** is:
@@ -6667,6 +6678,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
