@@ -39,7 +39,8 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
 warnings.filterwarnings("ignore", category=FutureWarning)
 
-
+image_url = "download (27).png"
+st.image(image_url, caption="Forest ecosystem", use_column_width=True)
 
 st.header(' Rwanda Wetland/ Forest Analaysis')
 
@@ -6695,6 +6696,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
