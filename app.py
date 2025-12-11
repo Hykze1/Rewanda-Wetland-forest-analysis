@@ -5617,7 +5617,7 @@ st.set_page_config(page_title="Volcanoes NP Case Study", layout="wide")
 # -----------------------------
 tab_volcanoes = st.expander("🌋 Volcanoes National Park – Ecosystem Services Valuation", expanded=True)
 
-with tabs[2]:
+with tabs[0]:
     st.header("Volcanoes National Park – Forest Ecosystem Services")
     st.markdown("""
     Volcanoes National Park provides extremely high-value ecosystem services:
@@ -5753,7 +5753,7 @@ st.set_page_config(page_title="Nyungwe NP Case Study", layout="wide")
 # Nyungwe NP Tab
 # -----------------------------
 
-with tabs[3]:
+with tabs[4]:
     st.header("Nyungwe National Park – Forest Medicinal Plants")
     st.markdown("""
     Nyungwe is Rwanda’s largest montane forest and **a living pharmacy**.  
@@ -5993,7 +5993,7 @@ with tabs[3]:
 # ==============================================================
 #   GISHWATI-MUKURA NATIONAL PARK – CASE STUDY 2
 # ==============================================================
-with tabs[4]:
+with tabs[3]:
     st.markdown("## 🌳 Gishwati–Mukura National Park – Final Valuation")
     
     df_gishwati = forest_df[forest_df["eco_case_study_no"] == 2].copy()
@@ -6710,6 +6710,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
