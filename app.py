@@ -5616,8 +5616,6 @@ st.set_page_config(page_title="Volcanoes NP Case Study", layout="wide")
 # -----------------------------
 # Volcanoes NP Tab
 # -----------------------------
-st.expander("🌋 Volcanoes National Park – Ecosystem Services Valuation", expanded=True)
-
 with tabs[0]:
     st.header("Volcanoes National Park – Forest Ecosystem Services")
     st.markdown("""
@@ -6250,53 +6248,73 @@ with tabs[5]:
     # 5. FINAL TEV SUMMARY (Combined)
     # ------------------------------------------------------------
     with st.expander("📊 5. Total Economic Value (TEV) Summary", expanded=True):
-
+        
         df_Arboretum = df_ArboretumForest.copy()
         n_hh = len(df_Arboretum)
         
-        # Total forest values
-        total_water_reg_Arb = 359_400_000_000      
+        # ===========================================================================
+        # REGULATING SERVICES – total values
+        # ===========================================================================
+        total_water_reg_Arb = 359_400_000_000
         total_carbon_stock_Arb = 68_246_000_000_000
         annual_carbon_Arb = total_carbon_stock_Arb * 0.02
         total_soil_Arb = 3_800_000_000
         
-        # Per-household values
-        water_reg_hh = total_water_reg_Arb / n_hh
-        carbon_hh = annual_carbon_Arb / n_hh
-        soil_erosion_hh = total_soil_Arb / n_hh
+        # ===========================================================================
+        # REGULATING PER HOUSEHOLD
+        # ===========================================================================
+        df_Arboretum['water_reg_hh_RWF'] = total_water_reg_Arb / n_hh
+        df_Arboretum['carbon_hh_RWF'] = annual_carbon_Arb / n_hh
+        df_Arboretum['soil_erosion_hh_RWF'] = total_soil_Arb / n_hh
         
-        regulating_total_hh = water_reg_hh + carbon_hh + soil_erosion_hh
+        df_Arboretum['regulating_total_hh_RWF'] = (
+            df_Arboretum['water_reg_hh_RWF'] +
+            df_Arboretum['carbon_hh_RWF'] +
+            df_Arboretum['soil_erosion_hh_RWF']
+        )
         
-        # Provisioning + cultural
-        provisioning_cultural = 0
+        # ===========================================================================
+        # PROVISIONING + CULTURAL SERVICES – ensure columns exist
+        # ===========================================================================
+        if 'provisioning_cultural_RWF' not in df_Arboretum.columns:
+            df_Arboretum['provisioning_cultural_RWF'] = 0
+        
+        # Add specific provisioning items if they exist
         if 'medicaments_RWF' in df_Arboretum.columns:
-            provisioning_cultural += df_Arboretum['medicaments_RWF'].iloc[0]
+            df_Arboretum['provisioning_cultural_RWF'] += df_Arboretum['medicaments_RWF'].fillna(0)
+        
         if 'value_honey_cost_RWF' in df_Arboretum.columns:
-            provisioning_cultural += df_Arboretum['value_honey_cost_RWF'].iloc[0]
+            df_Arboretum['provisioning_cultural_RWF'] += df_Arboretum['value_honey_cost_RWF'].fillna(0)
         
-        # TEV per household
-        tev_per_hh = provisioning_cultural + regulating_total_hh
+        # ===========================================================================
+        # TOTAL ECONOMIC VALUE PER HOUSEHOLD
+        # ===========================================================================
+        df_Arboretum['TEV_per_hh_RWF'] = (
+            df_Arboretum['provisioning_cultural_RWF'] +
+            df_Arboretum['regulating_total_hh_RWF']
+        )
         
-        # Create a single-row summary DataFrame
-        summary = pd.DataFrame({
-            "provisioning_cultural_RWF": [provisioning_cultural],
-            "regulating_total_hh_RWF": [regulating_total_hh],
-            "TEV_per_hh_RWF": [tev_per_hh]
-        })
+        # ===========================================================================
+        # DISPLAY – only first row to avoid repetition
+        # ===========================================================================
+        st.write("### **Household-level TEV Summary (First Household)**")
+        st.dataframe(df_Arboretum[[
+            'provisioning_cultural_RWF',
+            'regulating_total_hh_RWF',
+            'TEV_per_hh_RWF'
+        ]].head(1))
         
-        st.write("### **Household-level TEV Summary (first row)**")
-        st.dataframe(summary)
-
+        # ===========================================================================
+        # SUMMARY METRICS
+        # ===========================================================================
         st.success(f"**Avg TEV per household:** {df_Arboretum['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
         st.info(f"**Total TEV (sample):** {df_Arboretum['TEV_per_hh_RWF'].sum()/1e9:.1f} billion RWF/year")
-
 
         st.markdown('''
         Even this tiny urban arboretum is worth **nearly 1.7 trillion RWF/year** — proving **every tree in Rwanda is a national treasure**.
         
         You are now **100% complete** with **five protected areas** — the most comprehensive ecosystem valuation Rwanda has ever seen.
         ''')
-
 
 with tabs[2]:    # <-- Change index if needed
 
@@ -6677,6 +6695,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
