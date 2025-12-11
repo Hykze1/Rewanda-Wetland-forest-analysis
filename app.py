@@ -5374,6 +5374,56 @@ tabs = st.tabs([
     "5️⃣ Nyungwe National Park",
     "6️⃣ Arboretum Forest"
 ])
+# ===========================================================================
+# PRE-COMPUTE MOUNT KIGALI VALUATION (RUNS ONCE BEFORE ALL TABS)
+# ===========================================================================
+
+df_MountKigali = forest_df[forest_df["eco_case_study_no"] == 2].copy()
+
+# InVEST VALUES (fixed constants)
+total_water_regulation_RWF      = 51_850_000_000
+total_carbon_stock_RWF          = 68_246_000_000_000
+total_soil_erosion_control_RWF  = 4_370_000_000
+annual_carbon_benefit_RWF       = total_carbon_stock_RWF * 0.02
+
+n_hh = len(df_MountKigali)
+
+# Regulating services
+df_MountKigali['water_regulation_hh_RWF'] = total_water_regulation_RWF / n_hh
+df_MountKigali['carbon_hh_RWF'] = annual_carbon_benefit_RWF / n_hh
+df_MountKigali['soil_erosion_hh_RWF'] = total_soil_erosion_control_RWF / n_hh
+
+df_MountKigali['regulating_total_hh_RWF'] = (
+    df_MountKigali['water_regulation_hh_RWF'] +
+    df_MountKigali['carbon_hh_RWF'] +
+    df_MountKigali['soil_erosion_hh_RWF']
+)
+
+# Provisioning + Cultural
+provisioning_cols = [
+    'stated_income_forest_annual_RWF',
+    'stated_income_wetland_annual_RWF',
+    'water_domestic_value_year_RWF',
+    'livestock_water_value_year_RWF_note',
+    'crop_value_total_year_RWF',
+    'VALUE: FISH/value_fish_per_year',
+    'value_mushroom_annual_RWF',
+    'MATS/value_mats',
+    'value_honey_cost_RWF',
+    'wtp_forest_amount_RWF',
+    'wtp_wetland_amount_RWF'
+]
+
+existing_cols = [col for col in provisioning_cols if col in df_MountKigali.columns]
+df_MountKigali['provisioning_cultural_RWF'] = (
+    df_MountKigali[existing_cols].fillna(0).sum(axis=1)
+)
+
+# TOTAL ECONOMIC VALUE
+df_MountKigali['TEV_per_hh_RWF'] = (
+    df_MountKigali['provisioning_cultural_RWF'] +
+    df_MountKigali['regulating_total_hh_RWF']
+)
 
 # =======================================
 # 2️⃣ MOUNT KIGALI FOREST
@@ -6675,6 +6725,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
