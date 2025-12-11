@@ -5957,20 +5957,7 @@ with tabs[4]:
             st.write(f"- **Average regulating benefit:** {df_Nyungwe['regulating_total_hh_RWF'].mean():,.0f} RWF/hh/year")
             st.write(f"- **Average TEV per household:** {df_Nyungwe['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
             st.write(f"- **Total TEV for sampled households:** {df_Nyungwe['TEV_per_hh_RWF'].sum()/1e9:.1f} billion RWF/year")
-            st.markdown('''
-            | Item                                 | Current value (from your code) | What you can achieve in 1–2 days with InVEST |
-            |--------------------------------------|--------------------------------|---------------------------------------------|
-            | Households surveyed (case study 5)   | 498                            | — |
-            | Provisioning + cultural (survey)     | **268,052 RWF/hh/year**        | Already solid (honey, mats, crops, WTP, etc.) |
-            | Water regulation (InVEST)            | 0 (placeholder)                | **800 – 1,400 billion RWF/year** (Nyungwe supplies ~70% of Rwanda’s water) |
-            | Carbon storage (stock)               | 0                              | **400 – 800 trillion RWF stock** → **8–16 billion RWF/year** annualised |
-            | Soil erosion control (InVEST)        | 0                              | **60 – 150 billion RWF/year** (steep slopes + high rainfall) |
-            | **Expected final average TEV/household** | **268,052 RWF/year** (today) | **≈ 2–4 billion RWF/household/year** after InVEST |
-            
-            Nyungwe will be **Rwanda’s most valuable protected area** by far — even higher than Volcanoes NP — because of its massive size, rainfall, and role as the country’s primary water tower.
-    
-            ''')
-    
+          
         st.markdown('''
     
         **NYUNGWE NATIONAL PARK IS NOW OFFICIALLY VALUED AT 1,784 BILLION RWF/YEAR!** 🇷🇼
@@ -6199,8 +6186,6 @@ with tabs[5]:
         st.write(f"**Households using medicinal plants:** {int(num_users):,}")
         st.write(f"**Total annual medicinal value:** {total_medicaments:,.0f} RWF/year")
         st.write(f"**Average per user household:** {avg_medicaments:,.0f} RWF/year")
-        st.dataframe(df_ArboretumForest[['uses_medicaments','medicaments_RWF']])
-
     # ------------------------------------------------------------
     # 2. WATER YIELD (InVEST)
     # ------------------------------------------------------------
@@ -6250,7 +6235,7 @@ with tabs[5]:
     # ------------------------------------------------------------
     with st.expander("⛰ 4. Soil Erosion Control (SDR Model)", expanded=True):
         try:
-            raster_path = "data/rasters/avoided_export_Akagera.tif"
+            raster_path = "data/rasters/avoided_erosion_Akagera.tif"
 
             with rasterio.open(raster_path) as src:
                 data = src.read(1).astype(np.float64)
@@ -6305,10 +6290,10 @@ with tabs[5]:
 
         st.write("### **Household-level TEV Summary**")
         st.dataframe(df_Arboretum[[
-            'provisioning_cultural_RWF',
-            'regulating_total_hh_RWF',
-            'TEV_per_hh_RWF'
-        ]])
+        'provisioning_cultural_RWF',
+        'regulating_total_hh_RWF',
+        'TEV_per_hh_RWF'
+        ]].head(1))
 
         st.success(f"**Avg TEV per household:** {df_Arboretum['TEV_per_hh_RWF'].mean():,.0f} RWF/year")
         st.info(f"**Total TEV (sample):** {df_Arboretum['TEV_per_hh_RWF'].sum()/1e9:.1f} billion RWF/year")
@@ -6698,6 +6683,7 @@ with tabs[6]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
