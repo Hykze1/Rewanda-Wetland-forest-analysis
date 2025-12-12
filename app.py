@@ -1,5 +1,6 @@
 # 1️⃣ Standard libraries
-
+merged_df = load_data()
+wetlands_df = merged_df[merged_df['eco_type'] == 'wetland'].copy()
 import warnings
 import os
 import sys
@@ -44,10 +45,18 @@ st.image(image_url, caption="Forest ecosystem", use_column_width=True)
 
 st.header(' Rwanda Wetland/ Forest Analaysis')
 
+# ←←← ADD THESE 4 LINES ONLY ←←←
+@st.cache_data(show_spinner="Loading the big dataset (this takes ~15 seconds the first time)...")
+def load_data():
+    merged_df = pd.read_excel("merged_df.xlsx")          # or however you load it
+    # If you use pickle/parquet it's even faster
+    return merged_df
 
-merged_df = pd.read_excel("Wetland_forest_cleaned updated.xlsx")
+merged_df.xlsx
+# Now load it once and reuse forever
+merged_df = load_data()
 
-
+#merged_df = pd.read_excel("Wetland_forest_cleaned updated.xlsx")          
 st.write("Preview of the dataset:")
 st.dataframe(merged_df.head())
 
@@ -6696,6 +6705,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
