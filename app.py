@@ -31,9 +31,6 @@ from scipy.stats import ttest_ind, chi2_contingency
 
 # ================================
 
-
-# Reduce memory dramatically
-merged_df = merged_df.convert_dtypes()
 warnings.filterwarnings("ignore", category=UserWarning, module="matplotlib")
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="statsmodels")
 warnings.simplefilter(action='ignore', category=pd.errors.SettingWithCopyWarning)
@@ -6704,6 +6701,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
