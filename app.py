@@ -50,7 +50,6 @@ def load_data():
     # If you use pickle/parquet it's even faster
     return merged_df
 
-merged_df.xlsx
 # Now load it once and reuse forever
 merged_df = load_data()
 
@@ -6703,6 +6702,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
