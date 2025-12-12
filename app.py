@@ -30,10 +30,7 @@ from scipy.stats import ttest_ind, chi2_contingency
 # Suppress common annoying warnings
 
 # ================================
-import warnings
-warnings.filterwarnings("ignore")  # Silence harmless warnings
 
-# Fix mixed-type columns so Streamlit stops complaining about Arrow
 
 # Reduce memory dramatically
 merged_df = merged_df.convert_dtypes()
@@ -55,8 +52,6 @@ def load_data():
     merged_df = pd.read_excel("merged_df.xlsx")          # or however you load it
     # If you use pickle/parquet it's even faster
     return merged_df
-merged_df = merged_df.astype('string').where(merged_df.notna(), None)
-
 # Now load it once and reuse forever
 merged_df = load_data()
 
@@ -6709,6 +6704,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
