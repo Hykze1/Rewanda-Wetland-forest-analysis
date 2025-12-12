@@ -155,7 +155,7 @@ for col in num_cols:
     
     # Display with Streamlit
     st.pyplot(plt.gcf())
-    plt.close(fig) 
+    plt.close() 
 
 
 st.markdown('''
@@ -6701,6 +6701,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
