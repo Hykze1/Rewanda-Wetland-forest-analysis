@@ -5142,14 +5142,6 @@ m.get_root().html.add_child(folium.Element(title_html))
 m.save("Rwanda_Wetlands_Including_Akagera_2025.html")
 st_folium(m, width=900, height=650)
 
-
-
-import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-
 st.set_page_config(page_title="Rwanda Wetlands Dashboard", layout="wide")
 st.title("🌿 Rwanda Wetlands – Economic Valuation & Socio-Demographics")
 
@@ -6701,6 +6693,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
