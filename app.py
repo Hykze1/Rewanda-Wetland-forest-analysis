@@ -1,6 +1,4 @@
 # 1️⃣ Standard libraries
-merged_df = load_data()
-wetlands_df = merged_df[merged_df['eco_type'] == 'wetland'].copy()
 import warnings
 import os
 import sys
@@ -6705,6 +6703,7 @@ with tabs[1]:
     # Display HTML map inside Streamlit
     html_file = open("Rwanda_Forests_Ecosystem_Services_Map.html", 'r', encoding='utf-8')
     components.html(html_file.read(), height=600)
+
 
 
 
